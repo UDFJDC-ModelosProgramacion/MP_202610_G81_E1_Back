@@ -27,4 +27,7 @@ public interface PetRepository extends JpaRepository<PetEntity, Long> {
 
     // Buscar por estado (Ej: para mostrar solo los "Disponibles")
     List<PetEntity> findByStatus(String status);
+	
+	// Filtro por rango de edad (Cachorros, Adultos, Seniors)
+    List<PetEntity> findByAgeBetween(Integer minAge, Integer maxAge);
 }
