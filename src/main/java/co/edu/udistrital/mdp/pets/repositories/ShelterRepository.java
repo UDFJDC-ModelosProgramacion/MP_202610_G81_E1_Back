@@ -17,4 +17,14 @@ public interface ShelterRepository extends JpaRepository<ShelterEntity, Long> {
      * Busca un refugio por su nombre exacto
      */
     ShelterEntity findByName(String name);
+
+	/**
+	 *Busca refugio por su nombre parcial
+	 */
+	List<ShelterEntity> findByNameContainingIgnoreCase(String name);
+
+	/**
+	 *Verificar si el correo ya existe
+	 */
+	Boolean existsByEmailShelter(String emailShelter);
 }
