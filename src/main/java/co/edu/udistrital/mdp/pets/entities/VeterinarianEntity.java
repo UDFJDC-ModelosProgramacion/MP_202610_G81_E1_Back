@@ -1,9 +1,10 @@
 package co.edu.udistrital.mdp.pets.entities;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
+import uk.co.jemos.podam.common.PodamExclude;
 @Data
 @Entity
 @EqualsAndHashCode(callSuper = true)
@@ -21,4 +22,8 @@ public class VeterinarianEntity extends UserEntity {
         // Se deja vacío para cumplir con la jerarquía 
         // sin ensuciar la entidad con lógica de negocio.
     }
+
+	@PodamExclude
+	@ManyToOne
+	private ShelterEntity shelter;
 }
