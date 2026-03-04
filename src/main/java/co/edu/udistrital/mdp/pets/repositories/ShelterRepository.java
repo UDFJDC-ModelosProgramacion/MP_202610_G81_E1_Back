@@ -19,5 +19,5 @@ public interface ShelterRepository extends JpaRepository<ShelterEntity, Long> {
 	List<ShelterEntity> findByNameContainingIgnoreCase(String name);
 
 	// Verificar si el correo ya existe
-	Boolean existsByEmailShelter(String emailShelter);
+	Boolean existsByEmail(String emailShelter);
 }

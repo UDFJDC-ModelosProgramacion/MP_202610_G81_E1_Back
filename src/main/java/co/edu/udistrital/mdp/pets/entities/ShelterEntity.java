@@ -2,15 +2,17 @@ package co.edu.udistrital.mdp.pets.entities;
 
 import lombok.Data;
 import uk.co.jemos.podam.common.PodamExclude;
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
-
+import jakarta.persistence.*;
+import java.util.List;
+import java.util.ArrayList;
+import lombok.ToString;
+import lombok.EqualsAndHashCode;
 /**
  * Entidad que representa a un Refugio (Shelter)
  */
 @Data
 @Entity
+@EqualsAndHashCode(callSuper = true)
 public class ShelterEntity extends BaseEntity {
 
     private String name;
@@ -24,5 +26,6 @@ public class ShelterEntity extends BaseEntity {
 
 	@PodamExclude
 	@OneToMany(mappedBy = "shelter")
+	@ToString.Exclude
 	private List<VeterinarianEntity> veterinarians = new ArrayList<>();
 }
