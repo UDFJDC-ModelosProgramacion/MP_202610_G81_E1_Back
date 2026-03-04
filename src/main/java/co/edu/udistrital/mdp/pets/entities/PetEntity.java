@@ -26,7 +26,7 @@ public class PetEntity extends BaseEntity {
     private String origin; // Rescatado o nacido en refugio
 
     // Filtros de compatibilidad
-    private Boolean isChildFriendly;
-    private Boolean isPetFriendly;
+    private Boolean goodWithKids;
+    private Boolean goodWithPets;
     private String spaceRequired; // HOUSE, APARTMENT, BOTH
 }
