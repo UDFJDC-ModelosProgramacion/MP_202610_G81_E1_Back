@@ -12,4 +12,4 @@ public interface AdopterRepository extends JpaRepository<AdopterEntity, Long> {
     List<AdopterEntity> findByHousingType(String housingType);
 
     List<AdopterEntity> findByHasChildrenAndHasOtherPets(Boolean hasChildren, Boolean hasOtherPets);
-} 
+}
