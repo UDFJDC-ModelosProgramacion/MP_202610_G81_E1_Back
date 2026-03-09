@@ -1,22 +1,48 @@
 package co.edu.udistrital.mdp.pets.entities;
 
-import jakarta.persistence.*;
+import java.time.LocalDate;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Transient;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import java.util.Date;
+import lombok.NoArgsConstructor;
+import jakarta.persistence.PrePersist;
 
-@Data
 @Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class ReportEntity extends BaseEntity {
 
-    @Temporal(TemporalType.DATE)
-    private Date generatedDate;
+    private LocalDate generateDate;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @ManyToOne
+    @JoinColumn(name = "shelter_id")
+    private ShelterEntity shelter;
+
+    @ManyToOne
     @JoinColumn(name = "strategy_id")
     private ReportStrategyEntity reportStrategy;
 
+	@PrePersist
+    protected void onCreate() {
+        if (this.generateDate == null) {
+            this.generateDate = LocalDate.now();
+        }
+    }
+
+    public void setStrategy(ReportStrategyEntity reportStrategy) {
+        this.reportStrategy = reportStrategy;
+    }
+
     public void generate() {
+        if (reportStrategy != null) {
+            reportStrategy.generate(this);
+        }
     }
 }
