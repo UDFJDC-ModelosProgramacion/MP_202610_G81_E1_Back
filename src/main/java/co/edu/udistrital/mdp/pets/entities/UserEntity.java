@@ -3,6 +3,10 @@ package co.edu.udistrital.mdp.pets.entities;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import uk.co.jemos.podam.common.PodamExclude;
+
+import java.util.List;
+import java.util.ArrayList;
 
 @Data
 @Entity
@@ -24,7 +28,13 @@ public abstract class UserEntity extends BaseEntity {
     // Metodos del diagrama (Logica se implementa en Service)
     // public void login() {}
     // public void logout() {}
-    
+
+	
+	// Relation 1:N with Notification
+	@PodamExclude
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<NotificationEntity> notifications = new ArrayList<>();
+	
     /**
      * Metodo del patron Observer para notificaciones
      * @param notification Mensaje o evento a notificar

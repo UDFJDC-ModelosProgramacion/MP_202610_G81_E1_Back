@@ -25,7 +25,7 @@ public class NotificationEntity extends BaseEntity {
 	
 	@PodamExclude
     @ManyToOne
-    @JoinColumn(name = "user_id") // Se relaciona con User (Adopter)
+    @JoinColumn(name = "user_id") // Se relaciona con User 
     private UserEntity user;
 
     @PrePersist
