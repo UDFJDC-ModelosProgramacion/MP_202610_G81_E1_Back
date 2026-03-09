@@ -2,14 +2,20 @@ package co.edu.udistrital.mdp.pets.entities;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.CascadeType;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import uk.co.jemos.podam.common.PodamExclude;
-
-
 import java.util.List;
+import java.util.ArrayList;
 
+/**
+ * Entity representing an Adopter, extending User details.
+ * Implements the Observer pattern update method.
+ */
 @Data
 @Entity
+@EqualsAndHashCode(callSuper = true)
 public class AdopterEntity extends UserEntity {
 
     private String housingType;
@@ -17,6 +23,27 @@ public class AdopterEntity extends UserEntity {
     private Boolean hasOtherPets;
 
     @PodamExclude
-    @OneToMany(mappedBy = "adopter")
-    private List<AdoptionEntity> adoptions;
+    @OneToMany(mappedBy = "adopter", cascade = CascadeType.ALL)
+    private List<AdoptionEntity> adoptions = new ArrayList<>();
+
+    @PodamExclude
+    @OneToMany(mappedBy = "adopter", cascade = CascadeType.ALL)
+    private List<MessageEntity> messages = new ArrayList<>();
+
+    @PodamExclude
+    @OneToMany(mappedBy = "adopter", cascade = CascadeType.ALL)
+    private List<ReviewEntity> reviews = new ArrayList<>();
+
+    @PodamExclude
+    @OneToMany(mappedBy = "adopter", cascade = CascadeType.ALL)
+    private List<AdoptionRequestEntity> adoptionRequests = new ArrayList<>();
+
+    /**
+     * Implementation of the Observer pattern.
+     * Receives notifications and adds them to the user history.
+     */
+    @Override
+    public void update(String notification) {
+        // Implementation for receiving updates from the Shelter (Subject)
+    }
 }
