@@ -16,4 +16,9 @@ public class VaccineEntity extends BaseEntity {
     private String name;
     private String description;
     private Integer validityMonths; // Cuánto tiempo dura la vacuna
+
+	@PodamExclude
+    @OneToMany(mappedBy = "vaccine")
+    private List<VaccinationRecordEntity> vaccinationRecords = new ArrayList<>();
 }
+
