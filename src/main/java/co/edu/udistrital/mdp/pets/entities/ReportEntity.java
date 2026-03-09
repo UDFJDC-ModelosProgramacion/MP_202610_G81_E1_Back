@@ -28,6 +28,13 @@ public class ReportEntity extends BaseEntity {
     @JoinColumn(name = "strategy_id")
     private ReportStrategyEntity reportStrategy;
 
+	@PrePersist
+    protected void onCreate() {
+        if (this.generateDate == null) {
+            this.generateDate = LocalDate.now();
+        }
+    }
+
     public void setStrategy(ReportStrategyEntity reportStrategy) {
         this.reportStrategy = reportStrategy;
     }
