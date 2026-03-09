@@ -1,13 +1,11 @@
 package co.edu.udistrital.mdp.pets.entities;
 
 import java.time.LocalDate;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
-import jakarta.persistence.Transient;
-
+import jakarta.persistence.PrePersist;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -31,10 +29,18 @@ public class AdoptionRequestEntity extends BaseEntity {
     @JoinColumn(name = "trial_cohabitation_id")
     private TrialCohabitationEntity trialCohabitation;
 
-    @Transient
-    private ApprovalStrategy approvalStrategy;
+    @ManyToOne
+    @JoinColumn(name = "strategy_id")
+    private ApprovalStrategyEntity approvalStrategy;
 
-    public void setStrategy(ApprovalStrategy approvalStrategy) {
+    @PrePersist
+    protected void onCreate() {
+        if (this.requestDate == null) {
+            this.requestDate = LocalDate.now();
+        }
+    }
+
+    public void setStrategy(ApprovalStrategyEntity approvalStrategy) {
         this.approvalStrategy = approvalStrategy;
     }
 
