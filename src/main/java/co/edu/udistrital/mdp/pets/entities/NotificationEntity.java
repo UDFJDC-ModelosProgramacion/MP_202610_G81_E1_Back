@@ -28,11 +28,6 @@ public class NotificationEntity extends BaseEntity {
     @JoinColumn(name = "user_id") // Se relaciona con User 
     private UserEntity user;
 
-    @PrePersist
-    protected void onCreate() {
-        this.date = new Date();
-    }
-
     public void send() {
         if (notificationStrategy != null) {
             notificationStrategy.send(this);

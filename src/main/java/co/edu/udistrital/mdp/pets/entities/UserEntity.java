@@ -25,9 +25,12 @@ public abstract class UserEntity extends BaseEntity {
 	// Password es necesario para que el login() de los requerimientos funcione
     private String password;
 
-    // Metodos del diagrama (Logica se implementa en Service)
-    // public void login() {}
-    // public void logout() {}
+    public void login() {
+		// logic of login
+	}
+    public void logout() {
+		// logic of logout
+	}
 
 	
 	// Relation 1:N with Notification

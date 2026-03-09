@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import co.edu.udistrital.mdp.pets.entities.AdoptionEntity;
-import co.edu.udistrital.mdp.pets.entities.AdoptionFollowUpEntity;
 @Repository
 public interface AdoptionRepository extends JpaRepository<AdoptionEntity, Long> {
 

@@ -4,9 +4,6 @@ import lombok.Data;
 import uk.co.jemos.podam.common.PodamExclude;
 import jakarta.persistence.*;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.ArrayList;
-import lombok.ToString;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
@@ -49,14 +46,7 @@ public class AdoptionRequestEntity extends BaseEntity {
     @JoinColumn(name = "strategy_id")
     private ApprovalStrategyEntity approvalStrategy;
 
-    @PrePersist
-    protected void onCreate() {
-        if (this.requestDate == null) {
-            this.requestDate = LocalDate.now();
-        }
-    }
-
-    public void setStrategy(ApprovalStrategyEntity approvalStrategy) {
+	public void setStrategy(ApprovalStrategyEntity approvalStrategy) {
         this.approvalStrategy = approvalStrategy;
     }
 

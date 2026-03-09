@@ -3,8 +3,6 @@ package co.edu.udistrital.mdp.pets.entities;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.ToString;
-import java.util.Date;
 
 /**
  * Context entity for the Strategy Pattern.
