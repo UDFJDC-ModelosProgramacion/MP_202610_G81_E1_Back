@@ -2,9 +2,11 @@ package co.edu.udistrital.mdp.pets.entities;
 
 import lombok.Data;
 import uk.co.jemos.podam.common.PodamExclude;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 
 /**
  * Entidad que representa a una mascota
@@ -32,9 +34,14 @@ public class PetEntity extends BaseEntity {
     private Boolean goodWithPets;
     private String spaceRequired; // HOUSE, APARTMENT, BOTH
 
+	// Relation N:1 with Shelter
 	@PodamExclude
     @ManyToOne
     @JoinColumn(name = "shelter_id")
     private ShelterEntity shelter; 
+
+	// Relation 1:1 with MedicalHistory (Composition)
+	@OneToOne(mappedBy = "pet", cascade = CascadeType.ALL, orphanRemoval = true)
+	private MedicalHistoryEntity medicalHistory;
 
 }
