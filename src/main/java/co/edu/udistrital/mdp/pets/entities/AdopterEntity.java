@@ -12,8 +12,16 @@ import java.util.List;
 @Entity
 @EqualsAndHashCode(callSuper = true)
 public class AdopterEntity extends BaseEntity {
-
+// atributos 
+//
+//
+//
+// comentar relaciones
     @PodamExclude
     @OneToMany(mappedBy = "adopter")
     private List<MessageEntity> messages = new ArrayList<>();
+
+	@PodamExclude
+    @OneToMany(mappedBy = "adopter")
+    private List<ReviewEntity> reviews = new ArrayList<>();
 }
