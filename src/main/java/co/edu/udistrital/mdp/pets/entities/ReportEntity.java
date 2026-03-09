@@ -1,14 +1,13 @@
 package co.edu.udistrital.mdp.pets.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import java.util.Date;
 
 /**
- * Entity representing a system Report using Strategy Pattern context.
+ * Context entity for the Strategy Pattern.
  */
 @Data
 @Entity
@@ -18,15 +17,11 @@ public class ReportEntity extends BaseEntity {
     @Temporal(TemporalType.DATE)
     private Date generatedDate;
 
-    /**
-     * Name or type of the strategy used (e.g., "PDF", "EXCEL").
-     */
-    private String reportStrategy;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "strategy_id")
+    private ReportStrategyEntity reportStrategy;
 
-    /**
-     * Logic for generating the report is handled in the Service layer.
-     */
     public void generate() {
-        // Triggered via Service implementation
+        // Logic handled by strategy implementation
     }
 }
