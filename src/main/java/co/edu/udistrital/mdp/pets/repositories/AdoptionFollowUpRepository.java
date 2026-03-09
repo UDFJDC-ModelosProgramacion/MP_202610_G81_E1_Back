@@ -11,12 +11,12 @@ public interface AdoptionFollowUpRepository extends JpaRepository<AdoptionFollow
     /**
      * Buscar seguimientos por adopción
      */
-    List<AdoptionFollowUpEntity> findByAdoptionAdoptionId(Long adoptionId);
+    List<AdoptionFollowUpEntity> findByAdoptionId(Long id);
 
     /**
      * Buscar seguimientos por veterinario
      */
-    List<AdoptionFollowUpEntity> findByVeterinarianVetId(Long vetId);
+    List<AdoptionFollowUpEntity> findByVeterinarianId(Long id);
 
     /**
      * Buscar seguimientos por frecuencia

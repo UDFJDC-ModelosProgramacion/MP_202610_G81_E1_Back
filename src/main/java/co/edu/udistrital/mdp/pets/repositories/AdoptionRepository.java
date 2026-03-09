@@ -10,6 +10,6 @@ import co.edu.udistrital.mdp.pets.entities.AdoptionFollowUpEntity;
 @Repository
 public interface AdoptionRepository extends JpaRepository<AdoptionEntity, Long> {
 
-    List<AdoptionFollowUpEntity> findByAdoptionId(Long id);
-    List<AdoptionFollowUpEntity> findByPetId(Long id);
+    List<AdoptionEntity> findByPetId(Long id);
+	List<AdoptionEntity> findByAdopterId(Long id);
 }
