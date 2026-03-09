@@ -7,7 +7,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import uk.co.jemos.podam.common.PodamExclude;
 import java.util.List;
-import java.util.ArrayList;
 
 /**
  * Entity representing an Adopter, extending User details.
@@ -24,26 +23,17 @@ public class AdopterEntity extends UserEntity {
 
     @PodamExclude
     @OneToMany(mappedBy = "adopter", cascade = CascadeType.ALL)
-    private List<AdoptionEntity> adoptions = new ArrayList<>();
+    private List<AdoptionEntity> adoptions; 
 
     @PodamExclude
     @OneToMany(mappedBy = "adopter", cascade = CascadeType.ALL)
-    private List<MessageEntity> messages = new ArrayList<>();
+    private List<MessageEntity> messages;  
 
     @PodamExclude
     @OneToMany(mappedBy = "adopter", cascade = CascadeType.ALL)
-    private List<ReviewEntity> reviews = new ArrayList<>();
+    private List<ReviewEntity> reviews; 
 
     @PodamExclude
     @OneToMany(mappedBy = "adopter", cascade = CascadeType.ALL)
-    private List<AdoptionRequestEntity> adoptionRequests = new ArrayList<>();
-
-    /**
-     * Implementation of the Observer pattern.
-     * Receives notifications and adds them to the user history.
-     */
-    @Override
-    public void update(String notification) {
-        // Implementation for receiving updates from the Shelter (Subject)
-    }
+    private List<AdoptionRequestEntity> adoptionRequests;
 }

@@ -5,7 +5,6 @@ import uk.co.jemos.podam.common.PodamExclude;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.ArrayList;
 import lombok.ToString;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -45,12 +44,5 @@ public class AdoptionEntity extends BaseEntity {
     @PodamExclude
     @OneToMany(mappedBy = "adoption", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
-    private List<AdoptionFollowUpEntity> followUps = new ArrayList<>();
-
-    @PrePersist
-    protected void onCreate() {
-        if (this.adoptionDate == null) {
-            this.adoptionDate = LocalDate.now();
-        }
-    }
+    private List<AdoptionFollowUpEntity> followUps;
 }

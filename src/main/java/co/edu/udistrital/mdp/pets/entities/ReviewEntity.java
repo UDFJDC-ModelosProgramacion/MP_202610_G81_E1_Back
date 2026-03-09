@@ -34,14 +34,4 @@ public class ReviewEntity extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "pet_id")
     private PetEntity pet;
-
-
-	@PrePersist
-	protected void onCreate() {
-		this.date = new Date();
-	}
-
-    public String getSummary() {
-        return "Rating: " + rating + " - " + comment;
-    }
 }

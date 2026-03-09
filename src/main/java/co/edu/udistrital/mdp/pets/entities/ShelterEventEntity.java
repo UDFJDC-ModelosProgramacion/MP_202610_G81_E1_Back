@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import uk.co.jemos.podam.common.PodamExclude;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Date;
 
 @Data
@@ -30,5 +29,5 @@ public class ShelterEventEntity extends BaseEntity {
     @PodamExclude
     @OneToMany
 	@JoinColumn(name = "event_id")
-    private List<ReportEntity> reports = new ArrayList<>();
+    private List<ReportEntity> reports;
 }

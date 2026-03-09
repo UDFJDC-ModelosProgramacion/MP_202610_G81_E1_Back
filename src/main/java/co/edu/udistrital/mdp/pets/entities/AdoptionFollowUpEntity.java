@@ -38,12 +38,4 @@ public class AdoptionFollowUpEntity extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "pet_id")
     private PetEntity pet;
-
-    public void scheduleCheckUp() {
-        // logic to schedule a check-up
-    }
-
-    public void recordObservation() {
-        // logic to record an observation
-    }
 }

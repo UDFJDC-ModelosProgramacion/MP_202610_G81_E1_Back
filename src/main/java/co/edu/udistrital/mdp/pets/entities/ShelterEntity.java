@@ -4,7 +4,6 @@ import lombok.Data;
 import uk.co.jemos.podam.common.PodamExclude;
 import jakarta.persistence.*;
 import java.util.List;
-import java.util.ArrayList;
 import lombok.ToString;
 import lombok.EqualsAndHashCode;
 
@@ -23,27 +22,27 @@ public class ShelterEntity extends BaseEntity {
     @PodamExclude
     @OneToMany(mappedBy = "shelter")
     @ToString.Exclude
-    private List<VeterinarianEntity> veterinarians = new ArrayList<>();
+    private List<VeterinarianEntity> veterinarians;
 
     // Relation 1:N with ShelterEvent
     @PodamExclude
     @OneToMany(mappedBy = "shelter", cascade = CascadeType.ALL)
-    private List<ShelterEventEntity> events = new ArrayList<>();
+    private List<ShelterEventEntity> events;
 
     // Relation 1:N with Report 
     @PodamExclude
     @OneToMany
 	@JoinColumn(name = "shelter_id")
-    private List<ReportEntity> reports = new ArrayList<>();
+    private List<ReportEntity> reports;
 
 	// Relation 1:N with Message 
     @PodamExclude
     @OneToMany(mappedBy = "shelter")
-    private List<MessageEntity> messages = new ArrayList<>();
+    private List<MessageEntity> messages;
 
 	// Relation 1:N with Pet (Composition)
     @PodamExclude
     @OneToMany(mappedBy = "shelter", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
-    private List<PetEntity> pets = new ArrayList<>();
+    private List<PetEntity> pets;
 }
