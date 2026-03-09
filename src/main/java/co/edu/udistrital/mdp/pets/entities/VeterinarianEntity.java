@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import uk.co.jemos.podam.common.PodamExclude;
 import lombok.ToString;
+
 @Data
 @Entity
 @EqualsAndHashCode(callSuper = true)

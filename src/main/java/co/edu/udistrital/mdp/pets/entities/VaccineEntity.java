@@ -8,7 +8,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import uk.co.jemos.podam.common.PodamExclude;
 import java.util.List;
-import java.util.ArrayList;
 
 @Entity
 @Data

@@ -4,7 +4,6 @@ import lombok.Data;
 import uk.co.jemos.podam.common.PodamExclude;
 import jakarta.persistence.*;
 import java.util.List;
-import java.util.ArrayList;
 import lombok.ToString;
 import lombok.EqualsAndHashCode;
 

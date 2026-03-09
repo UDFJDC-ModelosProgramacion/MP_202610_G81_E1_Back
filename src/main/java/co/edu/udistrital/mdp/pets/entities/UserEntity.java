@@ -4,9 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import uk.co.jemos.podam.common.PodamExclude;
-
 import java.util.List;
-import java.util.ArrayList;
 
 @Data
 @Entity
