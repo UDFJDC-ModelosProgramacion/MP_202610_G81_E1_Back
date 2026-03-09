@@ -7,9 +7,7 @@ import java.util.List;
 import java.util.ArrayList;
 import lombok.ToString;
 import lombok.EqualsAndHashCode;
-/**
- * Entidad que representa a un Refugio (Shelter)
- */
+
 @Data
 @Entity
 @EqualsAndHashCode(callSuper = true)
@@ -19,13 +17,21 @@ public class ShelterEntity extends BaseEntity {
     private String city;
     private String description;
     private String email;
-    
-    // 'gallery' como Long String, usamos String de Java
-    // que JPA mapeará a TEXT o CLOB según la DB
     private String gallery;
 
-	@PodamExclude
-	@OneToMany(mappedBy = "shelter")
-	@ToString.Exclude
-	private List<VeterinarianEntity> veterinarians = new ArrayList<>();
+    @PodamExclude
+    @OneToMany(mappedBy = "shelter")
+    @ToString.Exclude
+    private List<VeterinarianEntity> veterinarians = new ArrayList<>();
+
+    // Relation 1:N with ShelterEvent
+    @PodamExclude
+    @OneToMany(mappedBy = "shelter", cascade = CascadeType.ALL)
+    private List<ShelterEventEntity> events = new ArrayList<>();
+
+    // Relation 1:N with Report (Direct reports from Shelter)
+    @PodamExclude
+    @OneToMany
+	@JoinColumn(name = "shelter_id")
+    private List<ReportEntity> reports = new ArrayList<>();
 }
