@@ -19,6 +19,7 @@ public class ShelterEntity extends BaseEntity {
     private String email;
     private String gallery;
 
+	// Relation 1:N with Veterinarian (Agregattion)
     @PodamExclude
     @OneToMany(mappedBy = "shelter")
     @ToString.Exclude
@@ -29,9 +30,20 @@ public class ShelterEntity extends BaseEntity {
     @OneToMany(mappedBy = "shelter", cascade = CascadeType.ALL)
     private List<ShelterEventEntity> events = new ArrayList<>();
 
-    // Relation 1:N with Report (Direct reports from Shelter)
+    // Relation 1:N with Report 
     @PodamExclude
     @OneToMany
 	@JoinColumn(name = "shelter_id")
     private List<ReportEntity> reports = new ArrayList<>();
+
+	// Relation 1:N with Message 
+    @PodamExclude
+    @OneToMany(mappedBy = "shelter")
+    private List<MessageEntity> messages = new ArrayList<>();
+
+	// Relation 1:N with Pet (Composition)
+    @PodamExclude
+    @OneToMany(mappedBy = "shelter", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    private List<PetEntity> pets = new ArrayList<>();
 }
