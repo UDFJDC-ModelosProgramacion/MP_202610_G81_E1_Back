@@ -24,7 +24,8 @@ public class ReportEntity extends BaseEntity {
     @JoinColumn(name = "shelter_id")
     private ShelterEntity shelter;
 
-    @Transient
+    @ManyToOne
+    @JoinColumn(name = "strategy_id")
     private ReportStrategyEntity reportStrategy;
 
     public void setStrategy(ReportStrategyEntity reportStrategy) {
