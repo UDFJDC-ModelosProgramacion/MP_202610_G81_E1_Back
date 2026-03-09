@@ -25,22 +25,9 @@ public abstract class UserEntity extends BaseEntity {
 	// Password es necesario para que el login() de los requerimientos funcione
     private String password;
 
-    public void login() {
-		// logic of login
-	}
-    public void logout() {
-		// logic of logout
-	}
-
 	
 	// Relation 1:N with Notification
 	@PodamExclude
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<NotificationEntity> notifications = new ArrayList<>();
-	
-    /**
-     * Metodo del patron Observer para notificaciones
-     * @param notification Mensaje o evento a notificar
-     */
-    public abstract void update(String notification);
+    private List<NotificationEntity> notifications;
 }

@@ -22,26 +22,12 @@ public class ReportEntity extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "shelter_id")
+	@EqualsAndHashCode.Exclude // Prevents infinite recursion in tests
     private ShelterEntity shelter;
 
     @ManyToOne
     @JoinColumn(name = "strategy_id")
+	@EqualsAndHashCode.Exclude
     private ReportStrategyEntity reportStrategy;
-
-	@PrePersist
-    protected void onCreate() {
-        if (this.generateDate == null) {
-            this.generateDate = LocalDate.now();
-        }
-    }
-
-    public void setStrategy(ReportStrategyEntity reportStrategy) {
-        this.reportStrategy = reportStrategy;
-    }
-
-    public void generate() {
-        if (reportStrategy != null) {
-            reportStrategy.generate(this);
-        }
-    }
+	
 }

@@ -23,6 +23,6 @@ public class VaccineEntity extends BaseEntity {
 
 	@PodamExclude
     @OneToMany(mappedBy = "vaccine")
-    private List<VaccinationRecordEntity> vaccinationRecords = new ArrayList<>();
+    private List<VaccinationRecordEntity> vaccinationRecords;
 }
 

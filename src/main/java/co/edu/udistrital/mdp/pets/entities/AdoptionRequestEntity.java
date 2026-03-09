@@ -45,19 +45,4 @@ public class AdoptionRequestEntity extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "strategy_id")
     private ApprovalStrategyEntity approvalStrategy;
-
-	public void setStrategy(ApprovalStrategyEntity approvalStrategy) {
-        this.approvalStrategy = approvalStrategy;
-    }
-
-    /**
-     * Delegates evaluation logic to the assigned strategy.
-     * @return boolean evaluation result.
-     */
-    public boolean evaluate() {
-        if (approvalStrategy != null) {
-            return approvalStrategy.evaluate(this);
-        }
-        return false;
-    }
 }

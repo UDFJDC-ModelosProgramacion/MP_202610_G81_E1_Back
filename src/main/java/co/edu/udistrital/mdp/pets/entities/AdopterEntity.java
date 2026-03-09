@@ -24,26 +24,16 @@ public class AdopterEntity extends UserEntity {
 
     @PodamExclude
     @OneToMany(mappedBy = "adopter", cascade = CascadeType.ALL)
-    private List<AdoptionEntity> adoptions = new ArrayList<>();
+    private List<AdoptionEntity> adoptions; 
 
     @PodamExclude
     @OneToMany(mappedBy = "adopter", cascade = CascadeType.ALL)
-    private List<MessageEntity> messages = new ArrayList<>();
+    private List<MessageEntity> messages;  
+    @PodamExclude
+    @OneToMany(mappedBy = "adopter", cascade = CascadeType.ALL)
+    private List<ReviewEntity> reviews; 
 
     @PodamExclude
     @OneToMany(mappedBy = "adopter", cascade = CascadeType.ALL)
-    private List<ReviewEntity> reviews = new ArrayList<>();
-
-    @PodamExclude
-    @OneToMany(mappedBy = "adopter", cascade = CascadeType.ALL)
-    private List<AdoptionRequestEntity> adoptionRequests = new ArrayList<>();
-
-    /**
-     * Implementation of the Observer pattern.
-     * Receives notifications and adds them to the user history.
-     */
-    @Override
-    public void update(String notification) {
-        // Implementation for receiving updates from the Shelter (Subject)
-    }
+    private List<AdoptionRequestEntity> adoptionRequests;
 }

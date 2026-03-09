@@ -17,7 +17,7 @@ public class MessageEntity extends BaseEntity {
     @Temporal(TemporalType.TIMESTAMP)
     private Date timestamp;
 
-    private Boolean isRead = false;
+    private Boolean isRead;
 
     // Relationship: Many messages belong to one Adopter
     @PodamExclude
@@ -30,8 +30,4 @@ public class MessageEntity extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "shelter_id")
     private ShelterEntity shelter;
-
-    public void markAsRead() {
-        this.isRead = true;
-    }
 }
