@@ -16,7 +16,7 @@ public class NotificationEntity extends BaseEntity {
     @Temporal(TemporalType.TIMESTAMP)
     private Date date;
     
-    private Boolean isRead = false;
+    private Boolean isRead;
 	
 	@PodamExclude
     @OneToOne(cascade = CascadeType.ALL)
@@ -27,14 +27,4 @@ public class NotificationEntity extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "user_id") // Se relaciona con User 
     private UserEntity user;
-
-    public void send() {
-        if (notificationStrategy != null) {
-            notificationStrategy.send(this);
-        }
-    }
-
-    public void markAsRead() {
-        this.isRead = true;
-    }
 }

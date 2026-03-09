@@ -8,7 +8,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import uk.co.jemos.podam.common.PodamExclude;
 import java.util.List;
-import java.util.ArrayList;
 
 @Entity
 @Data
@@ -23,6 +22,6 @@ public class VaccineEntity extends BaseEntity {
 
 	@PodamExclude
     @OneToMany(mappedBy = "vaccine")
-    private List<VaccinationRecordEntity> vaccinationRecords = new ArrayList<>();
+    private List<VaccinationRecordEntity> vaccinationRecords;
 }
 

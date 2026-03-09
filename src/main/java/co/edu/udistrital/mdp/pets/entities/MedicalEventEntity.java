@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import uk.co.jemos.podam.common.PodamExclude;
 
 @Entity
 @Data
@@ -22,6 +23,7 @@ public class MedicalEventEntity extends BaseEntity {
     private String treatment;
     private LocalDate eventDate;
 
+	@PodamExclude
     @ManyToOne
     @JoinColumn(name = "medical_history_id")
     private MedicalHistoryEntity medicalHistory;
