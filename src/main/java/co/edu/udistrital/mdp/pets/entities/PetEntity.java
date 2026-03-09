@@ -3,6 +3,8 @@ package co.edu.udistrital.mdp.pets.entities;
 import lombok.Data;
 import uk.co.jemos.podam.common.PodamExclude;
 import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 
 /**
  * Entidad que representa a una mascota
@@ -29,4 +31,10 @@ public class PetEntity extends BaseEntity {
     private Boolean goodWithKids;
     private Boolean goodWithPets;
     private String spaceRequired; // HOUSE, APARTMENT, BOTH
+
+	@PodamExclude
+    @ManyToOne
+    @JoinColumn(name = "shelter_id")
+    private ShelterEntity shelter; 
+
 }
