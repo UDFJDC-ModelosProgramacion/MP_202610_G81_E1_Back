@@ -54,7 +54,6 @@ public class UserServiceTest {
     }
 
     private void clearData() {
-        entityManager.getEntityManager().createQuery("delete from NotificationEntity").executeUpdate();
         entityManager.getEntityManager().createQuery("delete from UserEntity").executeUpdate();
     }
 
