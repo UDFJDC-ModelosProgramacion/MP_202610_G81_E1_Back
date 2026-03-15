@@ -28,4 +28,8 @@ public class VeterinarianEntity extends UserEntity {
 	@PodamExclude
     @OneToMany(mappedBy = "veterinarian") 
     private List<MedicalEventEntity> medicalEvents; 
+	
+	@PodamExclude
+	@OneToMany(mappedBy = "veterinarian") 
+	private List<AdoptionFollowUpEntity> adoptionFollowUps;
 }
