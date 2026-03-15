@@ -158,27 +158,34 @@ public class ShelterServiceTest {
 	}
 
 	@Test
-	void testDeleteShelterWithActiveEvents() {
-		// crear el shelter
-		ShelterEntity shelter = factory.manufacturePojo(ShelterEntity.class);
-		entityManager.persist(shelter);
+    void testDeleteShelterWithActiveEvents() {
+        // crear el shelter con Podam
+        ShelterEntity shelter = factory.manufacturePojo(ShelterEntity.class);
+        
+        // inicializacion de seguridad para evitar el NullPointerException del List
+        if (shelter.getEvents() == null) {
+            shelter.setEvents(new java.util.ArrayList<>());
+        }
+        
+        entityManager.persist(shelter);
 
-		// crear un evento activo (No finalizado)
-		ShelterEventEntity event = factory.manufacturePojo(ShelterEventEntity.class);
-		
-		// forzamos un estado que NO sea el finalizado para que el service lo detecte
-		event.setStatus(ProcessStatus.IN_PROGRESS); 
-		event.setShelter(shelter); // relacionamos con el shelter
-		
-		// añadimos el evento a la lista del shelter para que la logica del stream lo vea
-		shelter.getEvents().add(event);
-		
-		entityManager.persist(event);
-		entityManager.flush();
+        // crear un evento y forzar el estado "No finalizado"
+        ShelterEventEntity event = factory.manufacturePojo(ShelterEventEntity.class);
+        
+        // usamos el Enum ProcessStatus 
+        event.setStatus(co.edu.udistrital.mdp.pets.enums.ProcessStatus.IN_PROGRESS); 
+        event.setShelter(shelter); // Relación bidireccional
+        
+        // agregamos el evento a la lista del shelter para que el stream en el Service lo encuentre
+        shelter.getEvents().add(event);
+        
+        entityManager.persist(event);
+        
+        // sincronizamos con la base de datos H2
+        entityManager.flush();
 
-		// ejecutar y verificar que lanza la excepción
-		assertThrows(IllegalOperationException.class, () -> {
-			shelterService.deleteShelter(shelter.getId());
-		});
-	}
+        assertThrows(IllegalOperationException.class, () -> {
+            shelterService.deleteShelter(shelter.getId());
+        });
+    }
 }
