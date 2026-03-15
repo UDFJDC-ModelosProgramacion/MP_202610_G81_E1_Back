@@ -22,7 +22,7 @@ public abstract class UserService {
     protected UserRepository userRepository;
 
 	// LOS HIJOS IMPLEMENTAN SU LOGICA EN ESTE METODO ABSTRACTO
-	protected abstract void validateDeletion(Long userId) throws IllegalOperationException;
+	protected abstract void validateDeletion(Long userId) throws EntityNotFoundException, IllegalOperationException;
     
 	
 	/**
