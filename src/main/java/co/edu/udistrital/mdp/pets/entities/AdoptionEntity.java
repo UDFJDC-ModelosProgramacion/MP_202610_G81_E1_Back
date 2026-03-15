@@ -23,6 +23,9 @@ public class AdoptionEntity extends BaseEntity {
 
     private LocalDate adoptionDate;
 
+	@Enumerated(EnumType.STRING)
+	private ProcessStatus status;
+
     // Relation: N:1 Adopter has many Adoptions
     @PodamExclude
     @ManyToOne
