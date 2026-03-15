@@ -30,4 +30,9 @@ public class VaccinationRecordEntity extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "vaccine_id")
     private VaccineEntity vaccine;
+
+	@PodamExclude
+	@ManyToOne
+	@JoinColumn(name= "veterinarian_id")
+	private VeterinarianEntity veterinarian;
 }
