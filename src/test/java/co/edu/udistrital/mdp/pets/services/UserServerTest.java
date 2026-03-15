@@ -206,5 +206,4 @@ class MockUserService extends UserService {
     }
 }
 @jakarta.persistence.Entity
-
-c
+class MockUser extends UserEntity {}
