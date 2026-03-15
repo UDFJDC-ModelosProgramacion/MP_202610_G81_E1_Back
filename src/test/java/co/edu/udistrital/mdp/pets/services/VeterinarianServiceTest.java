@@ -16,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import co.edu.udistrital.mdp.pets.entities.VeterinarianEntity;
 import co.edu.udistrital.mdp.pets.entities.MedicalEventEntity;
-import co.edu.udistrital.mdp.pets.entities.VaccinationRecordEntity;
 import co.edu.udistrital.mdp.pets.entities.AdoptionFollowUpEntity;
 import co.edu.udistrital.mdp.pets.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.pets.exceptions.IllegalOperationException;
