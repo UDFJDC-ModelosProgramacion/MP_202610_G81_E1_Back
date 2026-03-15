@@ -147,7 +147,7 @@ public class ShelterService {
 	 * @param shelterId: id de la shelter a borrar
 	 * @throws BusinessLogicException si la shelter tiene un premio asociado.
 	 */
-@Transactional
+	@Transactional
     public void deleteShelter(Long shelterId) throws EntityNotFoundException, IllegalOperationException {
         log.info("Starting deletion process for shelter ID: {}", shelterId);
         
