@@ -5,6 +5,8 @@ import uk.co.jemos.podam.common.PodamExclude;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.List;
+
+import co.edu.udistrital.mdp.pets.enums.ProcessStatus;
 import lombok.ToString;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;

@@ -5,6 +5,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import uk.co.jemos.podam.common.PodamExclude;
 import java.util.List;
+
+import co.edu.udistrital.mdp.pets.enums.ProcessStatus;
+
 import java.util.Date;
 
 @Data
