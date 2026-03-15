@@ -1,7 +1,6 @@
 package co.edu.udistrital.mdp.pets.services;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,12 +8,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import co.edu.udistrital.mdp.pets.entities.ShelterEntity;
 import co.edu.udistrital.mdp.pets.repositories.ShelterRepository;
-import co.edu.udistrital.mdp.pets.repositories.ShelterEventRepository;
-import co.edu.udistrital.mdp.pets.exceptions.ApiError;
 import co.edu.udistrital.mdp.pets.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.pets.exceptions.IllegalOperationException;
-import co.edu.udistrital.mdp.pets.exceptions.LowerCaseClassNameResolver;
-import co.edu.udistrital.mdp.pets.exceptions.RestExceptionHandler;
 import co.edu.udistrital.mdp.pets.exceptions.ErrorMessage;
 import lombok.extern.slf4j.Slf4j;
 
