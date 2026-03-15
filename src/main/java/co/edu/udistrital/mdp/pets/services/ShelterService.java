@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import co.edu.udistrital.mdp.pets.entities.ShelterEntity;
+import co.edu.udistrital.mdp.pets.enums.ProcessStatus;
 import co.edu.udistrital.mdp.pets.repositories.ShelterRepository;
 import co.edu.udistrital.mdp.pets.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.pets.exceptions.IllegalOperationException;
@@ -158,15 +159,13 @@ public class ShelterService {
 
         // 3. Business Rule: check de shelterevents
         if (shelter.getEvents() != null) {
-            boolean hasActiveEvents = shelter.getEvents().stream()
-                    .anyMatch(event -> !"FINALIZADO".equals(event.getStatus())); // status de ShelterEvent deberia ser un enum, ojo con eso
-            
-            if (hasActiveEvents) {
-                log.warn("Attempted to delete shelter {} but it has active events", shelterId);
-                throw new IllegalOperationException("Cannot delete shelter: It has ongoing events.");
-            }
-        }
-
+		boolean hasActiveEvents = shelter.getEvents().stream()
+				.anyMatch(event -> event.getStatus() != ProcessStatus.COMPLETED);
+			if (hasActiveEvents) {
+			log.warn("Attempted to delete shelter {} but it has active events", shelterId);
+			throw new IllegalOperationException("Cannot delete shelter: It has ongoing events.");
+			}
+		}
         shelterRepository.deleteById(shelterId);
         log.info("Shelter with ID: {} deleted successfully", shelterId);
     }
