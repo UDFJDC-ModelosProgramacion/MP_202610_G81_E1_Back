@@ -15,6 +15,7 @@ public class ShelterEventEntity extends BaseEntity {
     private String title;
     private String description;
     private String location;
+	private String status;
 
     @Temporal(TemporalType.DATE)
     private Date date;
