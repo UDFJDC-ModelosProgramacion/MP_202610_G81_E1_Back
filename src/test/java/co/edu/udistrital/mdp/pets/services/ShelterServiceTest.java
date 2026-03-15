@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import co.edu.udistrital.mdp.pets.entities.ShelterEntity;
 import co.edu.udistrital.mdp.pets.entities.PetEntity;
 import co.edu.udistrital.mdp.pets.entities.ShelterEventEntity;
+import co.edu.udistrital.mdp.pets.enums.ProcessStatus;
 import co.edu.udistrital.mdp.pets.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.pets.exceptions.IllegalOperationException;
 import uk.co.jemos.podam.api.PodamFactory;
@@ -156,22 +157,28 @@ public class ShelterServiceTest {
 			});
 	}
 
-    @Test
-    void testDeleteShelterWithActiveEvents() {
-        assertThrows(IllegalOperationException.class, () -> {
-            ShelterEntity shelter = data.get(0);
-            ShelterEventEntity event = factory.manufacturePojo(ShelterEventEntity.class);
-            event.setStatus("PROGRAMADO"); 
-            event.setShelter(shelter);
-            entityManager.persist(event);
-            
-            // inicializar la lista si es null antes de agregar
-            if (shelter.getEvents() == null) {
-                shelter.setEvents(new ArrayList<>());
-            }
-            shelter.getEvents().add(event);
+	@Test
+	void testDeleteShelterWithActiveEvents() {
+		// crear el shelter
+		ShelterEntity shelter = factory.manufacturePojo(ShelterEntity.class);
+		entityManager.persist(shelter);
 
-            shelterService.deleteShelter(shelter.getId());
-        });
-    }
+		// crear un evento activo (No finalizado)
+		ShelterEventEntity event = factory.manufacturePojo(ShelterEventEntity.class);
+		
+		// forzamos un estado que NO sea el finalizado para que el service lo detecte
+		event.setStatus(ProcessStatus.IN_PROGRESS); 
+		event.setShelter(shelter); // relacionamos con el shelter
+		
+		// añadimos el evento a la lista del shelter para que la logica del stream lo vea
+		shelter.getEvents().add(event);
+		
+		entityManager.persist(event);
+		entityManager.flush();
+
+		// ejecutar y verificar que lanza la excepción
+		assertThrows(IllegalOperationException.class, () -> {
+			shelterService.deleteShelter(shelter.getId());
+		});
+	}
 }
