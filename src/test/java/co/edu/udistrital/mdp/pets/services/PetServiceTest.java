@@ -121,6 +121,34 @@ public class PetServiceTest {
         });
     }
 
+	@Test
+    void testProcessReturnSuccess() throws EntityNotFoundException, IllegalOperationException {
+        // Preparamos una mascota que este ADOPTED
+        PetEntity pet = data.get(0);
+        pet.setStatus(PetStatus.ADOPTED);
+        entityManager.persist(pet);
+        entityManager.flush();
+
+        // Ejecutamos el retorno
+        PetEntity returnedPet = petService.processReturn(pet.getId());
+
+        // verificamos que el estado volvio a AVAILABLE
+        assertEquals(PetStatus.AVAILABLE, returnedPet.getStatus());
+        
+        // verificamos en bd
+        PetEntity dbPet = entityManager.find(PetEntity.class, pet.getId());
+        assertEquals(PetStatus.AVAILABLE, dbPet.getStatus());
+    }
+
+    @Test
+    void testProcessReturnAlreadyAvailable() {
+        // Intentar retornar una mascota que ya está disponible debe fallar
+        assertThrows(IllegalOperationException.class, () -> {
+            PetEntity pet = data.get(0); // Ya está AVAILABLE por el insertData()
+            petService.processReturn(pet.getId());
+        });
+    }
+
     @Test
     void testDeletePetWithHistory() {
         PetEntity pet = data.get(1);
