@@ -13,6 +13,8 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import java.util.List;
 
+import co.edu.udistrital.mdp.pets.enums.PetStatus;
+
 /**
  * Entidad que representa a una mascota
  */
