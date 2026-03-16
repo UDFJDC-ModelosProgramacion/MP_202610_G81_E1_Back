@@ -1,35 +1,25 @@
 package co.edu.udistrital.mdp.pets.services;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import co.edu.udistrital.mdp.pets.entities.UserEntity;
 import co.edu.udistrital.mdp.pets.entities.AdopterEntity;
 import co.edu.udistrital.mdp.pets.exceptions.EntityNotFoundException;
-import co.edu.udistrital.mdp.pets.exceptions.ErrorMessage;
 import co.edu.udistrital.mdp.pets.exceptions.IllegalOperationException;
-import co.edu.udistrital.mdp.pets.repositories.AdopterRepository;
+import co.edu.udistrital.mdp.pets.exceptions.ErrorMessage;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
-public class AdopterService {
-
-    @Autowired
-    private AdopterRepository adopterRepository;
+public class AdopterService extends UserService {
 
     /**
-     * Valida los datos obligatorios del adoptante.
+     * Valida datos especificos del adoptante.
      * @param adopter Entidad del adoptante a validar.
      * @throws IllegalOperationException Si los datos no cumplen las reglas de negocio.
      */
-    private void validateData(AdopterEntity adopter) throws IllegalOperationException {
-        if (adopter == null) {
-            throw new IllegalOperationException("Adopter data cannot be null");
-        }
-        
+    private void validateAdopterData(AdopterEntity adopter) throws IllegalOperationException {
         // Regla: El campo hasOtherPets debe ser un valor booleano, no puede quedar indefinido
         if (adopter.getHasOtherPets() == null) {
             throw new IllegalOperationException("The field 'hasOtherPets' is mandatory and cannot be undefined");
@@ -46,96 +36,48 @@ public class AdopterService {
         }
     }
 
-    /**
-     * Crea un nuevo adoptante en la persistencia.
-     * @param adopter Entidad del adoptante a crear.
-     * @return El adoptante creado.
-     * @throws IllegalOperationException Si los datos no cumplen las reglas de negocio.
-     */
+    @Override
     @Transactional
-    public AdopterEntity createAdopter(AdopterEntity adopter) throws IllegalOperationException {
-        log.info("Starting creation process for adopter");
+    public UserEntity createUser(UserEntity userEntity) throws IllegalOperationException {
+        log.info("Starting creation process for adopter: {}", userEntity.getEmail());
         
-        validateData(adopter);
+        AdopterEntity adopter = (AdopterEntity) userEntity;
+        validateAdopterData(adopter);
         
-        log.info("Adopter created successfully");
-        return adopterRepository.save(adopter);
+        return super.createUser(adopter);
     }
 
-    /**
-     * Obtiene todos los adoptantes.
-     * @return Lista de todos los adoptantes.
-     */
-    @Transactional(readOnly = true)
-    public List<AdopterEntity> getAdopters() {
-        log.info("Starting process to consult all adopters");
-        return adopterRepository.findAll();
-    }
-
-    /**
-     * Obtiene un adoptante por su ID.
-     * @param adopterId ID del adoptante.
-     * @return El adoptante encontrado.
-     * @throws EntityNotFoundException Si el adoptante no existe.
-     */
-    @Transactional(readOnly = true)
-    public AdopterEntity getAdopter(Long adopterId) throws EntityNotFoundException {
-        log.info("Starting process to consult adopter with id = {}", adopterId);
-        
-        return adopterRepository.findById(adopterId)
-                .orElseThrow(() -> {
-                    log.error("Adopter with id {} not found", adopterId);
-                    return new EntityNotFoundException(ErrorMessage.ADOPTER_NOT_FOUND);
-                });
-    }
-
-    /**
-     * Actualiza un adoptante existente.
-     * @param adopterId ID del adoptante a actualizar.
-     * @param adopter Datos actualizados del adoptante.
-     * @return El adoptante actualizado.
-     * @throws EntityNotFoundException Si el adoptante no existe.
-     * @throws IllegalOperationException Si los datos no cumplen las reglas de negocio.
-     */
+    @Override
     @Transactional
-    public AdopterEntity updateAdopter(Long adopterId, AdopterEntity adopter) 
+    public UserEntity updateUser(Long userId, UserEntity user) 
             throws EntityNotFoundException, IllegalOperationException {
-        log.info("Starting update process for adopter with id = {}", adopterId);
+        log.info("Updating adopter with id = {}", userId);
         
-        // Verificar que existe
-        adopterRepository.findById(adopterId)
-                .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.ADOPTER_NOT_FOUND));
+        AdopterEntity adopter = (AdopterEntity) user;
+        validateAdopterData(adopter);
         
-        // Validar datos (solo housing type es obligatorio en update segun las reglas)
-        if (adopter.getHousingType() == null || adopter.getHousingType().isBlank()) {
-            throw new IllegalOperationException("Housing type is mandatory and cannot be empty");
-        }
-        
-        adopter.setId(adopterId);
-        log.info("Adopter with id = {} updated successfully", adopterId);
-        return adopterRepository.save(adopter);
+        return super.updateUser(userId, adopter);
     }
 
     /**
-     * Elimina un adoptante.
-     * @param adopterId ID del adoptante a eliminar.
-     * @throws EntityNotFoundException Si el adoptante no existe.
-     * @throws IllegalOperationException Si el adoptante tiene solicitudes pendientes.
+     * Implementacion del metodo abstracto para proteger la integridad de adopciones.
+     * No permite borrar al adoptante si tiene solicitudes de adopcion pendientes o en proceso.
      */
-    @Transactional
-    public void deleteAdopter(Long adopterId) throws EntityNotFoundException, IllegalOperationException {
-        log.info("Starting deletion process for adopter ID: {}", adopterId);
-        
-        AdopterEntity adopter = adopterRepository.findById(adopterId)
-                .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.ADOPTER_NOT_FOUND));
-        
+    @Override
+    protected void validateDeletion(Long userId) throws EntityNotFoundException, IllegalOperationException {
+        AdopterEntity adopter = (AdopterEntity) userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.USER_NOT_FOUND));
+
         // Regla: No se puede eliminar un adoptante si tiene solicitudes de adopcion pendientes o en proceso
         if (adopter.getAdoptionRequests() != null && !adopter.getAdoptionRequests().isEmpty()) {
-            log.warn("Attempted to delete adopter {} but it has adoption requests", adopterId);
-            throw new IllegalOperationException("Cannot delete adopter: It has pending or in-process adoption requests");
+            log.warn("Attempted to delete adopter {} with active adoption requests", userId);
+            throw new IllegalOperationException("Cannot delete adopter: They have pending or in-process adoption requests.");
         }
-        
-        adopterRepository.deleteById(adopterId);
-        log.info("Adopter with ID: {} deleted successfully", adopterId);
+
+        // Regla adicional: No se puede eliminar si tiene adopciones registradas
+        if (adopter.getAdoptions() != null && !adopter.getAdoptions().isEmpty()) {
+            log.warn("Attempted to delete adopter {} with adoption records", userId);
+            throw new IllegalOperationException("Cannot delete adopter: They have adoption records.");
+        }
     }
 }
