@@ -4,12 +4,16 @@ import lombok.Data;
 import uk.co.jemos.podam.common.PodamExclude;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import java.util.List;
+
+import co.edu.udistrital.mdp.pets.enums.PetStatus;
 
 /**
  * Entidad que representa a una mascota
@@ -26,7 +30,6 @@ public class PetEntity extends BaseEntity {
     private String size;
     private String temperament;
     private String specialNeeds;
-    private String status;
     private String description;
     private String photos; // URL o path
     private String activityLevel;
@@ -37,6 +40,9 @@ public class PetEntity extends BaseEntity {
     private Boolean goodWithPets;
     private String spaceRequired; // HOUSE, APARTMENT, BOTH
 
+	@Enumerated(EnumType.STRING)
+	private PetStatus status;
+	
 	// Relation N:1 with Shelter (Composicion desde Shelter)
     @PodamExclude
     @ManyToOne(fetch = FetchType.LAZY)
