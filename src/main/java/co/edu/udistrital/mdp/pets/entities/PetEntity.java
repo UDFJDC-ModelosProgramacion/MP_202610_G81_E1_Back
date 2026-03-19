@@ -11,8 +11,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
-import java.util.List;
 
+import java.util.List;
+import java.util.ArrayList;
 import co.edu.udistrital.mdp.pets.enums.PetStatus;
 
 /**
@@ -47,35 +48,35 @@ public class PetEntity extends BaseEntity {
     @PodamExclude
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "shelter_id")
-    private ShelterEntity shelter; 
+    private ShelterEntity shelter = new ArrayList<>(); 
 
     // Relation 1:1 with MedicalHistory (Composicion)
     @PodamExclude
     @OneToOne(mappedBy = "pet", cascade = CascadeType.ALL, orphanRemoval = true)
-    private MedicalHistoryEntity medicalHistory;
+    private MedicalHistoryEntity medicalHistory = new ArrayList<>();
 
     // Relation 1:N with Review
     @PodamExclude
     @OneToMany(mappedBy = "pet")
-    private List<ReviewEntity> reviews;
+    private List<ReviewEntity> reviews = new ArrayList<>();
 
     // Relation 1:N with Adoption
     @PodamExclude
     @OneToMany(mappedBy = "pet")
-    private List<AdoptionEntity> adoptions;
+    private List<AdoptionEntity> adoptions = new ArrayList<>();
 
     // Relation 1:N with AdoptionRequest
     @PodamExclude
     @OneToMany(mappedBy = "pet")
-    private List<AdoptionRequestEntity> adoptionRequests;
+    private List<AdoptionRequestEntity> adoptionRequests = new ArrayList<>();
 
     // Relation 1:N with AdoptionFollowUp
     @PodamExclude
     @OneToMany(mappedBy = "pet")
-    private List<AdoptionFollowUpEntity> followUps;
+    private List<AdoptionFollowUpEntity> followUps = new ArrayList<>();
 
     // Relation 1:N with TrialCohabitation
     @PodamExclude
     @OneToMany(mappedBy = "pet")
-    private List<TrialCohabitationEntity> trials;
+    private List<TrialCohabitationEntity> trials = new ArrayList<>();
 }
