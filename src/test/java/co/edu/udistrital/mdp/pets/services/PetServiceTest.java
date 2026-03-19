@@ -107,7 +107,6 @@ public class PetServiceTest {
         activeTrial.setStatus(ProcessStatus.IN_PROGRESS);
         activeTrial.setPet(pet);
         
-        if (pet.getTrials() == null) pet.setTrials(new ArrayList<>());
         pet.getTrials().add(activeTrial);
         
         entityManager.persist(activeTrial);
@@ -158,7 +157,6 @@ public class PetServiceTest {
         oldTrial.setStatus(ProcessStatus.COMPLETED);
         oldTrial.setPet(pet);
         
-        if (pet.getTrials() == null) pet.setTrials(new ArrayList<>());
         pet.getTrials().add(oldTrial);
         
         entityManager.persist(oldTrial);

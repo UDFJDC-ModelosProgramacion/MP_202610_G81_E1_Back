@@ -109,8 +109,6 @@ public class VeterinarianServiceTest {
         MedicalEventEntity event = factory.manufacturePojo(MedicalEventEntity.class);
         event.setVeterinarian(vet);
         
-        // inicializamos la lista si es nula y añadimos
-        if(vet.getMedicalEvents() == null) vet.setMedicalEvents(new ArrayList<>());
         vet.getMedicalEvents().add(event);
 
         entityManager.persist(event);
@@ -130,8 +128,7 @@ public class VeterinarianServiceTest {
         
         followUp.setVeterinarian(vet); 
         
-        if(vet.getAdoptionFollowUps() == null) vet.setAdoptionFollowUps(new ArrayList<>());
-        vet.getAdoptionFollowUps().add(followUp);
+		vet.getAdoptionFollowUps().add(followUp);
 
         entityManager.persist(followUp);
         entityManager.flush();

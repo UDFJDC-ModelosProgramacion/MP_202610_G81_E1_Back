@@ -48,12 +48,12 @@ public class PetEntity extends BaseEntity {
     @PodamExclude
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "shelter_id")
-    private ShelterEntity shelter = new ArrayList<>(); 
+    private ShelterEntity shelter; 
 
     // Relation 1:1 with MedicalHistory (Composicion)
     @PodamExclude
     @OneToOne(mappedBy = "pet", cascade = CascadeType.ALL, orphanRemoval = true)
-    private MedicalHistoryEntity medicalHistory = new ArrayList<>();
+    private MedicalHistoryEntity medicalHistory;
 
     // Relation 1:N with Review
     @PodamExclude
