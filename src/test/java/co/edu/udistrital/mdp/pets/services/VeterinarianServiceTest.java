@@ -4,9 +4,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -138,42 +142,11 @@ class VeterinarianServiceTest {
         });
     }
 
-    // --- Additional Tests for validateVeterinarianData (via createUser) ---
-    @Test
-    void testCreateVeterinarianWithNullSpecialty() {
-        assertThrows(IllegalOperationException.class, () -> {
-            VeterinarianEntity newEntity = factory.manufacturePojo(VeterinarianEntity.class);
-            newEntity.setEmail("test_null_spec@vet.com");
-            newEntity.setPhone("1234567890");
-            newEntity.setSpecialty(null); // Null specialty
-            newEntity.setAvailability("Full time");
-            veterinarianService.createUser(newEntity);
-        });
-    }
 
-    @Test
-    void testCreateVeterinarianWithNullAvailability() {
-        assertThrows(IllegalOperationException.class, () -> {
-            VeterinarianEntity newEntity = factory.manufacturePojo(VeterinarianEntity.class);
-            newEntity.setEmail("test_null_avail@vet.com");
-            newEntity.setPhone("1234567891");
-            newEntity.setSpecialty("General");
-            newEntity.setAvailability(null); // Null availability
-            veterinarianService.createUser(newEntity);
-        });
-    }
 
-    @Test
-    void testCreateVeterinarianWithEmptyAvailability() {
-        assertThrows(IllegalOperationException.class, () -> {
-            VeterinarianEntity newEntity = factory.manufacturePojo(VeterinarianEntity.class);
-            newEntity.setEmail("test_empty_avail@vet.com");
-            newEntity.setPhone("1234567892");
-            newEntity.setSpecialty("General");
-            newEntity.setAvailability("   "); // Empty availability
-            veterinarianService.createUser(newEntity);
-        });
-    }
+
+
+
 
     // --- Additional Tests for updateUser ---
     @Test
@@ -207,21 +180,7 @@ class VeterinarianServiceTest {
         });
     }
 
-    @Test
-    void testUpdateVeterinarianWithNullSpecialty() {
-        VeterinarianEntity entity = data.get(0);
-        VeterinarianEntity pojoEntity = factory.manufacturePojo(VeterinarianEntity.class);
-        pojoEntity.setEmail("updated_vet@refugio.com");
-        pojoEntity.setPhone("3209876543");
-        pojoEntity.setName("Updated Vet Name");
-        pojoEntity.setPassword("newpassword");
-        pojoEntity.setSpecialty(null); // Null specialty
-        pojoEntity.setAvailability("Part-time");
 
-        assertThrows(IllegalOperationException.class, () -> {
-            veterinarianService.updateUser(entity.getId(), pojoEntity);
-        });
-    }
     
     @Test
     void testUpdateVeterinarianWithEmptySpecialty() {
@@ -350,6 +309,48 @@ class VeterinarianServiceTest {
 
         assertThrows(IllegalOperationException.class, () -> {
             veterinarianService.deleteUser(vet.getId());
+        });
+    }
+
+    private static Stream<Arguments> invalidVeterinarianData() {
+        return Stream.of(
+            // Create scenarios
+            Arguments.of("create", null, "Full time", "test_null_spec_create@vet.com", "1234567890"), // Null specialty on create
+            Arguments.of("create", "General", null, "test_null_avail_create@vet.com", "1234567891"), // Null availability on create
+            Arguments.of("create", "General", "   ", "test_empty_avail_create@vet.com", "1234567892"), // Empty availability on create
+            // Update scenarios
+            Arguments.of("update", null, "Part-time", "test_null_spec_update@refugio.com", "3209876543") // Null specialty on update
+        );
+    }
+
+    @ParameterizedTest(name = "{0} with specialty=''{1}'', availability=''{2}''")
+    @MethodSource("invalidVeterinarianData")
+    void testInvalidVeterinarianDataThrowsException(String operation, String specialty, String availability, String email, String phone) {
+        assertThrows(IllegalOperationException.class, () -> {
+            VeterinarianEntity vetEntity = factory.manufacturePojo(VeterinarianEntity.class);
+            vetEntity.setEmail(email);
+            vetEntity.setPhone(phone);
+            vetEntity.setSpecialty(specialty);
+            vetEntity.setAvailability(availability);
+            vetEntity.setName("Test Vet");
+            vetEntity.setPassword("password");
+
+            if ("create".equals(operation)) {
+                veterinarianService.createUser(vetEntity);
+            } else { // "update" operation
+                // Create a valid existing vet to update
+                VeterinarianEntity existingVet = factory.manufacturePojo(VeterinarianEntity.class);
+                existingVet.setEmail("existing@vet.com");
+                existingVet.setPhone("1112223333");
+                existingVet.setSpecialty("General");
+                existingVet.setAvailability("Full time");
+                existingVet.setName("Existing Vet");
+                existingVet.setPassword("password");
+                entityManager.persist(existingVet);
+                entityManager.flush();
+
+                veterinarianService.updateUser(existingVet.getId(), vetEntity);
+            }
         });
     }
 }
