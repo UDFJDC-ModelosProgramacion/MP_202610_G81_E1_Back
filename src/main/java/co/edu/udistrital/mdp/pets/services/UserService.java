@@ -77,25 +77,26 @@ public abstract class UserService {
                 .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.USER_NOT_FOUND));
     }
 
-    @Transactional
-    public UserEntity updateUser(Long userId, UserEntity user) 
-            throws EntityNotFoundException, IllegalOperationException {
-        log.info("Updating user with id = {}", userId);
+	@Transactional
+	public UserEntity updateUser(Long userId, UserEntity user) 
+			throws EntityNotFoundException, IllegalOperationException {
+		log.info("Updating user with id = {}", userId);
 
-        UserEntity existing = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.USER_NOT_FOUND));
+		// solo verificamos existencia. si no esta, el orElseThrow se encarga
+		userRepository.findById(userId)
+				.orElseThrow(() -> new EntityNotFoundException(ErrorMessage.USER_NOT_FOUND));
 
-        validateUser(user);
+		validateUser(user);
 
-        // validar que el nuevo email no lo tenga OTRO usuario
-        Optional<UserEntity> userWithSameEmail = userRepository.findByEmail(user.getEmail());
-        if (userWithSameEmail.isPresent() && !userWithSameEmail.get().getId().equals(userId)) {
-            throw new IllegalOperationException("New email already exists in another record");
-        }
+		// validar que el nuevo email no lo tenga OTRO usuario
+		Optional<UserEntity> userWithSameEmail = userRepository.findByEmail(user.getEmail());
+		if (userWithSameEmail.isPresent() && !userWithSameEmail.get().getId().equals(userId)) {
+			throw new IllegalOperationException("New email already exists in another record");
+		}
 
-        user.setId(userId);
-        return userRepository.save(user);
-    }
+		user.setId(userId);
+		return userRepository.save(user);
+	}
 
 	@Transactional
 		public void deleteUser(Long userId) throws EntityNotFoundException, IllegalOperationException {
