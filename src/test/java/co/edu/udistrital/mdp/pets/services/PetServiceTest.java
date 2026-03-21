@@ -638,4 +638,110 @@ class PetServiceTest {
 			petService.deletePet(999L); // ID que no existe
 		});
 	}
+
+    // --- Additional Tests for line 62 (validateStatusChange) ---
+	@Test
+	void testUpdatePetStatusToInTrialWhenTrialsAreNullSuccess() throws EntityNotFoundException, IllegalOperationException {
+		PetEntity pet = data.get(0); // AVAILABLE
+		pet.setTrials(null); // Set trials to null
+		entityManager.persist(pet);
+		entityManager.flush();
+
+		PetEntity updateData = factory.manufacturePojo(PetEntity.class);
+		updateData.setStatus(PetStatus.IN_TRIAL); 
+		updateData.setAge(pet.getAge()); 
+		updateData.setName(pet.getName()); 
+		updateData.setSpecies(pet.getSpecies());
+		updateData.setBreed(pet.getBreed());
+		updateData.setSex(pet.getSex());
+		updateData.setSize(pet.getSize());
+		updateData.setOrigin(pet.getOrigin());
+		updateData.setSpaceRequired(pet.getSpaceRequired());
+		updateData.setGoodWithKids(pet.getGoodWithKids());
+		updateData.setGoodWithPets(pet.getGoodWithPets());
+		
+		PetEntity result = petService.updatePet(pet.getId(), updateData);
+		
+		assertEquals(PetStatus.IN_TRIAL, result.getStatus());
+	}
+
+	@Test
+	void testUpdatePetStatusToInTrialWhenNoActiveTrialsSuccess() throws EntityNotFoundException, IllegalOperationException {
+		PetEntity pet = data.get(0); // AVAILABLE
+		// Ensure trials list is not null, but contains no IN_PROGRESS trials
+		pet.setTrials(new ArrayList<>()); 
+		entityManager.persist(pet);
+		entityManager.flush();
+
+		PetEntity updateData = factory.manufacturePojo(PetEntity.class);
+		updateData.setStatus(PetStatus.IN_TRIAL); 
+		updateData.setAge(pet.getAge()); 
+		updateData.setName(pet.getName()); 
+		updateData.setSpecies(pet.getSpecies());
+		updateData.setBreed(pet.getBreed());
+		updateData.setSex(pet.getSex());
+		updateData.setSize(pet.getSize());
+		updateData.setOrigin(pet.getOrigin());
+		updateData.setSpaceRequired(pet.getSpaceRequired());
+		updateData.setGoodWithKids(pet.getGoodWithKids());
+		updateData.setGoodWithPets(pet.getGoodWithPets());
+		
+		PetEntity result = petService.updatePet(pet.getId(), updateData);
+		
+		assertEquals(PetStatus.IN_TRIAL, result.getStatus());
+	}
+
+    // --- Additional Tests for line 145 (deletePet - adoptions) ---
+    @Test
+    void testDeletePetWithNullAdoptionsSuccess() throws EntityNotFoundException, IllegalOperationException {
+        PetEntity pet = data.get(0);
+        pet.setAdoptions(null); // Set adoptions to null
+        // Ensure no trials either to avoid other exceptions
+        pet.setTrials(null);
+        entityManager.persist(pet);
+        entityManager.flush();
+
+        petService.deletePet(pet.getId());
+        assertNull(entityManager.find(PetEntity.class, pet.getId()));
+    }
+
+    @Test
+    void testDeletePetWithEmptyAdoptionsSuccess() throws EntityNotFoundException, IllegalOperationException {
+        PetEntity pet = data.get(0);
+        pet.setAdoptions(new ArrayList<>()); // Set adoptions to an empty list
+        // Ensure no trials either to avoid other exceptions
+        pet.setTrials(null);
+        entityManager.persist(pet);
+        entityManager.flush();
+
+        petService.deletePet(pet.getId());
+        assertNull(entityManager.find(PetEntity.class, pet.getId()));
+    }
+
+    // --- Additional Tests for line 149 (deletePet - trials) ---
+    @Test
+    void testDeletePetWithNullTrialsSuccess() throws EntityNotFoundException, IllegalOperationException {
+        PetEntity pet = data.get(0);
+        pet.setTrials(null); // Set trials to null
+        // Ensure no adoptions either to avoid other exceptions
+        pet.setAdoptions(null);
+        entityManager.persist(pet);
+        entityManager.flush();
+
+        petService.deletePet(pet.getId());
+        assertNull(entityManager.find(PetEntity.class, pet.getId()));
+    }
+
+    @Test
+    void testDeletePetWithEmptyTrialsSuccess() throws EntityNotFoundException, IllegalOperationException {
+        PetEntity pet = data.get(0);
+        pet.setTrials(new ArrayList<>()); // Set trials to an empty list
+        // Ensure no adoptions either to avoid other exceptions
+        pet.setAdoptions(null);
+        entityManager.persist(pet);
+        entityManager.flush();
+
+        petService.deletePet(pet.getId());
+        assertNull(entityManager.find(PetEntity.class, pet.getId()));
+    }
 }
