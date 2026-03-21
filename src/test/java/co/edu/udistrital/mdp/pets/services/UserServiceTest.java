@@ -165,6 +165,54 @@ class UserServiceTest {
     }
 
     @Test
+    void testCreateUserWithNullName() {
+        assertThrows(IllegalOperationException.class, () -> {
+            UserEntity newEntity = factory.manufacturePojo(MockUser.class);
+            newEntity.setName(null);
+            newEntity.setEmail("valid@email.com");
+            newEntity.setPhone("1234567890");
+            newEntity.setPassword("password");
+            userService.createUser(newEntity);
+        });
+    }
+
+    @Test
+    void testCreateUserWithNullEmail() {
+        assertThrows(IllegalOperationException.class, () -> {
+            UserEntity newEntity = factory.manufacturePojo(MockUser.class);
+            newEntity.setName("Valid Name");
+            newEntity.setEmail(null);
+            newEntity.setPhone("1234567890");
+            newEntity.setPassword("password");
+            userService.createUser(newEntity);
+        });
+    }
+
+    @Test
+    void testCreateUserWithNullPhone() {
+        assertThrows(IllegalOperationException.class, () -> {
+            UserEntity newEntity = factory.manufacturePojo(MockUser.class);
+            newEntity.setName("Valid Name");
+            newEntity.setEmail("valid@email.com");
+            newEntity.setPhone(null);
+            newEntity.setPassword("password");
+            userService.createUser(newEntity);
+        });
+    }
+
+    @Test
+    void testCreateUserWithNullPassword() {
+        assertThrows(IllegalOperationException.class, () -> {
+            UserEntity newEntity = factory.manufacturePojo(MockUser.class);
+            newEntity.setName("Valid Name");
+            newEntity.setEmail("valid@email.com");
+            newEntity.setPhone("1234567890");
+            newEntity.setPassword(null);
+            userService.createUser(newEntity);
+        });
+    }
+
+    @Test
     void testGetUserNotFound() {
         assertThrows(EntityNotFoundException.class, () -> {
             userService.getUser(999L);
