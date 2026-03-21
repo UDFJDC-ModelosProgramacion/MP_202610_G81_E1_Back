@@ -744,4 +744,41 @@ class PetServiceTest {
         petService.deletePet(pet.getId());
         assertNull(entityManager.find(PetEntity.class, pet.getId()));
     }
+
+	@Test
+	void testUpdatePetStatusToInTrialWhenOnlyCompletedTrialsExistSuccess() throws EntityNotFoundException, IllegalOperationException {
+		PetEntity pet = data.get(0); // AVAILABLE
+		
+		// Create a completed trial
+		TrialCohabitationEntity completedTrial = new TrialCohabitationEntity();
+		completedTrial.setStatus(ProcessStatus.COMPLETED);
+		completedTrial.setPet(pet);
+		
+		// Initialize the trials list if null, then add the completed trial
+		if (pet.getTrials() == null) {
+			pet.setTrials(new ArrayList<>());
+		}
+		pet.getTrials().add(completedTrial);
+		
+		entityManager.persist(completedTrial); // Persist the trial first
+		entityManager.persist(pet); // Then persist the pet with the associated trial
+		entityManager.flush();
+
+		PetEntity updateData = factory.manufacturePojo(PetEntity.class);
+		updateData.setStatus(PetStatus.IN_TRIAL); 
+		updateData.setAge(pet.getAge()); 
+		updateData.setName(pet.getName()); 
+		updateData.setSpecies(pet.getSpecies());
+		updateData.setBreed(pet.getBreed());
+		updateData.setSex(pet.getSex());
+		updateData.setSize(pet.getSize());
+		updateData.setOrigin(pet.getOrigin());
+		updateData.setSpaceRequired(pet.getSpaceRequired());
+		updateData.setGoodWithKids(pet.getGoodWithKids());
+		updateData.setGoodWithPets(pet.getGoodWithPets());
+		
+		PetEntity result = petService.updatePet(pet.getId(), updateData);
+		
+		assertEquals(PetStatus.IN_TRIAL, result.getStatus());
+	}
 }
