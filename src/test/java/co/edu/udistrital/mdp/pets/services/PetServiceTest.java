@@ -502,4 +502,140 @@ class PetServiceTest {
             petService.deletePet(pet.getId());
         });
     }
+
+	// --- Additional Tests for validatePetData (via createPet) ---
+	@Test
+	void testCreatePetWithNullBreed() {
+		PetEntity pet = factory.manufacturePojo(PetEntity.class);
+		pet.setBreed(null);
+		assertThrows(IllegalOperationException.class, () -> petService.createPet(pet));
+	}
+
+	@Test
+	void testCreatePetWithEmptyBreed() {
+		PetEntity pet = factory.manufacturePojo(PetEntity.class);
+		pet.setBreed("   ");
+		assertThrows(IllegalOperationException.class, () -> petService.createPet(pet));
+	}
+
+	@Test
+	void testCreatePetWithNullSex() {
+		PetEntity pet = factory.manufacturePojo(PetEntity.class);
+		pet.setSex(null);
+		assertThrows(IllegalOperationException.class, () -> petService.createPet(pet));
+	}
+
+	@Test
+	void testCreatePetWithEmptySex() {
+		PetEntity pet = factory.manufacturePojo(PetEntity.class);
+		pet.setSex("   ");
+		assertThrows(IllegalOperationException.class, () -> petService.createPet(pet));
+	}
+
+	@Test
+	void testCreatePetWithNullSize() {
+		PetEntity pet = factory.manufacturePojo(PetEntity.class);
+		pet.setSize(null);
+		assertThrows(IllegalOperationException.class, () -> petService.createPet(pet));
+	}
+
+	@Test
+	void testCreatePetWithEmptySize() {
+		PetEntity pet = factory.manufacturePojo(PetEntity.class);
+		pet.setSize("   ");
+		assertThrows(IllegalOperationException.class, () -> petService.createPet(pet));
+	}
+
+	@Test
+	void testCreatePetWithNullOrigin() {
+		PetEntity pet = factory.manufacturePojo(PetEntity.class);
+		pet.setOrigin(null);
+		assertThrows(IllegalOperationException.class, () -> petService.createPet(pet));
+	}
+
+	@Test
+	void testCreatePetWithEmptyOrigin() {
+		PetEntity pet = factory.manufacturePojo(PetEntity.class);
+		pet.setOrigin("   ");
+		assertThrows(IllegalOperationException.class, () -> petService.createPet(pet));
+	}
+
+	@Test
+	void testCreatePetWithNullSpaceRequired() {
+		PetEntity pet = factory.manufacturePojo(PetEntity.class);
+		pet.setSpaceRequired(null);
+		assertThrows(IllegalOperationException.class, () -> petService.createPet(pet));
+	}
+
+	@Test
+	void testCreatePetWithEmptySpaceRequired() {
+		PetEntity pet = factory.manufacturePojo(PetEntity.class);
+		pet.setSpaceRequired("   ");
+		assertThrows(IllegalOperationException.class, () -> petService.createPet(pet));
+	}
+
+	// --- Additional Tests for validateStatusChange (via updatePet) ---
+	@Test
+	void testUpdatePetStatusToInTrialSuccess() throws EntityNotFoundException, IllegalOperationException {
+		PetEntity pet = data.get(0); // AVAILABLE
+		
+		PetEntity updateData = factory.manufacturePojo(PetEntity.class);
+		updateData.setStatus(PetStatus.IN_TRIAL); 
+		updateData.setAge(pet.getAge()); // Asegurar que age sea valido
+		updateData.setName(pet.getName()); // Asegurar que nombre sea valido
+		updateData.setSpecies(pet.getSpecies());
+		updateData.setBreed(pet.getBreed());
+		updateData.setSex(pet.getSex());
+		updateData.setSize(pet.getSize());
+		updateData.setOrigin(pet.getOrigin());
+		updateData.setSpaceRequired(pet.getSpaceRequired());
+		updateData.setGoodWithKids(pet.getGoodWithKids());
+		updateData.setGoodWithPets(pet.getGoodWithPets());
+		
+		PetEntity result = petService.updatePet(pet.getId(), updateData);
+		
+		assertEquals(PetStatus.IN_TRIAL, result.getStatus());
+	}
+
+	@Test
+	void testUpdatePetStatusFromInTrialToAdoptedSuccess() throws EntityNotFoundException, IllegalOperationException {
+		// Preparamos una mascota en estado IN_TRIAL
+		PetEntity pet = data.get(0); 
+		pet.setStatus(PetStatus.IN_TRIAL);
+		entityManager.persist(pet);
+		entityManager.flush();
+
+		PetEntity updateData = factory.manufacturePojo(PetEntity.class);
+		updateData.setStatus(PetStatus.ADOPTED); 
+		updateData.setAge(pet.getAge()); 
+		updateData.setName(pet.getName()); 
+		updateData.setSpecies(pet.getSpecies());
+		updateData.setBreed(pet.getBreed());
+		updateData.setSex(pet.getSex());
+		updateData.setSize(pet.getSize());
+		updateData.setOrigin(pet.getOrigin());
+		updateData.setSpaceRequired(pet.getSpaceRequired());
+		updateData.setGoodWithKids(pet.getGoodWithKids());
+		updateData.setGoodWithPets(pet.getGoodWithPets());
+
+		PetEntity result = petService.updatePet(pet.getId(), updateData);
+		
+		assertEquals(PetStatus.ADOPTED, result.getStatus());
+	}
+
+	// --- Additional Tests for processReturn ---
+	@Test
+	void testProcessReturnNotFound() {
+		assertThrows(EntityNotFoundException.class, () -> {
+			petService.processReturn(999L); // ID que no existe
+		});
+	}
+
+	// --- Additional Tests for deletePet ---
+	@Test
+	void testDeletePetNotFound() {
+		assertThrows(EntityNotFoundException.class, () -> {
+			petService.deletePet(999L); // ID que no existe
+		});
+	}
 }
