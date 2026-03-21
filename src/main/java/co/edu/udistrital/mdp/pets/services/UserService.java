@@ -99,15 +99,17 @@ public abstract class UserService {
 	}
 
 	@Transactional
-		public void deleteUser(Long userId) throws EntityNotFoundException, IllegalOperationException {
-			log.info("Deleting user with id = {}", userId);
-			
-			UserEntity user = userRepository.findById(userId)
-					.orElseThrow(() -> new EntityNotFoundException(ErrorMessage.USER_NOT_FOUND));
+	public void deleteUser(Long userId) throws EntityNotFoundException, IllegalOperationException {
+		log.info("Deleting user with id = {}", userId);
+		
+		// solo validamos existencia. el optional lanzara la excepcian si no lo encuentra
+		userRepository.findById(userId)
+				.orElseThrow(() -> new EntityNotFoundException(ErrorMessage.USER_NOT_FOUND));
 
-			// se llama al contrato del hijo, ejem adopter no puede eliminarse si tiene proceso de adopcion en curso
-			validateDeletion(userId);
+		// Se llama al contrato del hijo (Template Method Pattern)
+		// Ej: Adopter no puede eliminarse si tiene procesos de adopcion en curso
+		validateDeletion(userId);
 
-			userRepository.deleteById(userId);
-		}
+		userRepository.deleteById(userId);
+	}
 }
