@@ -32,7 +32,8 @@ public abstract class UserService {
 	 */
 	private void validateUser(UserEntity user) throws IllegalOperationException {
 	    // campos obligatorios no blancos
-	    if (isBlank(user.getName())) throw new IllegalOperationException("Name is mandatory");        if (isBlank(user.getEmail())) throw new IllegalOperationException("Email is mandatory");
+	    if (isBlank(user.getName())) throw new IllegalOperationException("Name is mandatory");        
+		if (isBlank(user.getEmail())) throw new IllegalOperationException("Email is mandatory");
         if (isBlank(user.getPhone())) throw new IllegalOperationException("Phone is mandatory");
         if (isBlank(user.getPassword())) throw new IllegalOperationException("Password is mandatory");
 
