@@ -121,28 +121,26 @@ public class PetService {
     }
 
 	@Transactional
-    public PetEntity processReturn(Long petId) throws EntityNotFoundException, IllegalOperationException {
-        log.info("Processing return for pet with id = {}", petId);
+	public PetEntity processReturn(Long petId) throws EntityNotFoundException, IllegalOperationException {
+		log.info("Processing return for pet with id = {}", petId);
 
-        PetEntity pet = getPet(petId);
+		// En lugar de llamar a getPet(petId), llamamos al repo
+		PetEntity pet = petRepository.findById(petId)
+				.orElseThrow(() -> new EntityNotFoundException(ErrorMessage.PET_NOT_FOUND));
 
-        // Rule: If it's already available, there's no need to process a return
-        if (pet.getStatus() == PetStatus.AVAILABLE) {
-            throw new IllegalOperationException("Pet is already marked as AVAILABLE.");
-        }
+		if (pet.getStatus() == PetStatus.AVAILABLE) {
+			throw new IllegalOperationException("Pet is already marked as AVAILABLE.");
+		}
 
-        // Logic: Reset status so it can be adopted again
-        pet.setStatus(PetStatus.AVAILABLE);
-        
-        log.info("Pet with id = {} is now available for adoption again", petId);
-        return petRepository.save(pet);
-    }
+		pet.setStatus(PetStatus.AVAILABLE);
+		return petRepository.save(pet);
+	}
 
     @Transactional
     public void deletePet(Long petId) throws EntityNotFoundException, IllegalOperationException {
         log.info("Deleting pet with id = {}", petId);
-        PetEntity pet = getPet(petId);
-
+		PetEntity pet = petRepository.findById(petId)
+				.orElseThrow(() -> new EntityNotFoundException(ErrorMessage.PET_NOT_FOUND));
         // proteccion de integridad: no borrar si tiene procesos de adopcion o pruebas
         if (pet.getAdoptions() != null && !pet.getAdoptions().isEmpty()) {
             throw new IllegalOperationException("Cannot delete pet: It has existing adoption records.");
