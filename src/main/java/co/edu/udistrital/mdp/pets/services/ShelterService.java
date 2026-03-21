@@ -30,9 +30,6 @@ public class ShelterService {
 	 */
 
 	private void validateData(ShelterEntity shelter) throws IllegalOperationException {
-
-        if (shelter == null) throw new IllegalOperationException("Shelter data cannot be null");
-		
 		if (shelter.getName() == null || shelter.getName().isBlank()) 
             throw new IllegalOperationException("Name is mandatory");
         if (shelter.getEmail() == null || shelter.getEmail().isBlank()) 
@@ -46,6 +43,9 @@ public class ShelterService {
 	@Transactional
 	public ShelterEntity createShelter(ShelterEntity shelterEntity)
 			throws IllegalOperationException {
+        if (shelterEntity == null) {
+            throw new IllegalOperationException("Shelter data cannot be null");
+        }
 		log.info("Starting creation process for shelter: {}", shelterEntity.getName());
 
 		validateData(shelterEntity);

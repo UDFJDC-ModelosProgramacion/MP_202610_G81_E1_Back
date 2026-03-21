@@ -278,4 +278,30 @@ class AdopterServiceTest {
             adopterService.deleteUser(adopter.getId());
         });
     }
+
+    @Test
+    void testDeleteAdopterWithNullAdoptionRequestsSuccess() throws EntityNotFoundException, IllegalOperationException {
+        AdopterEntity adopter = data.get(0);
+        adopter.setAdoptionRequests(null); // Set requests to null
+        adopter.setAdoptions(null); // Ensure adoptions is null too for this test
+        entityManager.persist(adopter);
+        entityManager.flush();
+
+        adopterService.deleteUser(adopter.getId());
+        AdopterEntity deleted = entityManager.find(AdopterEntity.class, adopter.getId());
+        assertNull(deleted);
+    }
+
+    @Test
+    void testDeleteAdopterWithNullAdoptionsSuccess() throws EntityNotFoundException, IllegalOperationException {
+        AdopterEntity adopter = data.get(1);
+        adopter.setAdoptions(null); // Set adoptions to null
+        adopter.setAdoptionRequests(null); // Ensure requests is null too for this test
+        entityManager.persist(adopter);
+        entityManager.flush();
+
+        adopterService.deleteUser(adopter.getId());
+        AdopterEntity deleted = entityManager.find(AdopterEntity.class, adopter.getId());
+        assertNull(deleted);
+    }
 }

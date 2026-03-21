@@ -177,4 +177,36 @@ class AdoptionServiceTest {
             adoptionService.deleteAdoption(adoption.getId());
         });
     }
+
+    @Test
+    void testCreateAdoptionWithNullAdoptionEntity() {
+        assertThrows(IllegalOperationException.class, () -> {
+            adoptionService.createAdoption(null);
+        });
+    }
+
+    @Test
+    void testUpdateAdoptionWithNullNewDateSuccess() throws EntityNotFoundException, IllegalOperationException {
+        AdoptionEntity entity = data.get(0);
+        AdoptionEntity pojoEntity = factory.manufacturePojo(AdoptionEntity.class);
+        pojoEntity.setAdoptionDate(null); // Set new adoption date to null
+
+        AdoptionEntity resp = adoptionService.updateAdoption(entity.getId(), pojoEntity);
+
+        assertNotNull(resp);
+        // The original adoption date should be preserved
+        assertEquals(entity.getAdoptionDate(), resp.getAdoptionDate()); 
+    }
+
+    @Test
+    void testDeleteAdoptionWithNullFollowUpsSuccess() throws EntityNotFoundException, IllegalOperationException {
+        AdoptionEntity adoption = data.get(0);
+        adoption.setFollowUps(null); // Set follow-ups to null
+        entityManager.persist(adoption);
+        entityManager.flush();
+
+        adoptionService.deleteAdoption(adoption.getId());
+        AdoptionEntity deleted = entityManager.find(AdoptionEntity.class, adoption.getId());
+        assertNull(deleted);
+    }
 }
