@@ -2,7 +2,10 @@ package co.edu.udistrital.mdp.pets.entities;
 
 import java.time.LocalDate;
 
+import co.edu.udistrital.mdp.pets.enums.ProcessStatus;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -18,6 +21,9 @@ public class TrialCohabitationEntity extends BaseEntity {
     private LocalDate endDate;
     private String result;
 	
+	@Enumerated(EnumType.STRING)
+	private ProcessStatus status;
+
 	@PodamExclude
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "pet_id")

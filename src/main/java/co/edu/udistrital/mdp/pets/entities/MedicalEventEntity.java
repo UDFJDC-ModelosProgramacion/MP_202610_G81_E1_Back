@@ -27,4 +27,9 @@ public class MedicalEventEntity extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "medical_history_id")
     private MedicalHistoryEntity medicalHistory;
+
+	@PodamExclude
+	@ManyToOne
+	@JoinColumn(name= "veterinarian_id")
+	private VeterinarianEntity veterinarian;
 }

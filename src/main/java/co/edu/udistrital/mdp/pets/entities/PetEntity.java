@@ -4,12 +4,17 @@ import lombok.Data;
 import uk.co.jemos.podam.common.PodamExclude;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+
 import java.util.List;
+import java.util.ArrayList;
+import co.edu.udistrital.mdp.pets.enums.PetStatus;
 
 /**
  * Entidad que representa a una mascota
@@ -26,7 +31,6 @@ public class PetEntity extends BaseEntity {
     private String size;
     private String temperament;
     private String specialNeeds;
-    private String status;
     private String description;
     private String photos; // URL o path
     private String activityLevel;
@@ -37,6 +41,9 @@ public class PetEntity extends BaseEntity {
     private Boolean goodWithPets;
     private String spaceRequired; // HOUSE, APARTMENT, BOTH
 
+	@Enumerated(EnumType.STRING)
+	private PetStatus status;
+	
 	// Relation N:1 with Shelter (Composicion desde Shelter)
     @PodamExclude
     @ManyToOne(fetch = FetchType.LAZY)
@@ -51,25 +58,25 @@ public class PetEntity extends BaseEntity {
     // Relation 1:N with Review
     @PodamExclude
     @OneToMany(mappedBy = "pet")
-    private List<ReviewEntity> reviews;
+    private List<ReviewEntity> reviews = new ArrayList<>();
 
     // Relation 1:N with Adoption
     @PodamExclude
     @OneToMany(mappedBy = "pet")
-    private List<AdoptionEntity> adoptions;
+    private List<AdoptionEntity> adoptions = new ArrayList<>();
 
     // Relation 1:N with AdoptionRequest
     @PodamExclude
     @OneToMany(mappedBy = "pet")
-    private List<AdoptionRequestEntity> adoptionRequests;
+    private List<AdoptionRequestEntity> adoptionRequests = new ArrayList<>();
 
     // Relation 1:N with AdoptionFollowUp
     @PodamExclude
     @OneToMany(mappedBy = "pet")
-    private List<AdoptionFollowUpEntity> followUps;
+    private List<AdoptionFollowUpEntity> followUps = new ArrayList<>();
 
     // Relation 1:N with TrialCohabitation
     @PodamExclude
     @OneToMany(mappedBy = "pet")
-    private List<TrialCohabitationEntity> trials;
+    private List<TrialCohabitationEntity> trials = new ArrayList<>();
 }

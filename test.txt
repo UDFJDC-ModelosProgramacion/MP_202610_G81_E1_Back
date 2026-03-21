@@ -1,0 +1,13 @@
+version actual surefire: 2.22.1
+
+Para poder ejecutar los test me toco actualizar surefire a una version mas grande
+y ejecutar "mvn test"
+
+<groupId>org.apache.maven.plugins</groupId>
+<artifactId>maven-surefire-plugin</artifactId>
+<version>3.2.5</version>
+
+no se si los IDE's solucionen esto internamente
+
+Si les pasa lo mismo que a mi recomiendo modificiar el pom para que surefire este en la version
+3.2.5 pero no guardar estos cambios a la rama principal.

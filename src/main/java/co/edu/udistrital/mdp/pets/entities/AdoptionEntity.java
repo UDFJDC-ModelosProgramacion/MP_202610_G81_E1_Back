@@ -5,6 +5,8 @@ import uk.co.jemos.podam.common.PodamExclude;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.List;
+
+import co.edu.udistrital.mdp.pets.enums.ProcessStatus;
 import lombok.ToString;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -22,6 +24,9 @@ import lombok.AllArgsConstructor;
 public class AdoptionEntity extends BaseEntity {
 
     private LocalDate adoptionDate;
+
+	@Enumerated(EnumType.STRING)
+	private ProcessStatus status;
 
     // Relation: N:1 Adopter has many Adoptions
     @PodamExclude

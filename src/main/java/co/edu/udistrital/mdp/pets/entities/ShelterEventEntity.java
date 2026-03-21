@@ -5,6 +5,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import uk.co.jemos.podam.common.PodamExclude;
 import java.util.List;
+
+import co.edu.udistrital.mdp.pets.enums.ProcessStatus;
+
 import java.util.Date;
 
 @Data
@@ -15,6 +18,9 @@ public class ShelterEventEntity extends BaseEntity {
     private String title;
     private String description;
     private String location;
+		
+	@Enumerated(EnumType.STRING)
+	private ProcessStatus status;
 
     @Temporal(TemporalType.DATE)
     private Date date;
