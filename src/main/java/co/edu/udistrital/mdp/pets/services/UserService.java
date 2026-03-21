@@ -77,36 +77,39 @@ public abstract class UserService {
                 .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.USER_NOT_FOUND));
     }
 
-    @Transactional
-    public UserEntity updateUser(Long userId, UserEntity user) 
-            throws EntityNotFoundException, IllegalOperationException {
-        log.info("Updating user with id = {}", userId);
+	@Transactional
+	public UserEntity updateUser(Long userId, UserEntity user) 
+			throws EntityNotFoundException, IllegalOperationException {
+		log.info("Updating user with id = {}", userId);
 
-        UserEntity existing = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.USER_NOT_FOUND));
+		// solo verificamos existencia. si no esta, el orElseThrow se encarga
+		userRepository.findById(userId)
+				.orElseThrow(() -> new EntityNotFoundException(ErrorMessage.USER_NOT_FOUND));
 
-        validateUser(user);
+		validateUser(user);
 
-        // validar que el nuevo email no lo tenga OTRO usuario
-        Optional<UserEntity> userWithSameEmail = userRepository.findByEmail(user.getEmail());
-        if (userWithSameEmail.isPresent() && !userWithSameEmail.get().getId().equals(userId)) {
-            throw new IllegalOperationException("New email already exists in another record");
-        }
+		// validar que el nuevo email no lo tenga OTRO usuario
+		Optional<UserEntity> userWithSameEmail = userRepository.findByEmail(user.getEmail());
+		if (userWithSameEmail.isPresent() && !userWithSameEmail.get().getId().equals(userId)) {
+			throw new IllegalOperationException("New email already exists in another record");
+		}
 
-        user.setId(userId);
-        return userRepository.save(user);
-    }
+		user.setId(userId);
+		return userRepository.save(user);
+	}
 
 	@Transactional
-		public void deleteUser(Long userId) throws EntityNotFoundException, IllegalOperationException {
-			log.info("Deleting user with id = {}", userId);
-			
-			UserEntity user = userRepository.findById(userId)
-					.orElseThrow(() -> new EntityNotFoundException(ErrorMessage.USER_NOT_FOUND));
+	public void deleteUser(Long userId) throws EntityNotFoundException, IllegalOperationException {
+		log.info("Deleting user with id = {}", userId);
+		
+		// solo validamos existencia. el optional lanzara la excepcian si no lo encuentra
+		userRepository.findById(userId)
+				.orElseThrow(() -> new EntityNotFoundException(ErrorMessage.USER_NOT_FOUND));
 
-			// se llama al contrato del hijo, ejem adopter no puede eliminarse si tiene proceso de adopcion en curso
-			validateDeletion(userId);
+		// Se llama al contrato del hijo (Template Method Pattern)
+		// Ej: Adopter no puede eliminarse si tiene procesos de adopcion en curso
+		validateDeletion(userId);
 
-			userRepository.deleteById(userId);
-		}
+		userRepository.deleteById(userId);
+	}
 }

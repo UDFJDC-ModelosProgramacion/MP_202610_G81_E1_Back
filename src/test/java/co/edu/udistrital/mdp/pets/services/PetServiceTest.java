@@ -25,7 +25,7 @@ import uk.co.jemos.podam.api.PodamFactoryImpl;
 @DataJpaTest
 @Transactional
 @Import(PetService.class)
-public class PetServiceTest {
+class PetServiceTest {
 
     @Autowired
     private PetService petService;
