@@ -177,4 +177,257 @@ class ShelterServiceTest {
             shelterService.deleteShelter(shelter.getId());
         });
     }
+
+    // --- Additional Tests for validateData (via createShelter and updateShelter) ---
+    @Test
+    void testCreateShelterWithNullShelterEntity() {
+        assertThrows(IllegalOperationException.class, () -> {
+            shelterService.createShelter(null);
+        });
+    }
+
+    @Test
+    void testCreateShelterWithNullName() {
+        ShelterEntity newEntity = factory.manufacturePojo(ShelterEntity.class);
+        newEntity.setName(null);
+        assertThrows(IllegalOperationException.class, () -> {
+            shelterService.createShelter(newEntity);
+        });
+    }
+
+    @Test
+    void testCreateShelterWithEmptyName() {
+        ShelterEntity newEntity = factory.manufacturePojo(ShelterEntity.class);
+        newEntity.setName("   ");
+        assertThrows(IllegalOperationException.class, () -> {
+            shelterService.createShelter(newEntity);
+        });
+    }
+
+    @Test
+    void testCreateShelterWithNullEmail() {
+        ShelterEntity newEntity = factory.manufacturePojo(ShelterEntity.class);
+        newEntity.setEmail(null);
+        assertThrows(IllegalOperationException.class, () -> {
+            shelterService.createShelter(newEntity);
+        });
+    }
+
+    @Test
+    void testCreateShelterWithEmptyEmail() {
+        ShelterEntity newEntity = factory.manufacturePojo(ShelterEntity.class);
+        newEntity.setEmail("   ");
+        assertThrows(IllegalOperationException.class, () -> {
+            shelterService.createShelter(newEntity);
+        });
+    }
+
+    @Test
+    void testCreateShelterWithNullCity() {
+        ShelterEntity newEntity = factory.manufacturePojo(ShelterEntity.class);
+        newEntity.setCity(null);
+        assertThrows(IllegalOperationException.class, () -> {
+            shelterService.createShelter(newEntity);
+        });
+    }
+
+    @Test
+    void testCreateShelterWithEmptyCity() {
+        ShelterEntity newEntity = factory.manufacturePojo(ShelterEntity.class);
+        newEntity.setCity("   ");
+        assertThrows(IllegalOperationException.class, () -> {
+            shelterService.createShelter(newEntity);
+        });
+    }
+
+    @Test
+    void testCreateShelterWithNullGallery() {
+        ShelterEntity newEntity = factory.manufacturePojo(ShelterEntity.class);
+        newEntity.setGallery(null);
+        assertThrows(IllegalOperationException.class, () -> {
+            shelterService.createShelter(newEntity);
+        });
+    }
+
+    @Test
+    void testCreateShelterWithEmptyGallery() {
+        ShelterEntity newEntity = factory.manufacturePojo(ShelterEntity.class);
+        newEntity.setGallery("   ");
+        assertThrows(IllegalOperationException.class, () -> {
+            shelterService.createShelter(newEntity);
+        });
+    }
+
+    // --- Additional Tests for findSheltersByName ---
+    @Test
+    void testFindSheltersByNameReturnsResults() {
+        ShelterEntity newEntity = factory.manufacturePojo(ShelterEntity.class);
+        newEntity.setName("UniqueFindName");
+        newEntity.setEmail("unique.find@test.com");
+        newEntity.setCity("FindCity");
+        newEntity.setGallery("find_gallery.jpg");
+        entityManager.persist(newEntity);
+        entityManager.flush();
+
+        List<ShelterEntity> result = shelterService.findSheltersByName("Unique");
+        assertFalse(result.isEmpty());
+        assertEquals(1, result.size());
+        assertEquals("UniqueFindName", result.get(0).getName());
+    }
+
+    @Test
+    void testFindSheltersByNameReturnsNoResults() {
+        List<ShelterEntity> result = shelterService.findSheltersByName("NonExistentName");
+        assertTrue(result.isEmpty());
+    }
+
+    // --- Additional Tests for updateShelter ---
+    @Test
+    void testUpdateShelterNotFound() {
+        ShelterEntity updateData = factory.manufacturePojo(ShelterEntity.class);
+        assertThrows(EntityNotFoundException.class, () -> {
+            shelterService.updateShelter(999L, updateData); // ID que no existe
+        });
+    }
+
+    @Test
+    void testUpdateShelterWithExistingName() {
+        ShelterEntity existingShelter = data.get(0);
+        ShelterEntity anotherShelter = data.get(1); // Get another existing shelter
+
+        ShelterEntity updateData = factory.manufacturePojo(ShelterEntity.class);
+        updateData.setName(anotherShelter.getName()); // Set name to an already existing one
+        updateData.setEmail(existingShelter.getEmail()); // Keep existing email to avoid email collision
+        
+        assertThrows(IllegalOperationException.class, () -> {
+            shelterService.updateShelter(existingShelter.getId(), updateData);
+        });
+    }
+
+    @Test
+    void testUpdateShelterWithExistingEmail() {
+        ShelterEntity existingShelter = data.get(0);
+        ShelterEntity anotherShelter = data.get(1); // Get another existing shelter
+
+        ShelterEntity updateData = factory.manufacturePojo(ShelterEntity.class);
+        updateData.setEmail(anotherShelter.getEmail()); // Set email to an already existing one
+        updateData.setName(existingShelter.getName()); // Keep existing name to avoid name collision
+
+        assertThrows(IllegalOperationException.class, () -> {
+            shelterService.updateShelter(existingShelter.getId(), updateData);
+        });
+    }
+
+    // --- Additional Tests for deleteShelter ---
+    @Test
+    void testDeleteShelterNotFound() {
+        assertThrows(EntityNotFoundException.class, () -> {
+            shelterService.deleteShelter(999L); // ID que no existe
+        });
+    }
+
+    @Test
+    void testDeleteShelterWithNullPetsSuccess() throws EntityNotFoundException, IllegalOperationException {
+        ShelterEntity shelter = data.get(0);
+        shelter.setPets(null); // Set pets to null
+        shelter.setEvents(null); // Ensure no events either
+        entityManager.persist(shelter);
+        entityManager.flush();
+
+        shelterService.deleteShelter(shelter.getId());
+        assertNull(entityManager.find(ShelterEntity.class, shelter.getId()));
+    }
+
+    @Test
+    void testDeleteShelterWithEmptyPetsSuccess() throws EntityNotFoundException, IllegalOperationException {
+        ShelterEntity shelter = data.get(0);
+        shelter.setPets(new ArrayList<>()); // Set pets to empty list
+        shelter.setEvents(null); // Ensure no events either
+        entityManager.persist(shelter);
+        entityManager.flush();
+
+        shelterService.deleteShelter(shelter.getId());
+        assertNull(entityManager.find(ShelterEntity.class, shelter.getId()));
+    }
+
+    @Test
+    void testDeleteShelterWithNullEventsSuccess() throws EntityNotFoundException, IllegalOperationException {
+        ShelterEntity shelter = data.get(0);
+        shelter.setEvents(null); // Set events to null
+        shelter.setPets(null); // Ensure no pets either
+        entityManager.persist(shelter);
+        entityManager.flush();
+
+        shelterService.deleteShelter(shelter.getId());
+        assertNull(entityManager.find(ShelterEntity.class, shelter.getId()));
+    }
+
+    @Test
+    void testDeleteShelterWithOnlyCompletedEventsSuccess() throws EntityNotFoundException, IllegalOperationException {
+        ShelterEntity shelter = data.get(0);
+        shelter.setPets(null); // Ensure no pets
+        
+        // Create a completed event
+        ShelterEventEntity completedEvent = factory.manufacturePojo(ShelterEventEntity.class);
+        completedEvent.setStatus(ProcessStatus.COMPLETED);
+        completedEvent.setShelter(shelter); 
+        
+        if (shelter.getEvents() == null) {
+            shelter.setEvents(new ArrayList<>());
+        }
+        shelter.getEvents().add(completedEvent);
+        
+        entityManager.persist(completedEvent);
+        entityManager.persist(shelter);
+        entityManager.flush();
+
+        shelterService.deleteShelter(shelter.getId());
+        assertNull(entityManager.find(ShelterEntity.class, shelter.getId()));
+    }
+
+    @Test
+    void testDeleteShelterWithCreatedEventFails() {
+        assertThrows(IllegalOperationException.class, () -> {
+            ShelterEntity shelter = data.get(0);
+            shelter.setPets(null);
+            
+            ShelterEventEntity createdEvent = factory.manufacturePojo(ShelterEventEntity.class);
+            createdEvent.setStatus(ProcessStatus.CREATED); 
+            createdEvent.setShelter(shelter); 
+            
+            if (shelter.getEvents() == null) {
+                shelter.setEvents(new ArrayList<>());
+            }
+            shelter.getEvents().add(createdEvent);
+            
+            entityManager.persist(createdEvent);
+            entityManager.persist(shelter);
+            entityManager.flush();
+
+            shelterService.deleteShelter(shelter.getId());
+        });
+    }
+
+    @Test
+    void testDeleteShelterWithPendingEventFails() {
+        assertThrows(IllegalOperationException.class, () -> {
+            ShelterEntity shelter = data.get(0);
+            shelter.setPets(null);
+            
+            ShelterEventEntity pendingEvent = factory.manufacturePojo(ShelterEventEntity.class);
+            pendingEvent.setStatus(ProcessStatus.PENDING); 
+            pendingEvent.setShelter(shelter); 
+            
+            if (shelter.getEvents() == null) {
+                shelter.setEvents(new ArrayList<>());
+            }
+            shelter.getEvents().add(pendingEvent);
+            
+            entityManager.persist(pendingEvent);
+            entityManager.persist(shelter);
+            entityManager.flush();
+
+            shelterService.deleteShelter(shelter.getId());
+        });
+    }
 }
