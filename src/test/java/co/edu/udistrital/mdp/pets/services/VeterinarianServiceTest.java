@@ -137,4 +137,219 @@ class VeterinarianServiceTest {
             veterinarianService.deleteUser(vet.getId());
         });
     }
+
+    // --- Additional Tests for validateVeterinarianData (via createUser) ---
+    @Test
+    void testCreateVeterinarianWithNullSpecialty() {
+        assertThrows(IllegalOperationException.class, () -> {
+            VeterinarianEntity newEntity = factory.manufacturePojo(VeterinarianEntity.class);
+            newEntity.setEmail("test_null_spec@vet.com");
+            newEntity.setPhone("1234567890");
+            newEntity.setSpecialty(null); // Null specialty
+            newEntity.setAvailability("Full time");
+            veterinarianService.createUser(newEntity);
+        });
+    }
+
+    @Test
+    void testCreateVeterinarianWithNullAvailability() {
+        assertThrows(IllegalOperationException.class, () -> {
+            VeterinarianEntity newEntity = factory.manufacturePojo(VeterinarianEntity.class);
+            newEntity.setEmail("test_null_avail@vet.com");
+            newEntity.setPhone("1234567891");
+            newEntity.setSpecialty("General");
+            newEntity.setAvailability(null); // Null availability
+            veterinarianService.createUser(newEntity);
+        });
+    }
+
+    @Test
+    void testCreateVeterinarianWithEmptyAvailability() {
+        assertThrows(IllegalOperationException.class, () -> {
+            VeterinarianEntity newEntity = factory.manufacturePojo(VeterinarianEntity.class);
+            newEntity.setEmail("test_empty_avail@vet.com");
+            newEntity.setPhone("1234567892");
+            newEntity.setSpecialty("General");
+            newEntity.setAvailability("   "); // Empty availability
+            veterinarianService.createUser(newEntity);
+        });
+    }
+
+    // --- Additional Tests for updateUser ---
+    @Test
+    void testUpdateVeterinarianSuccess() throws EntityNotFoundException, IllegalOperationException {
+        VeterinarianEntity entity = data.get(0);
+        VeterinarianEntity pojoEntity = factory.manufacturePojo(VeterinarianEntity.class);
+        pojoEntity.setEmail("updated_vet@refugio.com");
+        pojoEntity.setPhone("3209876543");
+        pojoEntity.setName("Updated Vet Name");
+        pojoEntity.setPassword("newpassword");
+        pojoEntity.setSpecialty("Pediatra");
+        pojoEntity.setAvailability("Part-time");
+
+        VeterinarianEntity resp = (VeterinarianEntity) veterinarianService.updateUser(entity.getId(), pojoEntity);
+
+        assertNotNull(resp);
+        assertEquals("Pediatra", resp.getSpecialty());
+        assertEquals("Part-time", resp.getAvailability());
+    }
+
+    @Test
+    void testUpdateVeterinarianNotFound() {
+        VeterinarianEntity pojoEntity = factory.manufacturePojo(VeterinarianEntity.class);
+        pojoEntity.setEmail("non_existent@vet.com");
+        pojoEntity.setPhone("1111111111");
+        pojoEntity.setSpecialty("General");
+        pojoEntity.setAvailability("Any");
+        
+        assertThrows(EntityNotFoundException.class, () -> {
+            veterinarianService.updateUser(999L, pojoEntity); // ID que no existe
+        });
+    }
+
+    @Test
+    void testUpdateVeterinarianWithNullSpecialty() {
+        VeterinarianEntity entity = data.get(0);
+        VeterinarianEntity pojoEntity = factory.manufacturePojo(VeterinarianEntity.class);
+        pojoEntity.setEmail("updated_vet@refugio.com");
+        pojoEntity.setPhone("3209876543");
+        pojoEntity.setName("Updated Vet Name");
+        pojoEntity.setPassword("newpassword");
+        pojoEntity.setSpecialty(null); // Null specialty
+        pojoEntity.setAvailability("Part-time");
+
+        assertThrows(IllegalOperationException.class, () -> {
+            veterinarianService.updateUser(entity.getId(), pojoEntity);
+        });
+    }
+    
+    @Test
+    void testUpdateVeterinarianWithEmptySpecialty() {
+        VeterinarianEntity entity = data.get(0);
+        VeterinarianEntity pojoEntity = factory.manufacturePojo(VeterinarianEntity.class);
+        pojoEntity.setEmail("updated_vet@refugio.com");
+        pojoEntity.setPhone("3209876543");
+        pojoEntity.setName("Updated Vet Name");
+        pojoEntity.setPassword("newpassword");
+        pojoEntity.setSpecialty("   "); // Empty specialty
+        pojoEntity.setAvailability("Part-time");
+
+        assertThrows(IllegalOperationException.class, () -> {
+            veterinarianService.updateUser(entity.getId(), pojoEntity);
+        });
+    }
+
+    @Test
+    void testUpdateVeterinarianWithNullAvailability() {
+        VeterinarianEntity entity = data.get(0);
+        VeterinarianEntity pojoEntity = factory.manufacturePojo(VeterinarianEntity.class);
+        pojoEntity.setEmail("updated_vet@refugio.com");
+        pojoEntity.setPhone("3209876543");
+        pojoEntity.setName("Updated Vet Name");
+        pojoEntity.setPassword("newpassword");
+        pojoEntity.setSpecialty("General");
+        pojoEntity.setAvailability(null); // Null availability
+
+        assertThrows(IllegalOperationException.class, () -> {
+            veterinarianService.updateUser(entity.getId(), pojoEntity);
+        });
+    }
+
+    @Test
+    void testUpdateVeterinarianWithEmptyAvailability() {
+        VeterinarianEntity entity = data.get(0);
+        VeterinarianEntity pojoEntity = factory.manufacturePojo(VeterinarianEntity.class);
+        pojoEntity.setEmail("updated_vet@refugio.com");
+        pojoEntity.setPhone("3209876543");
+        pojoEntity.setName("Updated Vet Name");
+        pojoEntity.setPassword("newpassword");
+        pojoEntity.setSpecialty("General");
+        pojoEntity.setAvailability("   "); // Empty availability
+
+        assertThrows(IllegalOperationException.class, () -> {
+            veterinarianService.updateUser(entity.getId(), pojoEntity);
+        });
+    }
+
+    // --- Additional Tests for validateDeletion (via deleteUser) ---
+    @Test
+    void testDeleteVeterinarianNotFound() {
+        assertThrows(EntityNotFoundException.class, () -> {
+            veterinarianService.deleteUser(999L); // ID que no existe
+        });
+    }
+
+    @Test
+    void testDeleteVeterinarianWithNullAdoptionFollowUpsSuccess() throws EntityNotFoundException, IllegalOperationException {
+        VeterinarianEntity vet = data.get(0);
+        vet.setAdoptionFollowUps(null); // Set to null
+        vet.setMedicalEvents(null); // Also set to null to isolate test
+        vet.setVaccinationRecords(null); // Also set to null to isolate test
+        entityManager.persist(vet);
+        entityManager.flush();
+
+        veterinarianService.deleteUser(vet.getId());
+        VeterinarianEntity deleted = entityManager.find(VeterinarianEntity.class, vet.getId());
+        assertNull(deleted);
+    }
+
+    @Test
+    void testDeleteVeterinarianWithEmptyAdoptionFollowUpsSuccess() throws EntityNotFoundException, IllegalOperationException {
+        VeterinarianEntity vet = data.get(0);
+        vet.setAdoptionFollowUps(new ArrayList<>()); // Set to empty list
+        vet.setMedicalEvents(null); // Also set to null to isolate test
+        vet.setVaccinationRecords(null); // Also set to null to isolate test
+        entityManager.persist(vet);
+        entityManager.flush();
+
+        veterinarianService.deleteUser(vet.getId());
+        VeterinarianEntity deleted = entityManager.find(VeterinarianEntity.class, vet.getId());
+        assertNull(deleted);
+    }
+
+    @Test
+    void testDeleteVeterinarianWithNullMedicalEventsAndVaccinationRecordsSuccess() throws EntityNotFoundException, IllegalOperationException {
+        VeterinarianEntity vet = data.get(0);
+        vet.setMedicalEvents(null); // Set to null
+        vet.setVaccinationRecords(null); // Set to null
+        vet.setAdoptionFollowUps(null); // Also set to null to isolate test
+        entityManager.persist(vet);
+        entityManager.flush();
+
+        veterinarianService.deleteUser(vet.getId());
+        VeterinarianEntity deleted = entityManager.find(VeterinarianEntity.class, vet.getId());
+        assertNull(deleted);
+    }
+
+    @Test
+    void testDeleteVeterinarianWithEmptyMedicalEventsAndVaccinationRecordsSuccess() throws EntityNotFoundException, IllegalOperationException {
+        VeterinarianEntity vet = data.get(0);
+        vet.setMedicalEvents(new ArrayList<>()); // Set to empty list
+        vet.setVaccinationRecords(new ArrayList<>()); // Set to empty list
+        vet.setAdoptionFollowUps(null); // Also set to null to isolate test
+        entityManager.persist(vet);
+        entityManager.flush();
+
+        veterinarianService.deleteUser(vet.getId());
+        VeterinarianEntity deleted = entityManager.find(VeterinarianEntity.class, vet.getId());
+        assertNull(deleted);
+    }
+
+    @Test
+    void testDeleteVeterinarianWithVaccinationRecords() {
+        VeterinarianEntity vet = data.get(0);
+
+        // simulamos un registro de vacunacion vinculado
+        // Assuming VaccinationRecordEntity and other necessary entities are defined and can be manufactured
+        // For simplicity, directly add to list without full mock setup if not strictly needed by current test setup
+        // But for a full test, you'd persist these too.
+        vet.getVaccinationRecords().add(factory.manufacturePojo(co.edu.udistrital.mdp.pets.entities.VaccinationRecordEntity.class));
+
+        entityManager.persist(vet); // Persist vet after modifying its collections
+        entityManager.flush();
+
+        assertThrows(IllegalOperationException.class, () -> {
+            veterinarianService.deleteUser(vet.getId());
+        });
+    }
 }
