@@ -119,26 +119,46 @@ public class TrialCohabitationService {
         TrialCohabitationEntity existingTrial = trialCohabitationRepository.findById(trialId)
                 .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.TRIAL_COHABITATION_NOT_FOUND));
         
-        // Regla: El campo resultado solo acepta valores del catalogo
+        // Validation for newResult (if provided)
         if (trial.getResult() != null && !ALLOWED_RESULTS.contains(trial.getResult())) {
             throw new IllegalOperationException(
                 "Result must be one of the following values: " + ALLOWED_RESULTS);
         }
         
-        // Regla: El resultado solo puede cambiar de "EN_PROCESO" a otros estados, no al reves
+        // Validation for result transition
         String currentResult = existingTrial.getResult();
         String newResult = trial.getResult();
         
-        if (currentResult != null && !currentResult.equals("EN_PROCESO") && 
-            newResult != null && !newResult.equals(currentResult)) {
-            throw new IllegalOperationException(
-                "Result can only change from 'EN_PROCESO' to another state. " +
-                "Cannot change from '" + currentResult + "' to '" + newResult + "'");
+        if (newResult != null) { // Only validate transition if newResult is provided
+            if (currentResult != null && !currentResult.equals("EN_PROCESO") && !newResult.equals(currentResult)) {
+                throw new IllegalOperationException(
+                    "Result can only change from 'EN_PROCESO' to another state. " +
+                    "Cannot change from '" + currentResult + "' to '" + newResult + "'");
+            }
+            existingTrial.setResult(newResult);
+        }
+
+        if (trial.getStartDate() != null) {
+            existingTrial.setStartDate(trial.getStartDate());
+        }
+        if (trial.getEndDate() != null) {
+            existingTrial.setEndDate(trial.getEndDate());
         }
         
-        trial.setId(trialId);
+        // Additional validation for dates after potential update
+        if (existingTrial.getStartDate() == null) {
+            throw new IllegalOperationException("Start date is mandatory and cannot be empty");
+        }
+        if (existingTrial.getEndDate() == null) {
+            throw new IllegalOperationException("End date is mandatory and cannot be empty");
+        }
+        if (existingTrial.getEndDate().isBefore(existingTrial.getStartDate())) {
+            throw new IllegalOperationException("End date must be after start date");
+        }
+
+        // Save the updated existingTrial
         log.info("Trial cohabitation with id = {} updated successfully", trialId);
-        return trialCohabitationRepository.save(trial);
+        return trialCohabitationRepository.save(existingTrial);
     }
 
     /**

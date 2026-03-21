@@ -130,6 +130,13 @@ class TrialCohabitationServiceTest {
         assertNotNull(result);
     }
 
+    @Test
+    void testCreateTrialCohabitationWithNullEntity() {
+        assertThrows(IllegalOperationException.class, () -> {
+            trialCohabitationService.createTrialCohabitation(null);
+        });
+    }
+
     // ==================== GET TESTS ====================
 
     @Test
@@ -205,6 +212,47 @@ class TrialCohabitationServiceTest {
         assertThrows(EntityNotFoundException.class, () -> {
             trialCohabitationService.updateTrialCohabitation(999L, pojoEntity);
         });
+    }
+
+    @Test
+    void testUpdateTrialCohabitationWithNullResultInPojo() throws EntityNotFoundException, IllegalOperationException {
+        TrialCohabitationEntity entity = data.get(0); // This entity has result "EN_PROCESO"
+        String originalResult = entity.getResult();
+        
+        TrialCohabitationEntity pojoEntity = factory.manufacturePojo(TrialCohabitationEntity.class);
+        pojoEntity.setResult(null); // Set result to null in the POJO
+        pojoEntity.setStartDate(entity.getStartDate()); // Keep original start date
+        pojoEntity.setEndDate(entity.getEndDate()); // Keep original end date
+
+        TrialCohabitationEntity resp = trialCohabitationService.updateTrialCohabitation(entity.getId(), pojoEntity);
+
+        assertNotNull(resp);
+        assertEquals(originalResult, resp.getResult()); // Result should remain unchanged
+    }
+
+    @Test
+    void testUpdateTrialCohabitationWithNullCurrentResultToValidResult() throws EntityNotFoundException, IllegalOperationException {
+        // 1. Create a TrialCohabitationEntity with result = null and persist it
+        TrialCohabitationEntity trialWithNullResult = factory.manufacturePojo(TrialCohabitationEntity.class);
+        trialWithNullResult.setStartDate(LocalDate.now().minusDays(10));
+        trialWithNullResult.setEndDate(LocalDate.now().plusDays(10));
+        trialWithNullResult.setResult(null); // Explicitly set to null
+        entityManager.persist(trialWithNullResult);
+        entityManager.flush(); // Ensure it's persisted
+
+        // 2. Create a pojoEntity with a valid newResult
+        TrialCohabitationEntity pojoEntity = factory.manufacturePojo(TrialCohabitationEntity.class);
+        pojoEntity.setStartDate(trialWithNullResult.getStartDate());
+        pojoEntity.setEndDate(trialWithNullResult.getEndDate());
+        pojoEntity.setResult("EXITOSA"); // New valid result
+
+        // 3. Call updateTrialCohabitation
+        TrialCohabitationEntity updatedTrial = trialCohabitationService.updateTrialCohabitation(
+            trialWithNullResult.getId(), pojoEntity);
+
+        // 4. Assert that the update is successful and the result is changed to the newResult
+        assertNotNull(updatedTrial);
+        assertEquals("EXITOSA", updatedTrial.getResult());
     }
 
     // ==================== DELETE TESTS ====================
