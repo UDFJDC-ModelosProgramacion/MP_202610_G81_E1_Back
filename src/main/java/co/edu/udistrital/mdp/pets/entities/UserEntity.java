@@ -4,8 +4,9 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import uk.co.jemos.podam.common.PodamExclude;
-import java.util.List;
 
+import java.util.List;
+import java.util.ArrayList;
 @Data
 @Entity
 
@@ -34,5 +35,5 @@ public abstract class UserEntity extends BaseEntity {
 	// Relation 1:N with Notification
 	@PodamExclude
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<NotificationEntity> notifications;
+    private List<NotificationEntity> notifications = new ArrayList<>();
 }

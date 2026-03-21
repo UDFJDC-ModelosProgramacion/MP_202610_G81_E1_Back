@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import co.edu.udistrital.mdp.pets.entities.ShelterEntity;
 import co.edu.udistrital.mdp.pets.entities.PetEntity;
 import co.edu.udistrital.mdp.pets.entities.ShelterEventEntity;
+import co.edu.udistrital.mdp.pets.enums.ProcessStatus;
 import co.edu.udistrital.mdp.pets.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.pets.exceptions.IllegalOperationException;
 import uk.co.jemos.podam.api.PodamFactory;
@@ -146,12 +147,9 @@ public class ShelterServiceTest {
 				pet.setShelter(shelter);
 				entityManager.persist(pet);
 				
-				// inicializar la lista si es null antes de agregar
-				if (shelter.getPets() == null) {
-					shelter.setPets(new ArrayList<>());
-				}
 				shelter.getPets().add(pet); 
-				
+				entityManager.persist(pet);
+        		entityManager.flush(); //  sincronizar el estado 
 				shelterService.deleteShelter(shelter.getId());
 			});
 	}
@@ -160,19 +158,11 @@ public class ShelterServiceTest {
     void testDeleteShelterWithActiveEvents() {
         // crear el shelter con Podam
         ShelterEntity shelter = factory.manufacturePojo(ShelterEntity.class);
-        
-        // inicializacion de seguridad para evitar el NullPointerException del List
-        if (shelter.getEvents() == null) {
-            shelter.setEvents(new java.util.ArrayList<>());
-        }
-        
         entityManager.persist(shelter);
 
         // crear un evento y forzar el estado "No finalizado"
         ShelterEventEntity event = factory.manufacturePojo(ShelterEventEntity.class);
-        
-        // usamos el Enum ProcessStatus 
-        event.setStatus(co.edu.udistrital.mdp.pets.enums.ProcessStatus.IN_PROGRESS); 
+        event.setStatus(ProcessStatus.IN_PROGRESS); 
         event.setShelter(shelter); // Relación bidireccional
         
         // agregamos el evento a la lista del shelter para que el stream en el Service lo encuentre
@@ -182,7 +172,7 @@ public class ShelterServiceTest {
         
         // sincronizamos con la base de datos H2
         entityManager.flush();
-
+		entityManager.flush();
         assertThrows(IllegalOperationException.class, () -> {
             shelterService.deleteShelter(shelter.getId());
         });
