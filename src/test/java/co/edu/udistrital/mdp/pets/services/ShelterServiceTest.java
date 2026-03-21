@@ -430,4 +430,26 @@ class ShelterServiceTest {
             shelterService.deleteShelter(shelter.getId());
         });
     }
+
+    @Test
+    void testUpdateShelterWithUnchangedEmailSuccess() throws EntityNotFoundException, IllegalOperationException {
+        ShelterEntity existingShelter = data.get(0); // Assuming email is "contact0@test.com"
+        Long shelterId = existingShelter.getId();
+
+        ShelterEntity updateData = factory.manufacturePojo(ShelterEntity.class);
+        // Keep the email the same as the existing shelter
+        updateData.setEmail(existingShelter.getEmail()); 
+        
+        // Change other mandatory fields to ensure validateData passes
+        updateData.setName("Same Email, New Name");
+        updateData.setCity("New City");
+        updateData.setGallery("new_gallery_for_same_email.jpg");
+
+        ShelterEntity result = shelterService.updateShelter(shelterId, updateData);
+
+        assertNotNull(result);
+        assertEquals(shelterId, result.getId());
+        assertEquals("Same Email, New Name", result.getName());
+        assertEquals(existingShelter.getEmail(), result.getEmail()); // Email should remain unchanged
+    }
 }
