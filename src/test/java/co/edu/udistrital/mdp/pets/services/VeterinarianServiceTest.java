@@ -4,9 +4,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -125,10 +130,10 @@ class VeterinarianServiceTest {
 
         // simulamos un seguimiento de adopcion vinculado
         AdoptionFollowUpEntity followUp = factory.manufacturePojo(AdoptionFollowUpEntity.class);
-        
+
         followUp.setVeterinarian(vet); 
-        
-		vet.getAdoptionFollowUps().add(followUp);
+
+    vet.getAdoptionFollowUps().add(followUp);
 
         entityManager.persist(followUp);
         entityManager.flush();
@@ -138,13 +143,40 @@ class VeterinarianServiceTest {
         });
     }
 
+    private static Stream<Arguments> invalidUpdateVeterinarianData() {
+        return Stream.of(
+            arguments("specialty", null),
+            arguments("specialty", ""),
+            arguments("specialty", "   "),
+            arguments("availability", null),
+            arguments("availability", ""),
+            arguments("availability", "   ")
+        );
+    }
 
+    @ParameterizedTest
+    @MethodSource("invalidUpdateVeterinarianData")
+    void testUpdateVeterinarianWithInvalidFields(String field, String invalidValue) {
+        VeterinarianEntity entity = data.get(0);
+        VeterinarianEntity pojoEntity = factory.manufacturePojo(VeterinarianEntity.class);
+        pojoEntity.setEmail("updated_vet@refugio.com");
+        pojoEntity.setPhone("3209876543");
+        pojoEntity.setName("Updated Vet Name");
+        pojoEntity.setPassword("newpassword");
+        pojoEntity.setSpecialty("General"); // Default valid value
+        pojoEntity.setAvailability("Part-time"); // Default valid value
 
+        if ("specialty".equals(field)) {
+            pojoEntity.setSpecialty(invalidValue);
+        } else if ("availability".equals(field)) {
+            pojoEntity.setAvailability(invalidValue);
+        }
 
-
-
-
-    // --- Additional Tests for updateUser ---
+        assertThrows(IllegalOperationException.class, () -> {
+            veterinarianService.updateUser(entity.getId(), pojoEntity);
+        });
+    }
+    
     @Test
     void testUpdateVeterinarianSuccess() throws EntityNotFoundException, IllegalOperationException {
         VeterinarianEntity entity = data.get(0);
@@ -173,56 +205,6 @@ class VeterinarianServiceTest {
         
         assertThrows(EntityNotFoundException.class, () -> {
             veterinarianService.updateUser(999L, pojoEntity); // ID que no existe
-        });
-    }
-
-
-    
-    @Test
-    void testUpdateVeterinarianWithEmptySpecialty() {
-        VeterinarianEntity entity = data.get(0);
-        VeterinarianEntity pojoEntity = factory.manufacturePojo(VeterinarianEntity.class);
-        pojoEntity.setEmail("updated_vet@refugio.com");
-        pojoEntity.setPhone("3209876543");
-        pojoEntity.setName("Updated Vet Name");
-        pojoEntity.setPassword("newpassword");
-        pojoEntity.setSpecialty("   "); // Empty specialty
-        pojoEntity.setAvailability("Part-time");
-
-        assertThrows(IllegalOperationException.class, () -> {
-            veterinarianService.updateUser(entity.getId(), pojoEntity);
-        });
-    }
-
-    @Test
-    void testUpdateVeterinarianWithNullAvailability() {
-        VeterinarianEntity entity = data.get(0);
-        VeterinarianEntity pojoEntity = factory.manufacturePojo(VeterinarianEntity.class);
-        pojoEntity.setEmail("updated_vet@refugio.com");
-        pojoEntity.setPhone("3209876543");
-        pojoEntity.setName("Updated Vet Name");
-        pojoEntity.setPassword("newpassword");
-        pojoEntity.setSpecialty("General");
-        pojoEntity.setAvailability(null); // Null availability
-
-        assertThrows(IllegalOperationException.class, () -> {
-            veterinarianService.updateUser(entity.getId(), pojoEntity);
-        });
-    }
-
-    @Test
-    void testUpdateVeterinarianWithEmptyAvailability() {
-        VeterinarianEntity entity = data.get(0);
-        VeterinarianEntity pojoEntity = factory.manufacturePojo(VeterinarianEntity.class);
-        pojoEntity.setEmail("updated_vet@refugio.com");
-        pojoEntity.setPhone("3209876543");
-        pojoEntity.setName("Updated Vet Name");
-        pojoEntity.setPassword("newpassword");
-        pojoEntity.setSpecialty("General");
-        pojoEntity.setAvailability("   "); // Empty availability
-
-        assertThrows(IllegalOperationException.class, () -> {
-            veterinarianService.updateUser(entity.getId(), pojoEntity);
         });
     }
 
