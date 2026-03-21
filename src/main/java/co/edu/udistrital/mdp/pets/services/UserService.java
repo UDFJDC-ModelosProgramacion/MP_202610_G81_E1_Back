@@ -18,6 +18,8 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public abstract class UserService {
 
+    private static final String USER_CANNOT_BE_NULL = "User data cannot be null";
+
     @Autowired
     protected UserRepository userRepository;
 
@@ -29,7 +31,7 @@ public abstract class UserService {
      * Valida los datos basicos de un usuario 
      */
     private void validateUser(UserEntity user) throws IllegalOperationException {
-        if (user == null) throw new IllegalOperationException("User data cannot be null");
+        if (user == null) throw new IllegalOperationException(USER_CANNOT_BE_NULL);
 
         // campos obligatorios no blancos
         if (isBlank(user.getName())) throw new IllegalOperationException("Name is mandatory");
@@ -54,7 +56,7 @@ public abstract class UserService {
 
     @Transactional
     public UserEntity createUser(UserEntity userEntity) throws IllegalOperationException {
-        if (userEntity == null) throw new IllegalOperationException("User data cannot be null");
+        if (userEntity == null) throw new IllegalOperationException(USER_CANNOT_BE_NULL);
         log.info("Starting creation process for user: {}", userEntity.getEmail());
 
         validateUser(userEntity);
@@ -84,7 +86,7 @@ public abstract class UserService {
 		log.info("Updating user with id = {}", userId);
 		
 		if (user == null) {
-			throw new IllegalOperationException("User data cannot be null");
+			throw new IllegalOperationException(USER_CANNOT_BE_NULL);
 		}
 
 		// solo verificamos existencia. si no esta, el orElseThrow se encarga
