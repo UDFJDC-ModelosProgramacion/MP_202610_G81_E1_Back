@@ -35,7 +35,7 @@ import uk.co.jemos.podam.api.PodamFactoryImpl;
     "co.edu.udistrital.mdp.pets.services"
 })
 @Import(MockUserService.class)
-public class UserServiceTest {
+class UserServiceTest {
 
     @Autowired
     private UserService userService;

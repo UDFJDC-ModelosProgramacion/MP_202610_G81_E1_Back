@@ -25,7 +25,7 @@ import uk.co.jemos.podam.api.PodamFactoryImpl;
 @DataJpaTest
 @Transactional
 @Import(TrialCohabitationService.class)
-public class TrialCohabitationServiceTest {
+class TrialCohabitationServiceTest {
 
     @Autowired
     private TrialCohabitationService trialCohabitationService;
