@@ -255,7 +255,86 @@ class TrialCohabitationServiceTest {
         assertEquals("EXITOSA", updatedTrial.getResult());
     }
 
+    @Test
+    void testUpdateTrialCohabitationWithExistingNullDates() {
+        // Simular datos corruptos en BD donde las fechas son nulas
+        TrialCohabitationEntity trial = factory.manufacturePojo(TrialCohabitationEntity.class);
+        trial.setStartDate(null);
+        trial.setEndDate(null);
+        trial.setResult("EN_PROCESO");
+        entityManager.persist(trial);
+        entityManager.flush();
+
+        TrialCohabitationEntity pojoEntity = factory.manufacturePojo(TrialCohabitationEntity.class);
+        pojoEntity.setStartDate(null); // No actualizar start date
+        pojoEntity.setEndDate(null);   // No actualizar end date
+        pojoEntity.setResult("EXITOSA");
+
+        assertThrows(IllegalOperationException.class, () -> {
+            trialCohabitationService.updateTrialCohabitation(trial.getId(), pojoEntity);
+        });
+    }
+
+    @Test
+    void testUpdateTrialCohabitationWithEndDateBeforeStartDate() {
+        TrialCohabitationEntity entity = data.get(0); // Start: now-20, End: now-10
+        TrialCohabitationEntity pojoEntity = factory.manufacturePojo(TrialCohabitationEntity.class);
+        
+        // Actualizamos start date para que sea POSTERIOR a la end date existente
+        pojoEntity.setStartDate(LocalDate.now()); 
+        pojoEntity.setEndDate(null); // Mantiene end date original (hace 10 dias)
+
+        assertThrows(IllegalOperationException.class, () -> {
+            trialCohabitationService.updateTrialCohabitation(entity.getId(), pojoEntity);
+        });
+    }
+
+    @Test
+    void testUpdateTrialCohabitationIdempotentResult() throws EntityNotFoundException, IllegalOperationException {
+        TrialCohabitationEntity trial = factory.manufacturePojo(TrialCohabitationEntity.class);
+        trial.setStartDate(LocalDate.now().minusDays(20));
+        trial.setEndDate(LocalDate.now().minusDays(10));
+        trial.setResult("EXITOSA");
+        entityManager.persist(trial);
+        entityManager.flush();
+
+        TrialCohabitationEntity pojoEntity = factory.manufacturePojo(TrialCohabitationEntity.class);
+        pojoEntity.setResult("EXITOSA"); // Mismo resultado
+        pojoEntity.setStartDate(trial.getStartDate());
+        pojoEntity.setEndDate(trial.getEndDate());
+
+        TrialCohabitationEntity resp = trialCohabitationService.updateTrialCohabitation(trial.getId(), pojoEntity);
+        assertNotNull(resp);
+        assertEquals("EXITOSA", resp.getResult());
+    }
+
     // ==================== DELETE TESTS ====================
+
+    @Test
+    void testDeleteFutureTrialCohabitation() throws EntityNotFoundException, IllegalOperationException {
+        TrialCohabitationEntity trial = factory.manufacturePojo(TrialCohabitationEntity.class);
+        trial.setStartDate(LocalDate.now().plusDays(10));
+        trial.setEndDate(LocalDate.now().plusDays(20));
+        trial.setResult("EN_PROCESO");
+        entityManager.persist(trial);
+        entityManager.flush();
+
+        trialCohabitationService.deleteTrialCohabitation(trial.getId());
+        assertNull(entityManager.find(TrialCohabitationEntity.class, trial.getId()));
+    }
+
+    @Test
+    void testDeletePastTrialCohabitation() throws EntityNotFoundException, IllegalOperationException {
+        TrialCohabitationEntity trial = factory.manufacturePojo(TrialCohabitationEntity.class);
+        trial.setStartDate(LocalDate.now().minusDays(20));
+        trial.setEndDate(LocalDate.now().minusDays(10));
+        trial.setResult("EXITOSA");
+        entityManager.persist(trial);
+        entityManager.flush();
+
+        trialCohabitationService.deleteTrialCohabitation(trial.getId());
+        assertNull(entityManager.find(TrialCohabitationEntity.class, trial.getId()));
+    }
 
     @Test
     void testDeleteTrialCohabitation() throws EntityNotFoundException, IllegalOperationException {
