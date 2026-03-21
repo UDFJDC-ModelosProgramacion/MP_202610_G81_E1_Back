@@ -29,7 +29,7 @@ import uk.co.jemos.podam.api.PodamFactoryImpl;
     "co.edu.udistrital.mdp.pets.services"
 })
 @Import(VeterinarianService.class)
-public class VeterinarianServiceTest {
+class VeterinarianServiceTest {
 
     @Autowired
     private VeterinarianService veterinarianService;
