@@ -110,6 +110,93 @@ class UserServiceTest {
     }
 
     @Test
+    void testCreateUserWithNullEntity() {
+        assertThrows(IllegalOperationException.class, () -> {
+            userService.createUser(null);
+        });
+    }
+
+    @Test
+    void testCreateUserWithBlankName() {
+        assertThrows(IllegalOperationException.class, () -> {
+            UserEntity newEntity = factory.manufacturePojo(MockUser.class);
+            newEntity.setName("   ");
+            newEntity.setEmail("valid@email.com");
+            newEntity.setPhone("1234567890");
+            newEntity.setPassword("password");
+            userService.createUser(newEntity);
+        });
+    }
+
+    @Test
+    void testCreateUserWithBlankEmail() {
+        assertThrows(IllegalOperationException.class, () -> {
+            UserEntity newEntity = factory.manufacturePojo(MockUser.class);
+            newEntity.setName("Valid Name");
+            newEntity.setEmail("   ");
+            newEntity.setPhone("1234567890");
+            newEntity.setPassword("password");
+            userService.createUser(newEntity);
+        });
+    }
+
+    @Test
+    void testCreateUserWithBlankPhone() {
+        assertThrows(IllegalOperationException.class, () -> {
+            UserEntity newEntity = factory.manufacturePojo(MockUser.class);
+            newEntity.setName("Valid Name");
+            newEntity.setEmail("valid@email.com");
+            newEntity.setPhone("   ");
+            newEntity.setPassword("password");
+            userService.createUser(newEntity);
+        });
+    }
+
+    @Test
+    void testCreateUserWithBlankPassword() {
+        assertThrows(IllegalOperationException.class, () -> {
+            UserEntity newEntity = factory.manufacturePojo(MockUser.class);
+            newEntity.setName("Valid Name");
+            newEntity.setEmail("valid@email.com");
+            newEntity.setPhone("1234567890");
+            newEntity.setPassword("   ");
+            userService.createUser(newEntity);
+        });
+    }
+
+    @Test
+    void testGetUserNotFound() {
+        assertThrows(EntityNotFoundException.class, () -> {
+            userService.getUser(999L);
+        });
+    }
+
+    @Test
+    void testUpdateUserWithNullEntity() {
+        UserEntity entity = data.get(0);
+        assertThrows(IllegalOperationException.class, () -> {
+            userService.updateUser(entity.getId(), null); // Deberia lanzar excepcion si user es null
+        });
+    }
+
+    @Test
+    void testUpdateUserNotFound() {
+        UserEntity pojo = factory.manufacturePojo(MockUser.class);
+        pojo.setEmail("nonexistent@test.com");
+        pojo.setPhone("1111111111");
+        assertThrows(EntityNotFoundException.class, () -> {
+            userService.updateUser(999L, pojo);
+        });
+    }
+    
+    @Test
+    void testDeleteUserNotFound() {
+        assertThrows(EntityNotFoundException.class, () -> {
+            userService.deleteUser(999L);
+        });
+    }
+
+    @Test
     void testGetUsers() {
         List<UserEntity> list = userService.getUsers();
         assertEquals(data.size(), list.size());

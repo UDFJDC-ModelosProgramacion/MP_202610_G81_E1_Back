@@ -54,6 +54,7 @@ public abstract class UserService {
 
     @Transactional
     public UserEntity createUser(UserEntity userEntity) throws IllegalOperationException {
+        if (userEntity == null) throw new IllegalOperationException("User data cannot be null");
         log.info("Starting creation process for user: {}", userEntity.getEmail());
 
         validateUser(userEntity);
@@ -81,6 +82,10 @@ public abstract class UserService {
 	public UserEntity updateUser(Long userId, UserEntity user) 
 			throws EntityNotFoundException, IllegalOperationException {
 		log.info("Updating user with id = {}", userId);
+		
+		if (user == null) {
+			throw new IllegalOperationException("User data cannot be null");
+		}
 
 		// solo verificamos existencia. si no esta, el orElseThrow se encarga
 		userRepository.findById(userId)
