@@ -13,9 +13,6 @@ import co.edu.udistrital.mdp.pets.repositories.ShelterRepository;
 import co.edu.udistrital.mdp.pets.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.pets.exceptions.ErrorMessage;
 import co.edu.udistrital.mdp.pets.exceptions.IllegalOperationException;
-import co.edu.udistrital.mdp.pets.repositories.AdopterRepository;
-import co.edu.udistrital.mdp.pets.repositories.MessageRepository;
-import co.edu.udistrital.mdp.pets.repositories.ShelterRepository;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
