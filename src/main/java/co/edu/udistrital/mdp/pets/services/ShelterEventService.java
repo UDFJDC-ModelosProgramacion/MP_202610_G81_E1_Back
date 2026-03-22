@@ -41,8 +41,8 @@ public class ShelterEventService {
         if (event.getShelter() == null || event.getShelter().getId() == null)
             throw new IllegalOperationException("Event must belong to a shelter");
 
-        shelterRepository.findById(event.getShelter().getId())
-                .orElseThrow(() -> new IllegalOperationException("Shelter does not exist"));
+        if (!shelterRepository.existsById(event.getShelter().getId()))
+            throw new IllegalOperationException("Shelter does not exist");
     }
 
     @Transactional
@@ -71,21 +71,27 @@ public class ShelterEventService {
     }
 
     @Transactional
-    public ShelterEventEntity updateShelterEvent(Long eventId, ShelterEventEntity updatedEvent)
+    public ShelterEventEntity updateShelterEvent(Long eventId, ShelterEventEntity updatedData)
             throws EntityNotFoundException, IllegalOperationException {
         log.info("Updating shelter event with id = {}", eventId);
 
         ShelterEventEntity existing = shelterEventRepository.findById(eventId)
                 .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.SHELTER_EVENT_NOT_FOUND));
 
-        validateShelterEvent(updatedEvent);
-
         if (existing.getStatus() == ProcessStatus.COMPLETED) {
             throw new IllegalOperationException("Cannot update a finished event");
         }
 
-        updatedEvent.setId(eventId);
-        return shelterEventRepository.save(updatedEvent);
+        validateShelterEvent(updatedData);
+
+        // Actualización selectiva para mantener la integridad
+        existing.setTitle(updatedData.getTitle());
+        existing.setDate(updatedData.getDate());
+        existing.setLocation(updatedData.getLocation());
+        existing.setDescription(updatedData.getDescription());
+        // El estado solo debería cambiarse vía finishEvent para mayor control, 
+
+        return shelterEventRepository.save(existing);
     }
 
     @Transactional
@@ -96,6 +102,8 @@ public class ShelterEventService {
         ShelterEventEntity event = shelterEventRepository.findById(eventId)
                 .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.SHELTER_EVENT_NOT_FOUND));
 
+        // Regla de negocio: Si ya terminó, es historia y no se debería borrar 
+        // Tu lógica decía que SOLO se borran los terminados. La mantengo, pero ojo con eso.
         if (event.getStatus() != ProcessStatus.COMPLETED) {
             throw new IllegalOperationException(
                     "Cannot delete a shelter event that is not finished yet");
@@ -105,17 +113,17 @@ public class ShelterEventService {
     }
 
     @Transactional
-    public ShelterEventEntity finishEvent(Long eventId) throws EntityNotFoundException, IllegalOperationException {
-        log.info("Finishing shelter event with id = {}", eventId);
+	public ShelterEventEntity finishEvent(Long eventId) throws EntityNotFoundException, IllegalOperationException {
+		log.info("Finishing shelter event with id = {}", eventId);
 
-        ShelterEventEntity event = shelterEventRepository.findById(eventId)
-                .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.SHELTER_EVENT_NOT_FOUND));
+		ShelterEventEntity event = shelterEventRepository.findById(eventId)
+				.orElseThrow(() -> new EntityNotFoundException(ErrorMessage.SHELTER_EVENT_NOT_FOUND));
 
-        if (event.getStatus() == ProcessStatus.COMPLETED) {
-            throw new IllegalOperationException("Event is already finished");
-        }
+		if (event.getStatus() == ProcessStatus.COMPLETED) {
+			throw new IllegalOperationException("Event is already finished");
+		}
 
-        event.setStatus(ProcessStatus.COMPLETED);
-        return shelterEventRepository.save(event);
-    }
+		event.setStatus(ProcessStatus.COMPLETED);
+		return shelterEventRepository.save(event);
+	}
 }

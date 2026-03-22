@@ -7,6 +7,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import co.edu.udistrital.mdp.pets.entities.MessageEntity;
+import co.edu.udistrital.mdp.pets.repositories.MessageRepository;
+import co.edu.udistrital.mdp.pets.repositories.AdopterRepository;
+import co.edu.udistrital.mdp.pets.repositories.ShelterRepository;
 import co.edu.udistrital.mdp.pets.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.pets.exceptions.ErrorMessage;
 import co.edu.udistrital.mdp.pets.exceptions.IllegalOperationException;
@@ -29,6 +32,9 @@ public class MessageService {
     @Autowired
     private ShelterRepository shelterRepository;
 
+    /**
+     * Valida que el mensaje tenga contenido y que tanto emisor como receptor existan.
+     */
     private void validateMessage(MessageEntity message) throws IllegalOperationException {
         if (message == null)
             throw new IllegalOperationException("Message data cannot be null");
@@ -36,29 +42,35 @@ public class MessageService {
         if (message.getContent() == null || message.getContent().trim().isEmpty())
             throw new IllegalOperationException("Message content cannot be empty");
 
+        // Validación de existencia de Adopter
         if (message.getAdopter() == null || message.getAdopter().getId() == null)
-            throw new IllegalOperationException("Message must have a sender (adopter)");
+            throw new IllegalOperationException("Message must involve an adopter");
 
+        // Validación de existencia de Shelter
         if (message.getShelter() == null || message.getShelter().getId() == null)
-            throw new IllegalOperationException("Message must have a recipient (shelter)");
+            throw new IllegalOperationException("Message must involve a shelter");
 
-        adopterRepository.findById(message.getAdopter().getId())
-                .orElseThrow(() -> new IllegalOperationException("Sender adopter does not exist"));
+        if (!adopterRepository.existsById(message.getAdopter().getId()))
+            throw new IllegalOperationException("Adopter does not exist");
 
-        shelterRepository.findById(message.getShelter().getId())
-                .orElseThrow(() -> new IllegalOperationException("Recipient shelter does not exist"));
+        if (!shelterRepository.existsById(message.getShelter().getId()))
+            throw new IllegalOperationException("Shelter does not exist");
     }
 
-    @Transactional
-    public MessageEntity createMessage(MessageEntity message) throws IllegalOperationException {
-        log.info("Creating message from adopter {} to shelter {}",
-                message.getAdopter() != null ? message.getAdopter().getId() : "null",
-                message.getShelter() != null ? message.getShelter().getId() : "null");
+	@Transactional
+	public MessageEntity createMessage(MessageEntity message) throws IllegalOperationException {
+		// Primero validamos para evitar el NPE en los logs
+		validateMessage(message);
 
-        validateMessage(message);
+		log.info("Creating message between adopter {} and shelter {}", 
+				message.getAdopter().getId(), message.getShelter().getId());
+		
+		if (message.getIsRead() == null) {
+			message.setIsRead(false);
+		}
 
-        return messageRepository.save(message);
-    }
+		return messageRepository.save(message);
+	}
 
     @Transactional(readOnly = true)
     public List<MessageEntity> getMessages() {
@@ -73,60 +85,65 @@ public class MessageService {
 
     @Transactional(readOnly = true)
     public List<MessageEntity> getMessagesByShelter(Long shelterId) throws EntityNotFoundException {
-        shelterRepository.findById(shelterId)
-                .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.SHELTER_NOT_FOUND));
+        if (!shelterRepository.existsById(shelterId))
+            throw new EntityNotFoundException(ErrorMessage.SHELTER_NOT_FOUND);
         return messageRepository.findByShelterId(shelterId);
     }
 
     @Transactional(readOnly = true)
     public List<MessageEntity> getMessagesByAdopter(Long adopterId) throws EntityNotFoundException {
-        adopterRepository.findById(adopterId)
-                .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.ADOPTER_NOT_FOUND));
+        if (!adopterRepository.existsById(adopterId))
+            throw new EntityNotFoundException(ErrorMessage.ADOPTER_NOT_FOUND);
         return messageRepository.findByAdopterId(adopterId);
     }
 
     @Transactional
-	public MessageEntity updateMessage(Long messageId, MessageEntity messageData)
-			throws EntityNotFoundException, IllegalOperationException {
-		log.info("Updating message with id = {}", messageId);
+    public MessageEntity updateMessage(Long messageId, MessageEntity messageData)
+            throws EntityNotFoundException, IllegalOperationException {
+        log.info("Updating message with id = {}", messageId);
 
-		// 1. Corregir el repositorio: usar messageRepository
-		MessageEntity existingMessage = messageRepository.findById(messageId)
-				.orElseThrow(() -> new EntityNotFoundException(ErrorMessage.MESSAGE_NOT_FOUND));
+        MessageEntity existingMessage = messageRepository.findById(messageId)
+                .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.MESSAGE_NOT_FOUND));
 
-		// 2. Validar los nuevos datos
-		validateMessage(messageData);
+        // Solo permitimos actualizar el contenido para mantener integridad
+        if (messageData.getContent() == null || messageData.getContent().trim().isEmpty())
+            throw new IllegalOperationException("New content cannot be empty");
 
-		// 3. Mantener consistencia
-		existingMessage.setContent(messageData.getContent());
-		// No solemos cambiar el remitente/destinatario en un update de mensaje
-		
-		return messageRepository.save(existingMessage);
-	}
+        existingMessage.setContent(messageData.getContent());
+        
+        return messageRepository.save(existingMessage);
+    }
 
     @Transactional
-    public void deleteMessage(Long messageId, Long requestingAdopterId)
+    public void deleteMessage(Long messageId, Long requestingUserId, boolean isAdopter)
             throws EntityNotFoundException, IllegalOperationException {
         log.info("Deleting message with id = {}", messageId);
 
         MessageEntity message = messageRepository.findById(messageId)
                 .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.MESSAGE_NOT_FOUND));
 
-        if (!message.getAdopter().getId().equals(requestingAdopterId)) {
-            throw new IllegalOperationException("Only the sender can delete this message");
+        // Lógica bidireccional: Verifica que quien borra sea parte de la conversación
+        boolean isOwner;
+        if (isAdopter) {
+            isOwner = message.getAdopter().getId().equals(requestingUserId);
+        } else {
+            isOwner = message.getShelter().getId().equals(requestingUserId);
+        }
+
+        if (!isOwner) {
+            throw new IllegalOperationException("Only the participants can delete this message");
         }
 
         messageRepository.deleteById(messageId);
     }
 
     @Transactional
-    public MessageEntity markAsRead(Long messageId) throws EntityNotFoundException {
-        log.info("Marking message {} as read", messageId);
-
-        MessageEntity message = messageRepository.findById(messageId)
-                .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.MESSAGE_NOT_FOUND));
-
-        message.setIsRead(true);
-        return messageRepository.save(message);
-    }
+	public MessageEntity markAsRead(Long messageId) throws EntityNotFoundException {
+		// Usar el repositorio directamente evita el self-invocation
+		MessageEntity message = messageRepository.findById(messageId)
+				.orElseThrow(() -> new EntityNotFoundException(ErrorMessage.MESSAGE_NOT_FOUND));
+		
+		message.setIsRead(true);
+		return messageRepository.save(message);
+}
 }

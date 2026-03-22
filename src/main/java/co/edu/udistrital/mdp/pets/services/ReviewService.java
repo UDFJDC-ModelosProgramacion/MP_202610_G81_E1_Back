@@ -7,6 +7,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import co.edu.udistrital.mdp.pets.entities.ReviewEntity;
+import co.edu.udistrital.mdp.pets.repositories.ReviewRepository;
+import co.edu.udistrital.mdp.pets.repositories.AdopterRepository;
+import co.edu.udistrital.mdp.pets.repositories.PetRepository;
+import co.edu.udistrital.mdp.pets.repositories.AdoptionRepository;
 import co.edu.udistrital.mdp.pets.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.pets.exceptions.ErrorMessage;
 import co.edu.udistrital.mdp.pets.exceptions.IllegalOperationException;
@@ -57,30 +61,24 @@ public class ReviewService {
     public ReviewEntity createReview(ReviewEntity review)
             throws EntityNotFoundException, IllegalOperationException {
         log.info("Creating review for adopter {} and pet {}",
-                review.getAdopter() != null ? review.getAdopter().getId() : "null",
-                review.getPet() != null ? review.getPet().getId() : "null");
+                review.getAdopter().getId(), review.getPet().getId());
 
         validateReview(review);
 
-        adopterRepository.findById(review.getAdopter().getId())
-                .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.ADOPTER_NOT_FOUND));
+        if (!adopterRepository.existsById(review.getAdopter().getId()))
+            throw new EntityNotFoundException(ErrorMessage.ADOPTER_NOT_FOUND);
 
-        petRepository.findById(review.getPet().getId())
-                .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.PET_NOT_FOUND));
+		if (!petRepository.existsById(review.getPet().getId())) {
+			throw new EntityNotFoundException(ErrorMessage.PET_NOT_FOUND);
+		}
 
-        boolean hasCompletedAdoption = adoptionRepository
-                .findAll()
-                .stream()
-                .anyMatch(adoption ->
-                        adoption.getAdopter() != null &&
-                        adoption.getAdopter().getId().equals(review.getAdopter().getId()) &&
-                        adoption.getPet() != null &&
-                        adoption.getPet().getId().equals(review.getPet().getId()));
+		boolean hasCompletedAdoption = adoptionRepository.existsByAdopterIdAndPetId(
+				review.getAdopter().getId(), review.getPet().getId());
 
-        if (!hasCompletedAdoption) {
-            throw new IllegalOperationException(
-                    "A review can only be created after completing an adoption process");
-        }
+		if (!hasCompletedAdoption) {
+			throw new IllegalOperationException(
+					"A review can only be created after completing an adoption process");
+		}
 
         return reviewRepository.save(review);
     }
@@ -98,15 +96,15 @@ public class ReviewService {
 
     @Transactional(readOnly = true)
     public List<ReviewEntity> getReviewsByPet(Long petId) throws EntityNotFoundException {
-        petRepository.findById(petId)
-                .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.PET_NOT_FOUND));
+        if (!petRepository.existsById(petId))
+            throw new EntityNotFoundException(ErrorMessage.PET_NOT_FOUND);
         return reviewRepository.findByPetId(petId);
     }
 
     @Transactional(readOnly = true)
     public List<ReviewEntity> getReviewsByAdopter(Long adopterId) throws EntityNotFoundException {
-        adopterRepository.findById(adopterId)
-                .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.ADOPTER_NOT_FOUND));
+        if (!adopterRepository.existsById(adopterId))
+            throw new EntityNotFoundException(ErrorMessage.ADOPTER_NOT_FOUND);
         return reviewRepository.findByAdopterId(adopterId);
     }
 
@@ -123,9 +121,13 @@ public class ReviewService {
         }
 
         validateReview(updatedReview);
+        
+        // Mantener integridad: No se puede cambiar el pet ni el adopter de una reseña ya creada
+        existing.setRating(updatedReview.getRating());
+        existing.setComment(updatedReview.getComment());
+        existing.setDate(updatedReview.getDate());
 
-        updatedReview.setId(reviewId);
-        return reviewRepository.save(updatedReview);
+        return reviewRepository.save(existing);
     }
 
     @Transactional
