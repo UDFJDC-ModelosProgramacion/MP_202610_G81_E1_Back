@@ -1,10 +1,11 @@
 package co.edu.udistrital.mdp.pets.entities;
 
+import java.time.LocalDate;
+
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import uk.co.jemos.podam.common.PodamExclude;
-import java.util.Date;
 
 /**
  * Entity representing a Review.
@@ -21,7 +22,7 @@ public class ReviewEntity extends BaseEntity {
     private String comment;
 
     @Temporal(TemporalType.DATE)
-    private Date date;
+    private LocalDate date;
 
 	// Relation M:1 with Adopter
     @PodamExclude

@@ -11,4 +11,5 @@ public interface AdoptionRepository extends JpaRepository<AdoptionEntity, Long> 
 
     List<AdoptionEntity> findByPetId(Long id);
 	List<AdoptionEntity> findByAdopterId(Long id);
+	boolean existsByAdopterIdAndPetId(Long adopterId, Long petId);
 }
