@@ -45,16 +45,18 @@ public class NotificationService {
         if (notification.getUser() == null || notification.getUser().getId() == null)
             throw new IllegalOperationException("Notification must have a recipient user");
 
-        // Usamos existsById para mayor eficiencia en la validación
-        if (!userRepository.existsById(notification.getUser().getId()))
-            throw new IllegalOperationException("Recipient user does not exist");
-            
-        // Validar que si trae una estrategia, esta exista
-        if (notification.getNotificationStrategy() != null && notification.getNotificationStrategy().getId() != null) {
-            if (!notificationStrategyRepository.existsById(notification.getNotificationStrategy().getId())) {
-                throw new IllegalOperationException("The assigned notification strategy does not exist");
-            }
-        }
+		// Validación del usuario
+		if (!userRepository.existsById(notification.getUser().getId())) {
+			throw new IllegalOperationException("Recipient user does not exist");
+		}
+
+		// Unión de los IFs
+		if (notification.getNotificationStrategy() != null 
+			&& notification.getNotificationStrategy().getId() != null 
+			&& !notificationStrategyRepository.existsById(notification.getNotificationStrategy().getId())) {
+			
+			throw new IllegalOperationException("The assigned notification strategy does not exist");
+		}
     }
 
     @Transactional
@@ -124,14 +126,17 @@ public class NotificationService {
         notificationRepository.deleteById(notificationId);
     }
 
-    @Transactional
-    public NotificationEntity markAsRead(Long notificationId) throws EntityNotFoundException {
-        log.info("Marking notification {} as read", notificationId);
+	@Transactional
+	public NotificationEntity markAsRead(Long notificationId) throws EntityNotFoundException {
+		log.info("Marking notification {} as read", notificationId);
 
-        NotificationEntity notification = getNotification(notificationId);
-        notification.setIsRead(true);
-        return notificationRepository.save(notification);
-    }
+		NotificationEntity notification = notificationRepository.findById(notificationId)
+				.orElseThrow(() -> new EntityNotFoundException(ErrorMessage.NOTIFICATION_NOT_FOUND));
+
+		notification.setIsRead(true);
+
+		return notificationRepository.save(notification);
+	}
 
     @Transactional
     public NotificationEntity setStrategy(Long notificationId, Long strategyId)

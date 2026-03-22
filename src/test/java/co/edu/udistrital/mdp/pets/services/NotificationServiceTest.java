@@ -16,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 import co.edu.udistrital.mdp.pets.entities.AdopterEntity;
 import co.edu.udistrital.mdp.pets.entities.EmailNotificationStrategyEntity;
 import co.edu.udistrital.mdp.pets.entities.NotificationEntity;
-import co.edu.udistrital.mdp.pets.entities.NotificationStrategyEntity;
 import co.edu.udistrital.mdp.pets.entities.UserEntity;
 import co.edu.udistrital.mdp.pets.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.pets.exceptions.IllegalOperationException;
@@ -54,7 +53,7 @@ class NotificationServiceTest {
     private void insertData() {
         // 1. Crear el Adopter (clase concreta de UserEntity)
         AdopterEntity adopter = new AdopterEntity();
-        adopter.setName("Yeremy Test");
+        adopter.setName("Test");
         adopter.setEmail("test@udistrital.edu.co");
         adopter.setPassword("password123");
         adopter.setPhone("3001234567");
