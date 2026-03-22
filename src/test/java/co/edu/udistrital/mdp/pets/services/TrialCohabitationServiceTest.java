@@ -337,7 +337,58 @@ class TrialCohabitationServiceTest {
 		assertNotNull(result);
 		assertEquals(originalEndDate, result.getEndDate(), "The end date should remain unchanged when providing a null value in update");
 	}
-    
+
+	@Test
+	void testUpdateWithCorruptDataInDB() {
+		// Insertamos directamente un dato que NO debería ser posible por lógica de negocio
+		TrialCohabitationEntity corrupt = new TrialCohabitationEntity();
+		corrupt.setStartDate(LocalDate.now());
+		corrupt.setEndDate(null); // <--- Forzamos el null en BD
+		corrupt.setResult("EN_PROCESO");
+		entityManager.persist(corrupt);
+		entityManager.flush();
+
+		TrialCohabitationEntity updateData = new TrialCohabitationEntity();
+		updateData.setResult("EXITOSA");
+
+		// Al intentar actualizar, el service leerá el null de la BD y disparará el throw
+		assertThrows(IllegalOperationException.class, () -> 
+			trialCohabitationService.updateTrialCohabitation(corrupt.getId(), updateData));
+	}
+
+	@Test
+	void testUpdateWhenExistingDataHasNullEndDate() {
+		// Insertamos directo a la DB saltándonos las validaciones del service
+		TrialCohabitationEntity corrupt = new TrialCohabitationEntity();
+		corrupt.setStartDate(LocalDate.now());
+		corrupt.setEndDate(null); // <--- El "cebo" para el throw
+		corrupt.setResult("EN_PROCESO");
+		entityManager.persist(corrupt);
+		entityManager.flush();
+
+		TrialCohabitationEntity updateData = new TrialCohabitationEntity();
+		updateData.setResult("EXITOSA");
+
+		// Al intentar actualizar, el service verá el null que ya estaba en BD
+		assertThrows(IllegalOperationException.class, () -> 
+			trialCohabitationService.updateTrialCohabitation(corrupt.getId(), updateData));
+	}
+
+	@Test
+	void testDeletePastTrialCohabitationSuccess() throws EntityNotFoundException, IllegalOperationException {
+		// Una convivencia que terminó hace un mes
+		TrialCohabitationEntity pastTrial = new TrialCohabitationEntity();
+		pastTrial.setStartDate(LocalDate.now().minusMonths(2));
+		pastTrial.setEndDate(LocalDate.now().minusMonths(1));
+		pastTrial.setResult("FALLIDA");
+		entityManager.persist(pastTrial);
+		entityManager.flush();
+
+		trialCohabitationService.deleteTrialCohabitation(pastTrial.getId());
+		
+		assertNull(entityManager.find(TrialCohabitationEntity.class, pastTrial.getId()));
+	}
+
 	@Test
 	void testUpdateEndDateBeforeStartDate() {
 		// 1. Datos de prueba
