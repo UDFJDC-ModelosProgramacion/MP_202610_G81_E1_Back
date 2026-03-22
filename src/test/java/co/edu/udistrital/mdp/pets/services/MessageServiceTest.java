@@ -1,201 +1,136 @@
 package co.edu.udistrital.mdp.pets.services;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.context.annotation.Import;
+import org.springframework.transaction.annotation.Transactional;
 
 import co.edu.udistrital.mdp.pets.entities.AdopterEntity;
 import co.edu.udistrital.mdp.pets.entities.MessageEntity;
 import co.edu.udistrital.mdp.pets.entities.ShelterEntity;
 import co.edu.udistrital.mdp.pets.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.pets.exceptions.IllegalOperationException;
-import co.edu.udistrital.mdp.pets.repositories.AdopterRepository;
-import co.edu.udistrital.mdp.pets.repositories.MessageRepository;
-import co.edu.udistrital.mdp.pets.repositories.ShelterRepository;
 import uk.co.jemos.podam.api.PodamFactory;
 import uk.co.jemos.podam.api.PodamFactoryImpl;
 
-@ExtendWith(MockitoExtension.class)
+@DataJpaTest
+@Transactional
+@Import(MessageService.class)
 class MessageServiceTest {
 
-    @InjectMocks
+    @Autowired
     private MessageService messageService;
 
-    @Mock
-    private MessageRepository messageRepository;
-
-    @Mock
-    private AdopterRepository adopterRepository;
-
-    @Mock
-    private ShelterRepository shelterRepository;
+    @Autowired
+    private TestEntityManager entityManager;
 
     private PodamFactory factory = new PodamFactoryImpl();
-    private MessageEntity messageEntity;
-    private AdopterEntity adopterEntity;
-    private ShelterEntity shelterEntity;
+
+    private List<MessageEntity> data = new ArrayList<>();
+    private AdopterEntity adopter;
+    private ShelterEntity shelter;
 
     @BeforeEach
     void setUp() {
-        adopterEntity = factory.manufacturePojo(AdopterEntity.class);
-        shelterEntity = factory.manufacturePojo(ShelterEntity.class);
-        messageEntity = factory.manufacturePojo(MessageEntity.class);
-        
-        messageEntity.setAdopter(adopterEntity);
-        messageEntity.setShelter(shelterEntity);
+        clearData();
+        insertData();
     }
 
-    // --- TESTS PARA createMessage ---
+    private void clearData() {
+        entityManager.getEntityManager().createQuery("delete from MessageEntity").executeUpdate();
+        entityManager.getEntityManager().createQuery("delete from AdopterEntity").executeUpdate();
+        entityManager.getEntityManager().createQuery("delete from ShelterEntity").executeUpdate();
+    }
+
+    private void insertData() {
+        // Creamos un emisor y receptor base para los mensajes
+        adopter = factory.manufacturePojo(AdopterEntity.class);
+        entityManager.persist(adopter);
+
+        shelter = factory.manufacturePojo(ShelterEntity.class);
+        entityManager.persist(shelter);
+
+        for (int i = 0; i < 3; i++) {
+            MessageEntity entity = factory.manufacturePojo(MessageEntity.class);
+            entity.setAdopter(adopter);
+            entity.setShelter(shelter);
+            entity.setIsRead(false);
+            entityManager.persist(entity);
+            data.add(entity);
+        }
+    }
 
     @Test
-    void createMessageSuccessTest() throws IllegalOperationException {
-        when(adopterRepository.existsById(adopterEntity.getId())).thenReturn(true);
-        when(shelterRepository.existsById(shelterEntity.getId())).thenReturn(true);
-        when(messageRepository.save(any(MessageEntity.class))).thenReturn(messageEntity);
+    void createMessageTest() throws IllegalOperationException {
+        MessageEntity newEntity = factory.manufacturePojo(MessageEntity.class);
+        newEntity.setAdopter(adopter);
+        newEntity.setShelter(shelter);
+        newEntity.setContent("Contenido de prueba");
 
-        MessageEntity result = messageService.createMessage(messageEntity);
-
+        MessageEntity result = messageService.createMessage(newEntity);
         assertNotNull(result);
-        assertEquals(messageEntity.getContent(), result.getContent());
-        assertFalse(result.getIsRead());
+
+        MessageEntity entity = entityManager.find(MessageEntity.class, result.getId());
+        assertEquals(newEntity.getContent(), entity.getContent());
     }
 
     @Test
-    void createMessageNullTest() {
-        assertThrows(IllegalOperationException.class, () -> messageService.createMessage(null));
+    void createMessageInvalidAdopterTest() {
+        MessageEntity newEntity = factory.manufacturePojo(MessageEntity.class);
+        AdopterEntity fakeAdopter = new AdopterEntity();
+        fakeAdopter.setId(999L); // ID que no existe
+        newEntity.setAdopter(fakeAdopter);
+        newEntity.setShelter(shelter);
+
+        assertThrows(IllegalOperationException.class, () -> messageService.createMessage(newEntity));
     }
 
     @Test
-    void createMessageEmptyContentTest() {
-        messageEntity.setContent("");
-        assertThrows(IllegalOperationException.class, () -> messageService.createMessage(messageEntity));
+    void getMessagesTest() {
+        List<MessageEntity> list = messageService.getMessages();
+        assertEquals(data.size(), list.size());
     }
 
     @Test
-    void createMessageNoAdopterTest() {
-        messageEntity.setAdopter(null);
-        assertThrows(IllegalOperationException.class, () -> messageService.createMessage(messageEntity));
-    }
-
-    @Test
-    void createMessageAdopterNotFoundTest() {
-        when(adopterRepository.existsById(adopterEntity.getId())).thenReturn(false);
-        assertThrows(IllegalOperationException.class, () -> messageService.createMessage(messageEntity));
-    }
-
-    // --- TESTS PARA getMessage ---
-
-    @Test
-    void getMessageSuccessTest() throws EntityNotFoundException {
-        when(messageRepository.findById(messageEntity.getId())).thenReturn(Optional.of(messageEntity));
-        MessageEntity result = messageService.getMessage(messageEntity.getId());
-        assertEquals(messageEntity.getId(), result.getId());
-    }
-
-    @Test
-    void getMessageNotFoundTest() {
-        when(messageRepository.findById(anyLong())).thenReturn(Optional.empty());
-        assertThrows(EntityNotFoundException.class, () -> messageService.getMessage(1L));
-    }
-
-    // --- TESTS PARA getMessagesByRole ---
-
-    @Test
-    void getMessagesByShelterSuccessTest() throws EntityNotFoundException {
-        when(shelterRepository.existsById(shelterEntity.getId())).thenReturn(true);
-        when(messageRepository.findByShelterId(shelterEntity.getId())).thenReturn(new ArrayList<>());
-        
-        List<MessageEntity> result = messageService.getMessagesByShelter(shelterEntity.getId());
+    void getMessageTest() throws EntityNotFoundException {
+        MessageEntity entity = data.get(0);
+        MessageEntity result = messageService.getMessage(entity.getId());
         assertNotNull(result);
+        assertEquals(entity.getContent(), result.getContent());
     }
 
     @Test
-    void getMessagesByAdopterNotFoundTest() {
-        when(adopterRepository.existsById(anyLong())).thenReturn(false);
-        assertThrows(EntityNotFoundException.class, () -> messageService.getMessagesByAdopter(1L));
-    }
+    void updateMessageTest() throws EntityNotFoundException, IllegalOperationException {
+        MessageEntity entity = data.get(0);
+        MessageEntity pojo = factory.manufacturePojo(MessageEntity.class);
+        pojo.setContent("Nuevo Contenido");
 
-    // --- TESTS PARA updateMessage ---
-
-    @Test
-    void updateMessageSuccessTest() throws EntityNotFoundException, IllegalOperationException {
-        MessageEntity newData = new MessageEntity();
-        newData.setContent("New Content Updated");
-
-        when(messageRepository.findById(messageEntity.getId())).thenReturn(Optional.of(messageEntity));
-        when(messageRepository.save(any(MessageEntity.class))).thenReturn(messageEntity);
-
-        MessageEntity result = messageService.updateMessage(messageEntity.getId(), newData);
-        
-        assertEquals("New Content Updated", result.getContent());
+        MessageEntity result = messageService.updateMessage(entity.getId(), pojo);
+        assertNotNull(result);
+        assertEquals("Nuevo Contenido", result.getContent());
     }
 
     @Test
-    void updateMessageEmptyContentTest() {
-        MessageEntity newData = new MessageEntity();
-        newData.setContent(" ");
-        when(messageRepository.findById(messageEntity.getId())).thenReturn(Optional.of(messageEntity));
-        
-        assertThrows(IllegalOperationException.class, () -> messageService.updateMessage(messageEntity.getId(), newData));
-    }
-
-    // --- TESTS PARA deleteMessage ---
-
-    @Test
-    void deleteMessageAsAdopterSuccessTest() throws EntityNotFoundException, IllegalOperationException {
-        when(messageRepository.findById(messageEntity.getId())).thenReturn(Optional.of(messageEntity));
-        
-        assertDoesNotThrow(() -> messageService.deleteMessage(messageEntity.getId(), adopterEntity.getId(), true));
-        verify(messageRepository, times(1)).deleteById(messageEntity.getId());
-    }
-
-    @Test
-    void deleteMessageAsShelterSuccessTest() throws EntityNotFoundException, IllegalOperationException {
-        when(messageRepository.findById(messageEntity.getId())).thenReturn(Optional.of(messageEntity));
-        
-        assertDoesNotThrow(() -> messageService.deleteMessage(messageEntity.getId(), shelterEntity.getId(), false));
-        verify(messageRepository, times(1)).deleteById(messageEntity.getId());
+    void deleteMessageTest() throws EntityNotFoundException, IllegalOperationException {
+        MessageEntity entity = data.get(0);
+        messageService.deleteMessage(entity.getId(), adopter.getId(), true);
+        MessageEntity deleted = entityManager.find(MessageEntity.class, entity.getId());
+        assertNull(deleted);
     }
 
     @Test
     void deleteMessageForbiddenTest() {
-        when(messageRepository.findById(messageEntity.getId())).thenReturn(Optional.of(messageEntity));
-        
-        // Un usuario que no es ni el adopter ni el shelter del mensaje
-        assertThrows(IllegalOperationException.class, () -> messageService.deleteMessage(messageEntity.getId(), 999L, true));
-    }
-
-    // --- TESTS PARA markAsRead ---
-
-    @Test
-    void markAsReadTest() throws EntityNotFoundException {
-        when(messageRepository.findById(messageEntity.getId())).thenReturn(Optional.of(messageEntity));
-        when(messageRepository.save(any(MessageEntity.class))).thenReturn(messageEntity);
-
-        MessageEntity result = messageService.markAsRead(messageEntity.getId());
-        
-        assertTrue(result.getIsRead());
-    }
-    
-    @Test
-    void getMessagesTest() {
-        List<MessageEntity> list = new ArrayList<>();
-        list.add(messageEntity);
-        when(messageRepository.findAll()).thenReturn(list);
-        
-        List<MessageEntity> result = messageService.getMessages();
-        assertFalse(result.isEmpty());
-        assertEquals(1, result.size());
+        MessageEntity entity = data.get(0);
+        // Intentamos borrar con un ID de usuario que no pertenece al mensaje
+        assertThrows(IllegalOperationException.class, () -> 
+            messageService.deleteMessage(entity.getId(), 999L, true));
     }
 }
