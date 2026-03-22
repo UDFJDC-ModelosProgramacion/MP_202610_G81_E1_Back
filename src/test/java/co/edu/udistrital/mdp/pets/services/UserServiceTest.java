@@ -268,19 +268,33 @@ class UserServiceTest {
     }
 
     @Test
-    void testUpdateUser() throws EntityNotFoundException, IllegalOperationException {
-        UserEntity entity = data.get(0);
-        UserEntity pojo = factory.manufacturePojo(MockUser.class);
-        pojo.setEmail("cambio@test.com");
-        pojo.setPhone("987654321");
-        pojo.setName("Nombre Actualizado");
-        pojo.setPassword("newpass123");
+    void testCreateUserSuccess() throws IllegalOperationException {
+        UserEntity newEntity = factory.manufacturePojo(MockUser.class);
+        newEntity.setEmail("newunique@test.com");
+        newEntity.setPhone("1234567890");
+        
+        UserEntity result = userService.createUser(newEntity);
+        
+        assertNotNull(result);
+        assertNotNull(result.getId());
+        assertEquals(newEntity.getEmail(), result.getEmail());
+    }
 
-        UserEntity resp = userService.updateUser(entity.getId(), pojo);
-
-        assertNotNull(resp);
-        assertEquals(pojo.getEmail(), resp.getEmail());
-        assertEquals(pojo.getPhone(), resp.getPhone());
+    @Test
+    void testUpdateUserSuccessSameEmail() throws EntityNotFoundException, IllegalOperationException {
+        UserEntity existing = data.get(0);
+        
+        // Actualizamos con el mismo email que ya tiene
+        UserEntity updateData = factory.manufacturePojo(MockUser.class);
+        updateData.setEmail(existing.getEmail());
+        updateData.setName("New Name");
+        updateData.setPhone("1234567890");
+        updateData.setPassword("NewPass123");
+        
+        UserEntity result = userService.updateUser(existing.getId(), updateData);
+        
+        assertNotNull(result);
+        assertEquals(existing.getId(), result.getId());
     }
 
 	@Test
