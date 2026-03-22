@@ -33,12 +33,12 @@ class ShelterServiceTest {
     @Autowired
     private TestEntityManager entityManager;
 
-    private PodamFactory factory = new PodamFactoryImpl();
+    private final PodamFactory factory = new PodamFactoryImpl();
 
-    private List<ShelterEntity> data = new ArrayList<>();
+    private final List<ShelterEntity> data = new ArrayList<>();
 
     @BeforeEach
-    void setUp() {
+    public void setUp() {
         clearData();
         insertData();
     }

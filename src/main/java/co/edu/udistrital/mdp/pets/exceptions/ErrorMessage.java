@@ -16,6 +16,10 @@ public final class ErrorMessage {
     public static final String TRIAL_COHABITATION_NOT_FOUND = "The trial cohabitation with the given id was not found";
     public static final String NOTIFICATION_STRATEGY_NOT_FOUND = "The notification strategy with the given id was not found";
 	public static final String SHELTER_EVENT_NOT_FOUND = "The shelter event with the given id was not found";
+    public static final String MEDICAL_EVENT_NOT_FOUND = "Medical event not found";
+    public static final String MEDICAL_HISTORY_NOT_FOUND = "Medical history not found";
+    public static final String VACCINATION_NOT_FOUND = "Vaccination record not found";
+    public static final String VACCINE_NOT_FOUND = "Vaccine not found";
 
     private ErrorMessage() {
         throw new IllegalStateException("Utility class");
