@@ -8,7 +8,7 @@ import java.util.List;
 
 import co.edu.udistrital.mdp.pets.enums.ProcessStatus;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Data
 @Entity
@@ -23,7 +23,7 @@ public class ShelterEventEntity extends BaseEntity {
 	private ProcessStatus status;
 
     @Temporal(TemporalType.DATE)
-    private Date date;
+    private LocalDate date;
 
     // Belongs to a Shelter
     @PodamExclude
