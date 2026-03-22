@@ -31,7 +31,7 @@ class MedicalHistoryServiceTest {
     private final List<MedicalHistoryEntity> data = new ArrayList<>();
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         entityManager.getEntityManager().createQuery("delete from MedicalHistoryEntity").executeUpdate();
         for (int i = 0; i < 3; i++) {
             MedicalHistoryEntity entity = factory.manufacturePojo(MedicalHistoryEntity.class);

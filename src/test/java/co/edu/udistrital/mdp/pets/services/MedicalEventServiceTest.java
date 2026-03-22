@@ -27,7 +27,7 @@ class MedicalEventServiceTest {
     private final List<MedicalEventEntity> data = new ArrayList<>();
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         entityManager.getEntityManager().createQuery("delete from MedicalEventEntity").executeUpdate();
         for (int i = 0; i < 3; i++) {
             MedicalEventEntity entity = factory.manufacturePojo(MedicalEventEntity.class);
@@ -37,7 +37,8 @@ class MedicalEventServiceTest {
         }
     }
 
-    @Test void testCreate() throws IllegalOperationException {
+    @Test 
+	void testCreate() throws IllegalOperationException {
         MedicalEventEntity newE = factory.manufacturePojo(MedicalEventEntity.class);
         newE.setEventDate(LocalDate.now());
         MedicalHistoryEntity history = factory.manufacturePojo(MedicalHistoryEntity.class);
@@ -46,18 +47,21 @@ class MedicalEventServiceTest {
         assertNotNull(service.createMedicalEvent(newE));
     }
 
-    @Test void testCreateFailFuture() {
+    @Test 
+	void testCreateFailFuture() {
         MedicalEventEntity newE = factory.manufacturePojo(MedicalEventEntity.class);
         newE.setEventDate(LocalDate.now().plusDays(10));
         IllegalOperationException exception = assertThrows(IllegalOperationException.class, () -> service.createMedicalEvent(newE));
         assertNotNull(exception);
     }
 
-    @Test void testGetOne() throws EntityNotFoundException {
+    @Test 
+	void testGetOne() throws EntityNotFoundException {
         assertEquals(data.get(0).getId(), service.getMedicalEvent(data.get(0).getId()).getId());
     }
 
-    @Test void testDelete() throws EntityNotFoundException {
+    @Test 
+	void testDelete() throws EntityNotFoundException {
         service.deleteMedicalEvent(data.get(0).getId());
         assertNull(entityManager.find(MedicalEventEntity.class, data.get(0).getId()));
     }
