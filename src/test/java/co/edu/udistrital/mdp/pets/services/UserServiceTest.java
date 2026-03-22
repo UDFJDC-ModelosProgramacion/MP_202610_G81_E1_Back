@@ -196,7 +196,27 @@ class UserServiceTest {
             userService.createUser(newEntity);
         });
     }
+	@Test
+	void testCreateUserEmailAlreadyExists() {
+		// persistimos un usuario manualmente para que el email EXISTA
+		UserEntity existingUser = factory.manufacturePojo(MockUser.class);
+		existingUser.setEmail("duplicate@test.com");
+		entityManager.persist(existingUser);
+		entityManager.flush();
 
+		// intentamos crear OTRO usuario con ese mismo email
+		UserEntity newUser = factory.manufacturePojo(MockUser.class);
+		newUser.setEmail("duplicate@test.com");
+		// aseguramos que otros campos obligatorios sean válidos para no fallar en validateUser()
+		newUser.setName("Test Name");
+		newUser.setPhone("123456");
+		newUser.setPassword("Pass123");
+
+		// verificamos que lance la excepción de negocio
+		assertThrows(IllegalOperationException.class, () -> {
+			userService.createUser(newUser);
+		});
+	}
     @Test
     void testCreateUserWithNullPhone() {
         assertThrows(IllegalOperationException.class, () -> {
