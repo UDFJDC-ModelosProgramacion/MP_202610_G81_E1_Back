@@ -63,19 +63,17 @@ public class ReviewService {
         if (!adopterRepository.existsById(review.getAdopter().getId()))
             throw new EntityNotFoundException(ErrorMessage.ADOPTER_NOT_FOUND);
 
-        if (!petRepository.existsById(review.getPet().getId()))
-            throw new EntityNotFoundException(ErrorMessage.PET_NOT_FOUND);
+		if (!petRepository.existsById(review.getPet().getId())) {
+			throw new EntityNotFoundException(ErrorMessage.PET_NOT_FOUND);
+		}
 
-        // OPTIMIZACIÓN: Consultar directamente al repositorio en lugar de traer toda la lista
-        // Debes tener un método en AdoptionRepository como: 
-        // boolean existsByAdopterIdAndPetId(Long adopterId, Long petId);
-        boolean hasCompletedAdoption = adoptionRepository.existsByAdopterIdAndPetId(
-                review.getAdopter().getId(), review.getPet().getId());
+		boolean hasCompletedAdoption = adoptionRepository.existsByAdopterIdAndPetId(
+				review.getAdopter().getId(), review.getPet().getId());
 
-        if (!hasCompletedAdoption) {
-            throw new IllegalOperationException(
-                    "A review can only be created after completing an adoption process");
-        }
+		if (!hasCompletedAdoption) {
+			throw new IllegalOperationException(
+					"A review can only be created after completing an adoption process");
+		}
 
         return reviewRepository.save(review);
     }

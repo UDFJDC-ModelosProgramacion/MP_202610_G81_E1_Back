@@ -134,9 +134,12 @@ public class MessageService {
     }
 
     @Transactional
-    public MessageEntity markAsRead(Long messageId) throws EntityNotFoundException {
-        MessageEntity message = getMessage(messageId);
-        message.setIsRead(true);
-        return messageRepository.save(message);
-    }
+	public MessageEntity markAsRead(Long messageId) throws EntityNotFoundException {
+		// Usar el repositorio directamente evita el self-invocation
+		MessageEntity message = messageRepository.findById(messageId)
+				.orElseThrow(() -> new EntityNotFoundException(ErrorMessage.MESSAGE_NOT_FOUND));
+		
+		message.setIsRead(true);
+		return messageRepository.save(message);
+}
 }

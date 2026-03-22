@@ -113,16 +113,17 @@ public class ShelterEventService {
     }
 
     @Transactional
-    public ShelterEventEntity finishEvent(Long eventId) throws EntityNotFoundException, IllegalOperationException {
-        log.info("Finishing shelter event with id = {}", eventId);
+	public ShelterEventEntity finishEvent(Long eventId) throws EntityNotFoundException, IllegalOperationException {
+		log.info("Finishing shelter event with id = {}", eventId);
 
-        ShelterEventEntity event = getShelterEvent(eventId);
+		ShelterEventEntity event = shelterEventRepository.findById(eventId)
+				.orElseThrow(() -> new EntityNotFoundException(ErrorMessage.SHELTER_EVENT_NOT_FOUND));
 
-        if (event.getStatus() == ProcessStatus.COMPLETED) {
-            throw new IllegalOperationException("Event is already finished");
-        }
+		if (event.getStatus() == ProcessStatus.COMPLETED) {
+			throw new IllegalOperationException("Event is already finished");
+		}
 
-        event.setStatus(ProcessStatus.COMPLETED);
-        return shelterEventRepository.save(event);
-    }
+		event.setStatus(ProcessStatus.COMPLETED);
+		return shelterEventRepository.save(event);
+	}
 }
