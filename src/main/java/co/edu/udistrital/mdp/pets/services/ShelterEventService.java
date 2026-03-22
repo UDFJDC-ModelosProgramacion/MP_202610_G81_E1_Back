@@ -48,9 +48,9 @@ public class ShelterEventService {
     @Transactional
     public ShelterEventEntity createShelterEvent(ShelterEventEntity event)
             throws IllegalOperationException {
-        log.info("Creating shelter event: {}", event.getTitle());
+        validateShelterEvent(event); // Primero validamos para evitar el NPE en los logs
 
-        validateShelterEvent(event);
+        log.info("Creating shelter event: {}", event.getTitle());
 
         if (event.getStatus() == null) {
             event.setStatus(ProcessStatus.IN_PROGRESS);
