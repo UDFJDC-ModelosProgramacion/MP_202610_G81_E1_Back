@@ -137,6 +137,18 @@ class TrialCohabitationServiceTest {
         });
     }
 
+	@Test
+	void testCreateWithInvalidResult() {
+		TrialCohabitationEntity trial = factory.manufacturePojo(TrialCohabitationEntity.class);
+		trial.setStartDate(LocalDate.now());
+		trial.setEndDate(LocalDate.now().plusDays(1));
+		trial.setResult("ESTADO_INVENTADO");
+
+		assertThrows(IllegalOperationException.class, () -> 
+			trialCohabitationService.createTrialCohabitation(trial)); // <-- Corregido
+	}
+
+
     // ==================== GET TESTS ====================
 
     @Test
@@ -308,7 +320,34 @@ class TrialCohabitationServiceTest {
         assertEquals("EXITOSA", resp.getResult());
     }
 
-    // ==================== DELETE TESTS ====================
+	@Test
+	void testUpdateWithEndDateNull() throws EntityNotFoundException, IllegalOperationException {
+		TrialCohabitationEntity existing = factory.manufacturePojo(TrialCohabitationEntity.class);
+		existing.setStartDate(LocalDate.now());
+		existing.setEndDate(LocalDate.now().plusDays(10));
+		entityManager.persist(existing);
+		
+		TrialCohabitationEntity updateData = new TrialCohabitationEntity();
+		updateData.setEndDate(null); 
+
+		trialCohabitationService.updateTrialCohabitation(existing.getId(), updateData);
+	}
+    
+	@Test
+	void testUpdateEndDateBeforeStartDate() throws EntityNotFoundException {
+		TrialCohabitationEntity existing = new TrialCohabitationEntity();
+		existing.setStartDate(LocalDate.of(2026, 1, 10));
+		existing.setEndDate(LocalDate.of(2026, 1, 20));
+		existing.setResult("EN_PROCESO");
+		entityManager.persist(existing);
+
+		TrialCohabitationEntity updateData = new TrialCohabitationEntity();
+		updateData.setEndDate(LocalDate.of(2026, 1, 5)); 
+
+		assertThrows(IllegalOperationException.class, () -> 
+			trialCohabitationService.updateTrialCohabitation(existing.getId(), updateData)); // <-- Corregido
+	}
+	// ==================== DELETE TESTS ====================
 
     @Test
     void testDeleteFutureTrialCohabitation() throws EntityNotFoundException, IllegalOperationException {
@@ -366,4 +405,15 @@ class TrialCohabitationServiceTest {
             trialCohabitationService.deleteTrialCohabitation(trial.getId());
         });
     }
+
+	@Test
+	void testDeleteTrialInProgress() {
+		TrialCohabitationEntity trial = new TrialCohabitationEntity();
+		trial.setStartDate(LocalDate.now().minusDays(1));
+		trial.setEndDate(LocalDate.now().plusDays(1));
+		entityManager.persist(trial);
+
+		assertThrows(IllegalOperationException.class, () -> 
+			trialCohabitationService.deleteTrialCohabitation(trial.getId())); // <-- Corregido
+	}
 }
