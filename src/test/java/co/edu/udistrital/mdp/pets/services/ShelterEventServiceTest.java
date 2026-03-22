@@ -5,9 +5,14 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream; // Added import
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest; // Added import
+import org.junit.jupiter.params.provider.Arguments; // Added import
+import org.junit.jupiter.params.provider.MethodSource; // Added import
+import static org.junit.jupiter.params.provider.Arguments.arguments; // Added import
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
@@ -92,56 +97,37 @@ class ShelterEventServiceTest {
         assertThrows(IllegalOperationException.class, () -> shelterEventService.createShelterEvent(null));
     }
 
-    @Test
-    void createShelterEventNullTitleTest() {
+    // Parameterized test for null/empty title and location
+    @ParameterizedTest
+    @MethodSource("invalidTitleAndLocationProvider")
+    void createShelterEventInvalidTitleOrLocationTest(String title, String location) {
         ShelterEventEntity newEvent = new ShelterEventEntity();
-        newEvent.setTitle(null); // Case: Null title
+        newEvent.setTitle(title);
         newEvent.setDate(LocalDate.now().plusDays(7));
-        newEvent.setLocation("Parque Simón Bolívar");
+        newEvent.setLocation(location);
         newEvent.setShelter(shelter);
 
         assertThrows(IllegalOperationException.class, () -> shelterEventService.createShelterEvent(newEvent));
     }
 
-    @Test
-    void createShelterEventEmptyTitleTest() {
-        ShelterEventEntity newEvent = new ShelterEventEntity();
-        newEvent.setTitle("   "); // Case: Empty title
-        newEvent.setDate(LocalDate.now().plusDays(7));
-        newEvent.setLocation("Parque Simón Bolívar");
-        newEvent.setShelter(shelter);
-
-        assertThrows(IllegalOperationException.class, () -> shelterEventService.createShelterEvent(newEvent));
+    private static Stream<Arguments> invalidTitleAndLocationProvider() {
+        return Stream.of(
+            // Null Title scenarios
+            arguments(null, "Parque Simón Bolívar"),
+            // Empty Title scenarios
+            arguments("   ", "Parque Simón Bolívar"),
+            // Null Location scenarios
+            arguments("Valid Title", null),
+            // Empty Location scenarios
+            arguments("Valid Title", "   ")
+        );
     }
-
     @Test
     void createShelterEventNullDateTest() {
         ShelterEventEntity newEvent = new ShelterEventEntity();
         newEvent.setTitle("Valid Title");
         newEvent.setDate(null); // Case: Null date
         newEvent.setLocation("Valid Location");
-        newEvent.setShelter(shelter);
-
-        assertThrows(IllegalOperationException.class, () -> shelterEventService.createShelterEvent(newEvent));
-    }
-
-    @Test
-    void createShelterEventNullLocationTest() {
-        ShelterEventEntity newEvent = new ShelterEventEntity();
-        newEvent.setTitle("Valid Title");
-        newEvent.setDate(LocalDate.now().plusDays(7));
-        newEvent.setLocation(null); // Case: Null location
-        newEvent.setShelter(shelter);
-
-        assertThrows(IllegalOperationException.class, () -> shelterEventService.createShelterEvent(newEvent));
-    }
-
-    @Test
-    void createShelterEventEmptyLocationTest() {
-        ShelterEventEntity newEvent = new ShelterEventEntity();
-        newEvent.setTitle("Valid Title");
-        newEvent.setDate(LocalDate.now().plusDays(7));
-        newEvent.setLocation("   "); // Case: Empty location
         newEvent.setShelter(shelter);
 
         assertThrows(IllegalOperationException.class, () -> shelterEventService.createShelterEvent(newEvent));
