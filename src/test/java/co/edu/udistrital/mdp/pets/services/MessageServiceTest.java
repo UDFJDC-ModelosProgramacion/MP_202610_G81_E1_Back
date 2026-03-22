@@ -94,6 +94,11 @@ class MessageServiceTest {
     }
 
     @Test
+    void createMessageNullTest() {
+        assertThrows(IllegalOperationException.class, () -> messageService.createMessage(null));
+    }
+
+    @Test
     void getMessagesTest() {
         List<MessageEntity> list = messageService.getMessages();
         assertEquals(data.size(), list.size());
@@ -147,10 +152,54 @@ class MessageServiceTest {
     }
 
     @Test
+    void createMessageNullContentTest() {
+        MessageEntity newEntity = factory.manufacturePojo(MessageEntity.class);
+        newEntity.setAdopter(adopter);
+        newEntity.setShelter(shelter);
+        newEntity.setContent(null); // Case: Null content
+
+        assertThrows(IllegalOperationException.class, () -> messageService.createMessage(newEntity));
+    }
+
+    @Test
     void createMessageNullAdopterTest() {
         MessageEntity newEntity = factory.manufacturePojo(MessageEntity.class);
         newEntity.setAdopter(null); // Caso: Sin adoptante
         newEntity.setShelter(shelter);
+
+        assertThrows(IllegalOperationException.class, () -> messageService.createMessage(newEntity));
+    }
+
+    @Test
+    void createMessageAdopterIdNullTest() {
+        MessageEntity newEntity = factory.manufacturePojo(MessageEntity.class);
+        AdopterEntity adopterWithoutId = factory.manufacturePojo(AdopterEntity.class);
+        adopterWithoutId.setId(null); // Case: Adopter with null ID
+        newEntity.setAdopter(adopterWithoutId);
+        newEntity.setShelter(shelter);
+        newEntity.setContent("Valid content");
+
+        assertThrows(IllegalOperationException.class, () -> messageService.createMessage(newEntity));
+    }
+
+    @Test
+    void createMessageNullShelterTest() {
+        MessageEntity newEntity = factory.manufacturePojo(MessageEntity.class);
+        newEntity.setAdopter(adopter);
+        newEntity.setShelter(null); // Case: Null shelter
+        newEntity.setContent("Valid content");
+
+        assertThrows(IllegalOperationException.class, () -> messageService.createMessage(newEntity));
+    }
+
+    @Test
+    void createMessageShelterIdNullTest() {
+        MessageEntity newEntity = factory.manufacturePojo(MessageEntity.class);
+        newEntity.setAdopter(adopter);
+        ShelterEntity shelterWithoutId = factory.manufacturePojo(ShelterEntity.class);
+        shelterWithoutId.setId(null); // Case: Shelter with null ID
+        newEntity.setShelter(shelterWithoutId);
+        newEntity.setContent("Valid content");
 
         assertThrows(IllegalOperationException.class, () -> messageService.createMessage(newEntity));
     }
@@ -165,6 +214,22 @@ class MessageServiceTest {
         newEntity.setShelter(fakeShelter);
 
         assertThrows(IllegalOperationException.class, () -> messageService.createMessage(newEntity));
+    }
+
+    @Test
+    void createMessageIsReadNullTest() throws IllegalOperationException {
+        MessageEntity newEntity = factory.manufacturePojo(MessageEntity.class);
+        newEntity.setAdopter(adopter);
+        newEntity.setShelter(shelter);
+        newEntity.setContent("Valid content");
+        newEntity.setIsRead(null); // Case: isRead is null
+
+        MessageEntity result = messageService.createMessage(newEntity);
+        assertNotNull(result);
+        assertFalse(result.getIsRead()); // Should default to false
+
+        MessageEntity entity = entityManager.find(MessageEntity.class, result.getId());
+        assertFalse(entity.getIsRead());
     }
 
     // --- TESTS DE BÚSQUEDA ---
@@ -187,6 +252,11 @@ class MessageServiceTest {
     }
 
     @Test
+    void getMessagesByAdopterNotFoundTest() {
+        assertThrows(EntityNotFoundException.class, () -> messageService.getMessagesByAdopter(999L));
+    }
+
+    @Test
     void getMessageInvalidIdTest() {
         assertThrows(EntityNotFoundException.class, () -> messageService.getMessage(999L));
     }
@@ -200,6 +270,16 @@ class MessageServiceTest {
         pojo.setContent("   "); // Caso: Solo espacios en blanco
 
         assertThrows(IllegalOperationException.class, () -> 
+            messageService.updateMessage(entity.getId(), pojo));
+    }
+
+    @Test
+    void updateMessageNullContentTest() {
+        MessageEntity entity = data.get(0);
+        MessageEntity pojo = new MessageEntity();
+        pojo.setContent(null); // Case: Null content
+
+        assertThrows(IllegalOperationException.class, () ->
             messageService.updateMessage(entity.getId(), pojo));
     }
 
