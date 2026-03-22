@@ -50,11 +50,14 @@ public class NotificationService {
 			throw new IllegalOperationException("Recipient user does not exist");
 		}
 
-		// Unión de los IFs
-		if (notification.getNotificationStrategy() != null 
-			&& notification.getNotificationStrategy().getId() != null 
-			&& !notificationStrategyRepository.existsById(notification.getNotificationStrategy().getId())) {
-			
+		// Validación de la estrategia de notificación
+		if (notification.getNotificationStrategy() == null) {
+			throw new IllegalOperationException("Notification strategy cannot be null");
+		}
+		if (notification.getNotificationStrategy().getId() == null) {
+			throw new IllegalOperationException("Notification strategy ID cannot be null");
+		}
+		if (!notificationStrategyRepository.existsById(notification.getNotificationStrategy().getId())) {
 			throw new IllegalOperationException("The assigned notification strategy does not exist");
 		}
     }
@@ -62,10 +65,11 @@ public class NotificationService {
     @Transactional
     public NotificationEntity createNotification(NotificationEntity notification)
             throws IllegalOperationException {
+        // Primero validamos para evitar el NPE en los logs o validaciones posteriores
+        validateNotification(notification);
+
         log.info("Creating notification for user: {}", 
                 notification.getUser() != null ? notification.getUser().getId() : "null");
-
-        validateNotification(notification);
         
         if (notification.getIsRead() == null) {
             notification.setIsRead(false);

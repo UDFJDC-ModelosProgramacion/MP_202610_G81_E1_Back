@@ -16,15 +16,19 @@ import org.springframework.transaction.annotation.Transactional;
 import co.edu.udistrital.mdp.pets.entities.AdopterEntity;
 import co.edu.udistrital.mdp.pets.entities.EmailNotificationStrategyEntity;
 import co.edu.udistrital.mdp.pets.entities.NotificationEntity;
+import co.edu.udistrital.mdp.pets.entities.NotificationStrategyEntity;
 import co.edu.udistrital.mdp.pets.entities.UserEntity;
 import co.edu.udistrital.mdp.pets.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.pets.exceptions.IllegalOperationException;
 import uk.co.jemos.podam.api.PodamFactory;
 import uk.co.jemos.podam.api.PodamFactoryImpl;
 
+import org.springframework.boot.autoconfigure.domain.EntityScan;
+
 @DataJpaTest
 @Transactional
 @Import(NotificationService.class)
+@EntityScan("co.edu.udistrital.mdp.pets.entities") // Explicitly scan for entities
 class NotificationServiceTest {
 
     @Autowired
@@ -99,11 +103,28 @@ class NotificationServiceTest {
     }
 
     @Test
+    void createNotificationNullTest() {
+        assertThrows(IllegalOperationException.class, () -> notificationService.createNotification(null));
+    }
+
+    @Test
     void createNotificationNullUserTest() {
         NotificationEntity newNotification = new NotificationEntity();
         newNotification.setMessage("Mensaje sin usuario");
         newNotification.setUser(null);
         
+        assertThrows(IllegalOperationException.class, () -> notificationService.createNotification(newNotification));
+    }
+
+    @Test
+    void createNotificationUserIdNullTest() {
+        NotificationEntity newNotification = new NotificationEntity();
+        UserEntity userWithoutId = new AdopterEntity(); // Using AdopterEntity as a concrete UserEntity
+        userWithoutId.setId(null); // Case: User with null ID
+        newNotification.setUser(userWithoutId);
+        newNotification.setMessage("Valid message");
+        newNotification.setDate(new java.util.Date());
+
         assertThrows(IllegalOperationException.class, () -> notificationService.createNotification(newNotification));
     }
 
@@ -115,19 +136,82 @@ class NotificationServiceTest {
         
         assertThrows(IllegalOperationException.class, () -> notificationService.createNotification(newNotification));
     }
+    @Test
+    void createNotificationNullMessageTest() {
+        NotificationEntity newNotification = new NotificationEntity();
+        newNotification.setUser(user);
+        newNotification.setDate(new java.util.Date());
+        newNotification.setMessage(null); // Case: Null message
+
+        assertThrows(IllegalOperationException.class, () -> notificationService.createNotification(newNotification));
+    }
+
+    @Test
+    void createNotificationNullDateTest() {
+        NotificationEntity newNotification = new NotificationEntity();
+        newNotification.setUser(user);
+        newNotification.setMessage("Valid message");
+        newNotification.setDate(null); // Case: Null date
+
+        assertThrows(IllegalOperationException.class, () -> notificationService.createNotification(newNotification));
+    }
+
+    @Test
+    void createNotificationNullStrategyTest() {
+        NotificationEntity newNotification = new NotificationEntity();
+        newNotification.setUser(user);
+        newNotification.setMessage("Valid message");
+        newNotification.setDate(new java.util.Date());
+        newNotification.setNotificationStrategy(null); // Case: Null strategy
+
+        assertThrows(IllegalOperationException.class, () -> notificationService.createNotification(newNotification));
+    }
+
+    @Test
+    void createNotificationStrategyIdNullTest() {
+        NotificationEntity newNotification = new NotificationEntity();
+        NotificationStrategyEntity strategyWithoutId = new EmailNotificationStrategyEntity();
+        strategyWithoutId.setId(null); // Case: Strategy with null ID
+        newNotification.setNotificationStrategy(strategyWithoutId);
+        newNotification.setUser(user);
+        newNotification.setMessage("Valid message");
+        newNotification.setDate(new java.util.Date());
+
+        assertThrows(IllegalOperationException.class, () -> notificationService.createNotification(newNotification));
+    }
 
     @Test
     void createNotificationInvalidStrategyTest() {
         NotificationEntity newNotification = new NotificationEntity();
         newNotification.setUser(user);
         newNotification.setMessage("Mensaje con estrategia inexistente");
-        
+
         // Creamos una instancia pero NO la persistimos
         EmailNotificationStrategyEntity fakeStrategy = new EmailNotificationStrategyEntity();
         fakeStrategy.setId(999L);
         newNotification.setNotificationStrategy(fakeStrategy);
 
         assertThrows(IllegalOperationException.class, () -> notificationService.createNotification(newNotification));
+    }
+
+    @Test
+    void createNotificationIsReadNullTest() throws IllegalOperationException {
+        EmailNotificationStrategyEntity newStrategy = new EmailNotificationStrategyEntity();
+        entityManager.persist(newStrategy);
+
+        NotificationEntity newNotification = new NotificationEntity();
+        newNotification.setMessage("Valid content");
+        newNotification.setDate(new java.util.Date());
+        newNotification.setUser(user);
+        newNotification.setNotificationStrategy(newStrategy);
+        newNotification.setIsRead(null); // Case: isRead is null
+
+        NotificationEntity result = notificationService.createNotification(newNotification);
+        assertNotNull(result);
+        assertFalse(result.getIsRead()); // Should default to false
+
+        NotificationEntity entity = entityManager.find(NotificationEntity.class, result.getId());
+        assertFalse(entity.getIsRead());
     }
 
     // --- TESTS DE BÚSQUEDA ---
@@ -137,7 +221,6 @@ class NotificationServiceTest {
         List<NotificationEntity> result = notificationService.getNotificationsByUser(user.getId());
         assertEquals(data.size(), result.size());
     }
-
     @Test
     void getNotificationsByInvalidUserTest() {
         assertThrows(EntityNotFoundException.class, () -> notificationService.getNotificationsByUser(999L));
@@ -158,9 +241,24 @@ class NotificationServiceTest {
         updateData.setUser(user); 
         updateData.setMessage("Updated Message Content");
         updateData.setDate(new java.util.Date());
+        updateData.setNotificationStrategy(entity.getNotificationStrategy()); // Set existing strategy
 
         NotificationEntity result = notificationService.updateNotification(entity.getId(), updateData);
         assertEquals("Updated Message Content", result.getMessage());
+    }
+
+    @Test
+    void updateNotificationNullStrategyTest() {
+        NotificationEntity entity = data.get(0);
+        
+        NotificationEntity updateData = new NotificationEntity();
+        updateData.setUser(user); 
+        updateData.setMessage("Updated Message Content");
+        updateData.setDate(new java.util.Date());
+        updateData.setNotificationStrategy(null); // Case: Null strategy in update data
+
+        assertThrows(IllegalOperationException.class, () ->
+            notificationService.updateNotification(entity.getId(), updateData));
     }
 
     @Test
@@ -169,7 +267,6 @@ class NotificationServiceTest {
         NotificationEntity result = notificationService.markAsRead(entity.getId());
         assertTrue(result.getIsRead());
     }
-
     @Test
     void setStrategyTest() throws EntityNotFoundException {
         NotificationEntity entity = data.get(0);
@@ -185,11 +282,19 @@ class NotificationServiceTest {
     }
 
     @Test
+    void setStrategyInvalidNotificationTest() {
+        EmailNotificationStrategyEntity newStrategy = new EmailNotificationStrategyEntity();
+        entityManager.persist(newStrategy);
+
+        assertThrows(EntityNotFoundException.class, () ->
+            notificationService.setStrategy(999L, newStrategy.getId()));
+    }
+
+    @Test
     void setStrategyNotFoundTest() {
         NotificationEntity entity = data.get(0);
         assertThrows(EntityNotFoundException.class, () -> notificationService.setStrategy(entity.getId(), 999L));
     }
-
     // --- TESTS DE BORRADO ---
 
     @Test
