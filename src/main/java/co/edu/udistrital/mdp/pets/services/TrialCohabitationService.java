@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
+@SuppressWarnings("null")
 public class TrialCohabitationService {
 
     @Autowired
