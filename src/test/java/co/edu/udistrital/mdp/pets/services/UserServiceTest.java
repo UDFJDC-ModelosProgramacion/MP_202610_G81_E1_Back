@@ -54,6 +54,7 @@ class UserServiceTest {
     }
 
     private void clearData() {
+		entityManager.getEntityManager().createQuery("delete from AdoptionEntity").executeUpdate();
         entityManager.getEntityManager().createQuery("delete from UserEntity").executeUpdate();
     }
 
@@ -99,6 +100,14 @@ class UserServiceTest {
             userService.createUser(newEntity);
         });
     }
+
+	@Test
+	void testCreateUserDuplicateEmailFails() {
+		UserEntity user2 = factory.manufacturePojo(MockUser.class);
+		user2.setEmail(data.get(0).getEmail()); // Ya existe en insertData
+
+		assertThrows(IllegalOperationException.class, () -> userService.createUser(user2));
+	}
 
     @Test
     void testCreateUserWithInvalidPhone() {
@@ -290,6 +299,60 @@ class UserServiceTest {
 			userService.updateUser(user1.getId(), pojo);
     });
 	}
+
+	@Test
+	void testUpdateUserEmailAlreadyExistsInAnotherRecord() {
+		// 1. Limpiamos para evitar que los datos del @BeforeEach interfieran con la consulta de unicidad
+		entityManager.getEntityManager().createQuery("delete from UserEntity").executeUpdate();
+
+		// 2. Creamos dos usuarios distintos usando la clase de Mock
+		UserEntity user1 = factory.manufacturePojo(MockUser.class);
+		user1.setEmail("original@test.com");
+		user1.setPhone("111111");
+		entityManager.persist(user1);
+
+		UserEntity user2 = factory.manufacturePojo(MockUser.class);
+		user2.setEmail("ocupado@test.com");
+		user2.setPhone("222222");
+		entityManager.persist(user2);
+		
+		entityManager.flush();
+		entityManager.clear(); // Limpiamos el caché de primer nivel para forzar consulta a BD
+
+		// 3. Intentamos actualizar el user1 con el email que ya tiene el user2
+		UserEntity updateData = factory.manufacturePojo(MockUser.class);
+		updateData.setEmail("ocupado@test.com"); 
+		updateData.setPhone("111111");
+		updateData.setName("Nombre Valido");
+		updateData.setPassword("Pass123");
+
+		// Ahora sí debería lanzar IllegalOperationException porque la validación de negocio
+		// encontrará el email antes de que JPA lance un error de persistencia
+		assertThrows(IllegalOperationException.class, () -> {
+			userService.updateUser(user1.getId(), updateData);
+		});
+	}
+
+    @Test
+    void testValidateUserInvalidEmailFormat() {
+        UserEntity user = factory.manufacturePojo(MockUser.class);
+        user.setEmail("email_sin_arroba.com"); // Formato que hará fallar el Regex
+
+        assertThrows(IllegalOperationException.class, () -> {
+            userService.createUser(user);
+        });
+    }
+
+    @Test
+    void testValidateUserInvalidPhoneFormat() {
+        UserEntity user = factory.manufacturePojo(MockUser.class);
+        user.setEmail("valido@test.com");
+        user.setPhone("12345abc"); // Contiene letras, hará fallar el Regex de [0-9]+
+
+        assertThrows(IllegalOperationException.class, () -> {
+            userService.createUser(user);
+        });
+    }
 
 	@Test
 	void testDeleteUserSuccess() throws EntityNotFoundException, IllegalOperationException {
