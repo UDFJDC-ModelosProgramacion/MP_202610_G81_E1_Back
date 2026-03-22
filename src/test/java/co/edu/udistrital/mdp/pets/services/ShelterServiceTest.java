@@ -38,7 +38,7 @@ class ShelterServiceTest {
     private final List<ShelterEntity> data = new ArrayList<>();
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         clearData();
         insertData();
     }

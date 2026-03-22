@@ -29,7 +29,7 @@ class VaccineServiceTest {
     private final List<VaccineEntity> data = new ArrayList<>();
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         entityManager.getEntityManager().createQuery("delete from VaccineEntity").executeUpdate();
         for (int i = 0; i < 3; i++) {
             VaccineEntity entity = factory.manufacturePojo(VaccineEntity.class);
