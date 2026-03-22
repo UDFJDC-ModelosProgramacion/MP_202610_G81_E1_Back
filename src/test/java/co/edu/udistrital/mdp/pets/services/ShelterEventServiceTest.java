@@ -22,9 +22,12 @@ import co.edu.udistrital.mdp.pets.exceptions.IllegalOperationException;
 import uk.co.jemos.podam.api.PodamFactory;
 import uk.co.jemos.podam.api.PodamFactoryImpl;
 
+import org.springframework.boot.autoconfigure.domain.EntityScan;
+
 @DataJpaTest
 @Transactional
 @Import(ShelterEventService.class)
+@EntityScan("co.edu.udistrital.mdp.pets.entities") // Explicitly scan for entities
 class ShelterEventServiceTest {
 
     @Autowired
@@ -85,13 +88,112 @@ class ShelterEventServiceTest {
     }
 
     @Test
+    void createShelterEventNullTest() {
+        assertThrows(IllegalOperationException.class, () -> shelterEventService.createShelterEvent(null));
+    }
+
+    @Test
+    void createShelterEventNullTitleTest() {
+        ShelterEventEntity newEvent = new ShelterEventEntity();
+        newEvent.setTitle(null); // Case: Null title
+        newEvent.setDate(LocalDate.now().plusDays(7));
+        newEvent.setLocation("Parque Simón Bolívar");
+        newEvent.setShelter(shelter);
+
+        assertThrows(IllegalOperationException.class, () -> shelterEventService.createShelterEvent(newEvent));
+    }
+
+    @Test
+    void createShelterEventEmptyTitleTest() {
+        ShelterEventEntity newEvent = new ShelterEventEntity();
+        newEvent.setTitle("   "); // Case: Empty title
+        newEvent.setDate(LocalDate.now().plusDays(7));
+        newEvent.setLocation("Parque Simón Bolívar");
+        newEvent.setShelter(shelter);
+
+        assertThrows(IllegalOperationException.class, () -> shelterEventService.createShelterEvent(newEvent));
+    }
+
+    @Test
+    void createShelterEventNullDateTest() {
+        ShelterEventEntity newEvent = new ShelterEventEntity();
+        newEvent.setTitle("Valid Title");
+        newEvent.setDate(null); // Case: Null date
+        newEvent.setLocation("Valid Location");
+        newEvent.setShelter(shelter);
+
+        assertThrows(IllegalOperationException.class, () -> shelterEventService.createShelterEvent(newEvent));
+    }
+
+    @Test
+    void createShelterEventNullLocationTest() {
+        ShelterEventEntity newEvent = new ShelterEventEntity();
+        newEvent.setTitle("Valid Title");
+        newEvent.setDate(LocalDate.now().plusDays(7));
+        newEvent.setLocation(null); // Case: Null location
+        newEvent.setShelter(shelter);
+
+        assertThrows(IllegalOperationException.class, () -> shelterEventService.createShelterEvent(newEvent));
+    }
+
+    @Test
+    void createShelterEventEmptyLocationTest() {
+        ShelterEventEntity newEvent = new ShelterEventEntity();
+        newEvent.setTitle("Valid Title");
+        newEvent.setDate(LocalDate.now().plusDays(7));
+        newEvent.setLocation("   "); // Case: Empty location
+        newEvent.setShelter(shelter);
+
+        assertThrows(IllegalOperationException.class, () -> shelterEventService.createShelterEvent(newEvent));
+    }
+
+    @Test
+    void createShelterEventNullShelterTest() {
+        ShelterEventEntity newEvent = new ShelterEventEntity();
+        newEvent.setTitle("Valid Title");
+        newEvent.setDate(LocalDate.now().plusDays(7));
+        newEvent.setLocation("Valid Location");
+        newEvent.setShelter(null); // Case: Null shelter
+
+        assertThrows(IllegalOperationException.class, () -> shelterEventService.createShelterEvent(newEvent));
+    }
+
+    @Test
+    void createShelterEventShelterIdNullTest() {
+        ShelterEventEntity newEvent = new ShelterEventEntity();
+        ShelterEntity shelterWithoutId = factory.manufacturePojo(ShelterEntity.class);
+        shelterWithoutId.setId(null); // Case: Shelter with null ID
+        newEvent.setShelter(shelterWithoutId);
+        newEvent.setTitle("Valid Title");
+        newEvent.setDate(LocalDate.now().plusDays(7));
+        newEvent.setLocation("Valid Location");
+
+        assertThrows(IllegalOperationException.class, () -> shelterEventService.createShelterEvent(newEvent));
+    }
+
+    @Test
     void createEventInvalidShelterTest() {
         ShelterEventEntity newEvent = factory.manufacturePojo(ShelterEventEntity.class);
-        ShelterEntity nonExistentShelter = new ShelterEntity();
+        ShelterEntity nonExistentShelter = new ShelterEntity(); // Corrected instantiation
         nonExistentShelter.setId(999L);
         newEvent.setShelter(nonExistentShelter);
 
         assertThrows(IllegalOperationException.class, () -> shelterEventService.createShelterEvent(newEvent));
+    }
+
+    @Test
+    void createShelterEventNullStatusTest() throws IllegalOperationException {
+        ShelterEventEntity newEvent = new ShelterEventEntity();
+        newEvent.setTitle("Event with null status");
+        newEvent.setDate(LocalDate.now().plusDays(10));
+        newEvent.setLocation("New Location");
+        newEvent.setShelter(shelter);
+        newEvent.setStatus(null); // Case: Null status
+
+        ShelterEventEntity result = shelterEventService.createShelterEvent(newEvent);
+        
+        assertNotNull(result);
+        assertEquals(ProcessStatus.IN_PROGRESS, result.getStatus());
     }
 
     // --- TESTS DE ACTUALIZACIÓN & REGLAS DE NEGOCIO ---
@@ -108,7 +210,6 @@ class ShelterEventServiceTest {
         ShelterEventEntity result = shelterEventService.updateShelterEvent(existing.getId(), updateData);
         assertEquals("Nuevo Título", result.getTitle());
     }
-
     @Test
     void updateCompletedEventTest() throws EntityNotFoundException, IllegalOperationException {
         ShelterEventEntity event = data.get(0);
