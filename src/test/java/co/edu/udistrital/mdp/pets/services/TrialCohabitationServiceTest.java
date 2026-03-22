@@ -339,21 +339,15 @@ class TrialCohabitationServiceTest {
 	}
 
 	@Test
-	void testUpdateWithCorruptDataInDB() {
-		// Insertamos directamente un dato que NO debería ser posible por lógica de negocio
-		TrialCohabitationEntity corrupt = new TrialCohabitationEntity();
-		corrupt.setStartDate(LocalDate.now());
-		corrupt.setEndDate(null); // <--- Forzamos el null en BD
-		corrupt.setResult("EN_PROCESO");
-		entityManager.persist(corrupt);
-		entityManager.flush();
+	void testCreateWithNullResult() throws IllegalOperationException {
+		TrialCohabitationEntity trial = factory.manufacturePojo(TrialCohabitationEntity.class);
+		trial.setStartDate(LocalDate.now());
+		trial.setEndDate(LocalDate.now().plusDays(5));
+		trial.setResult(null); // <--- ESTA ES LA RAMA QUE TE FALTA
 
-		TrialCohabitationEntity updateData = new TrialCohabitationEntity();
-		updateData.setResult("EXITOSA");
-
-		// Al intentar actualizar, el service leerá el null de la BD y disparará el throw
-		assertThrows(IllegalOperationException.class, () -> 
-			trialCohabitationService.updateTrialCohabitation(corrupt.getId(), updateData));
+		TrialCohabitationEntity result = trialCohabitationService.createTrialCohabitation(trial);
+		assertNotNull(result);
+		assertNull(result.getResult());
 	}
 
 	@Test
@@ -475,4 +469,29 @@ class TrialCohabitationServiceTest {
 		assertThrows(IllegalOperationException.class, () -> 
 			trialCohabitationService.deleteTrialCohabitation(trial.getId())); // <-- Corregido
 	}
+
+	@Test
+	void testDeleteFutureTrial() throws EntityNotFoundException, IllegalOperationException {
+    TrialCohabitationEntity future = new TrialCohabitationEntity();
+    future.setStartDate(LocalDate.now().plusDays(10)); // Aún no empieza
+    future.setEndDate(LocalDate.now().plusDays(20));
+    entityManager.persist(future);
+
+    // Esto cubre la rama donde isBefore es TRUE, por lo tanto !isBefore es FALSE
+    trialCohabitationService.deleteTrialCohabitation(future.getId());
+    assertNull(entityManager.find(TrialCohabitationEntity.class, future.getId()));
+	}
+
+	@Test
+	void testDeletePastTrial() throws EntityNotFoundException, IllegalOperationException {
+		TrialCohabitationEntity past = new TrialCohabitationEntity();
+		past.setStartDate(LocalDate.now().minusDays(20));
+		past.setEndDate(LocalDate.now().minusDays(10)); // Ya terminó
+		entityManager.persist(past);
+
+		// Esto cubre la rama donde isAfter es TRUE, por lo tanto !isAfter es FALSE
+		trialCohabitationService.deleteTrialCohabitation(past.getId());
+		assertNull(entityManager.find(TrialCohabitationEntity.class, past.getId()));
+	}
+
 }
