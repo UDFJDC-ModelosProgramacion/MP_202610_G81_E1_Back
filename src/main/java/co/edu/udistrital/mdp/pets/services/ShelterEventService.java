@@ -80,7 +80,7 @@ public class ShelterEventService {
 
         validateShelterEvent(updatedEvent);
 
-        if (existing.getStatus() == ProcessStatus.FINISHED) {
+        if (existing.getStatus() == ProcessStatus.COMPLETED) {
             throw new IllegalOperationException("Cannot update a finished event");
         }
 
@@ -96,7 +96,7 @@ public class ShelterEventService {
         ShelterEventEntity event = shelterEventRepository.findById(eventId)
                 .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.SHELTER_EVENT_NOT_FOUND));
 
-        if (event.getStatus() != ProcessStatus.FINISHED) {
+        if (event.getStatus() != ProcessStatus.COMPLETED) {
             throw new IllegalOperationException(
                     "Cannot delete a shelter event that is not finished yet");
         }
@@ -111,11 +111,11 @@ public class ShelterEventService {
         ShelterEventEntity event = shelterEventRepository.findById(eventId)
                 .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.SHELTER_EVENT_NOT_FOUND));
 
-        if (event.getStatus() == ProcessStatus.FINISHED) {
+        if (event.getStatus() == ProcessStatus.COMPLETED) {
             throw new IllegalOperationException("Event is already finished");
         }
 
-        event.setStatus(ProcessStatus.FINISHED);
+        event.setStatus(ProcessStatus.COMPLETED);
         return shelterEventRepository.save(event);
     }
 }

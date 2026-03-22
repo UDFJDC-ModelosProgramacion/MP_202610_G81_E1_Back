@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import co.edu.udistrital.mdp.pets.entities.MessageEntity;
 import co.edu.udistrital.mdp.pets.repositories.MessageRepository;
+import co.edu.udistrital.mdp.pets.repositories.NotificationRepository;
 import co.edu.udistrital.mdp.pets.repositories.AdopterRepository;
 import co.edu.udistrital.mdp.pets.repositories.ShelterRepository;
 import co.edu.udistrital.mdp.pets.exceptions.EntityNotFoundException;
@@ -85,18 +86,23 @@ public class MessageService {
     }
 
     @Transactional
-    public MessageEntity updateMessage(Long messageId, MessageEntity message)
-            throws EntityNotFoundException, IllegalOperationException {
-        log.info("Updating message with id = {}", messageId);
+	public MessageEntity updateMessage(Long messageId, MessageEntity messageData)
+			throws EntityNotFoundException, IllegalOperationException {
+		log.info("Updating message with id = {}", messageId);
 
-        notificationRepository.findById(messageId)
-                .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.MESSAGE_NOT_FOUND));
+		// 1. Corregir el repositorio: usar messageRepository
+		MessageEntity existingMessage = messageRepository.findById(messageId)
+				.orElseThrow(() -> new EntityNotFoundException(ErrorMessage.MESSAGE_NOT_FOUND));
 
-        validateMessage(message);
+		// 2. Validar los nuevos datos
+		validateMessage(messageData);
 
-        message.setId(messageId);
-        return messageRepository.save(message);
-    }
+		// 3. Mantener consistencia
+		existingMessage.setContent(messageData.getContent());
+		// No solemos cambiar el remitente/destinatario en un update de mensaje
+		
+		return messageRepository.save(existingMessage);
+	}
 
     @Transactional
     public void deleteMessage(Long messageId, Long requestingAdopterId)
