@@ -53,20 +53,20 @@ public class MessageService {
             throw new IllegalOperationException("Shelter does not exist");
     }
 
-    @Transactional
-    public MessageEntity createMessage(MessageEntity message) throws IllegalOperationException {
-        log.info("Creating message between adopter {} and shelter {}", 
-            message.getAdopter().getId(), message.getShelter().getId());
+	@Transactional
+	public MessageEntity createMessage(MessageEntity message) throws IllegalOperationException {
+		// Primero validamos para evitar el NPE en los logs
+		validateMessage(message);
 
-        validateMessage(message);
-        
-        // Por defecto, un mensaje nuevo no ha sido leído
-        if (message.getIsRead() == null) {
-            message.setIsRead(false);
-        }
+		log.info("Creating message between adopter {} and shelter {}", 
+				message.getAdopter().getId(), message.getShelter().getId());
+		
+		if (message.getIsRead() == null) {
+			message.setIsRead(false);
+		}
 
-        return messageRepository.save(message);
-    }
+		return messageRepository.save(message);
+	}
 
     @Transactional(readOnly = true)
     public List<MessageEntity> getMessages() {

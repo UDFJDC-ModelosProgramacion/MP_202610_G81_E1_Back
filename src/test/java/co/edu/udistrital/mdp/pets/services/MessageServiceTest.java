@@ -133,4 +133,113 @@ class MessageServiceTest {
         assertThrows(IllegalOperationException.class, () -> 
             messageService.deleteMessage(entity.getId(), 999L, true));
     }
+
+	// --- TESTS DE VALIDACIÓN (Lógica de Negocio) ---
+
+    @Test
+    void createMessageEmptyContentTest() {
+        MessageEntity newEntity = factory.manufacturePojo(MessageEntity.class);
+        newEntity.setAdopter(adopter);
+        newEntity.setShelter(shelter);
+        newEntity.setContent(""); // Caso: Contenido vacío
+
+        assertThrows(IllegalOperationException.class, () -> messageService.createMessage(newEntity));
+    }
+
+    @Test
+    void createMessageNullAdopterTest() {
+        MessageEntity newEntity = factory.manufacturePojo(MessageEntity.class);
+        newEntity.setAdopter(null); // Caso: Sin adoptante
+        newEntity.setShelter(shelter);
+
+        assertThrows(IllegalOperationException.class, () -> messageService.createMessage(newEntity));
+    }
+
+    @Test
+    void createMessageShelterNotFoundTest() {
+        MessageEntity newEntity = factory.manufacturePojo(MessageEntity.class);
+        newEntity.setAdopter(adopter);
+        
+        ShelterEntity fakeShelter = new ShelterEntity();
+        fakeShelter.setId(999L); // ID inexistente
+        newEntity.setShelter(fakeShelter);
+
+        assertThrows(IllegalOperationException.class, () -> messageService.createMessage(newEntity));
+    }
+
+    // --- TESTS DE BÚSQUEDA ---
+
+    @Test
+    void getMessagesByShelterTest() throws EntityNotFoundException {
+        List<MessageEntity> list = messageService.getMessagesByShelter(shelter.getId());
+        assertEquals(data.size(), list.size());
+    }
+
+    @Test
+    void getMessagesByShelterNotFoundTest() {
+        assertThrows(EntityNotFoundException.class, () -> messageService.getMessagesByShelter(999L));
+    }
+
+    @Test
+    void getMessagesByAdopterTest() throws EntityNotFoundException {
+        List<MessageEntity> list = messageService.getMessagesByAdopter(adopter.getId());
+        assertEquals(data.size(), list.size());
+    }
+
+    @Test
+    void getMessageInvalidIdTest() {
+        assertThrows(EntityNotFoundException.class, () -> messageService.getMessage(999L));
+    }
+
+    // --- TESTS DE ACTUALIZACIÓN Y ESTADO ---
+
+    @Test
+    void updateMessageInvalidContentTest() {
+        MessageEntity entity = data.get(0);
+        MessageEntity pojo = new MessageEntity();
+        pojo.setContent("   "); // Caso: Solo espacios en blanco
+
+        assertThrows(IllegalOperationException.class, () -> 
+            messageService.updateMessage(entity.getId(), pojo));
+    }
+
+    @Test
+    void markAsReadTest() throws EntityNotFoundException {
+        MessageEntity entity = data.get(0);
+        MessageEntity result = messageService.markAsRead(entity.getId());
+        
+        assertTrue(result.getIsRead());
+        MessageEntity updated = entityManager.find(MessageEntity.class, entity.getId());
+        assertTrue(updated.getIsRead());
+    }
+
+    // --- TESTS DE BORRADO (Casos de Borde) ---
+
+    @Test
+    void deleteMessageAsShelterSuccessTest() throws EntityNotFoundException, IllegalOperationException {
+        MessageEntity entity = data.get(0);
+        // Borrado exitoso por parte del Shelter
+        messageService.deleteMessage(entity.getId(), shelter.getId(), false);
+        
+        MessageEntity deleted = entityManager.find(MessageEntity.class, entity.getId());
+        assertNull(deleted);
+    }
+
+    @Test
+    void deleteMessageNotFoundTest() {
+        assertThrows(EntityNotFoundException.class, () -> 
+            messageService.deleteMessage(999L, adopter.getId(), true));
+    }
+
+    @Test
+    void deleteMessageUnauthorizedAdopterTest() {
+        MessageEntity entity = data.get(0);
+        
+        AdopterEntity stranger = factory.manufacturePojo(AdopterEntity.class);
+        entityManager.persist(stranger);
+        
+        // Un adoptante que no es el dueño del mensaje intenta borrarlo
+        assertThrows(IllegalOperationException.class, () -> 
+            messageService.deleteMessage(entity.getId(), stranger.getId(), true));
+    }
 }
