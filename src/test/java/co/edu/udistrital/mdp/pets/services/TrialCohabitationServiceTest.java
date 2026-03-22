@@ -323,29 +323,37 @@ class TrialCohabitationServiceTest {
 	@Test
 	void testUpdateWithEndDateNull() throws EntityNotFoundException, IllegalOperationException {
 		TrialCohabitationEntity existing = factory.manufacturePojo(TrialCohabitationEntity.class);
+		LocalDate originalEndDate = LocalDate.now().plusDays(10);
 		existing.setStartDate(LocalDate.now());
-		existing.setEndDate(LocalDate.now().plusDays(10));
+		existing.setEndDate(originalEndDate);
 		entityManager.persist(existing);
 		
+		// intentamos actualizar con un null en la fecha de fin
 		TrialCohabitationEntity updateData = new TrialCohabitationEntity();
 		updateData.setEndDate(null); 
+		
+		TrialCohabitationEntity result = trialCohabitationService.updateTrialCohabitation(existing.getId(), updateData);
 
-		trialCohabitationService.updateTrialCohabitation(existing.getId(), updateData);
+		assertNotNull(result);
+		assertEquals(originalEndDate, result.getEndDate(), "The end date should remain unchanged when providing a null value in update");
 	}
     
 	@Test
-	void testUpdateEndDateBeforeStartDate() throws EntityNotFoundException {
+	void testUpdateEndDateBeforeStartDate() {
+		// 1. Datos de prueba
 		TrialCohabitationEntity existing = new TrialCohabitationEntity();
-		existing.setStartDate(LocalDate.of(2026, 1, 10));
-		existing.setEndDate(LocalDate.of(2026, 1, 20));
+		existing.setStartDate(LocalDate.of(2026, 3, 1));
+		existing.setEndDate(LocalDate.of(2026, 3, 10));
 		existing.setResult("EN_PROCESO");
 		entityManager.persist(existing);
 
 		TrialCohabitationEntity updateData = new TrialCohabitationEntity();
-		updateData.setEndDate(LocalDate.of(2026, 1, 5)); 
+		updateData.setEndDate(LocalDate.of(2026, 2, 28)); // ERROR: Antes del inicio
 
-		assertThrows(IllegalOperationException.class, () -> 
-			trialCohabitationService.updateTrialCohabitation(existing.getId(), updateData)); // <-- Corregido
+		// 2. Usamos la excepción del profe para validar
+		assertThrows(IllegalOperationException.class, () -> {
+			trialCohabitationService.updateTrialCohabitation(existing.getId(), updateData);
+		});
 	}
 	// ==================== DELETE TESTS ====================
 
