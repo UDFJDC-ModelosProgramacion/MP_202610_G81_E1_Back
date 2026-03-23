@@ -1,19 +1,22 @@
 package co.edu.udistrital.mdp.pets.services;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream; // Added import
+import java.util.stream.Stream;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals; // Added import
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows; // Added import
+import org.junit.jupiter.api.BeforeEach; // Added import
+import org.junit.jupiter.api.Test; // Added import
 import org.junit.jupiter.params.ParameterizedTest; // Added import
-import org.junit.jupiter.params.provider.Arguments; // Added import
-import org.junit.jupiter.params.provider.MethodSource; // Added import
-import static org.junit.jupiter.params.provider.Arguments.arguments; // Added import
+import org.junit.jupiter.params.provider.Arguments;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
@@ -27,8 +30,6 @@ import co.edu.udistrital.mdp.pets.exceptions.IllegalOperationException;
 import uk.co.jemos.podam.api.PodamFactory;
 import uk.co.jemos.podam.api.PodamFactoryImpl;
 
-import org.springframework.boot.autoconfigure.domain.EntityScan;
-
 @DataJpaTest
 @Transactional
 @Import(ShelterEventService.class)
@@ -41,12 +42,13 @@ class ShelterEventServiceTest {
     @Autowired
     private TestEntityManager entityManager;
 
-    private PodamFactory factory = new PodamFactoryImpl();
+    private final PodamFactory factory = new PodamFactoryImpl();
 
-    private List<ShelterEventEntity> data = new ArrayList<>();
+    private final List<ShelterEventEntity> data = new ArrayList<>();
     private ShelterEntity shelter;
 
     @BeforeEach
+    @SuppressWarnings("unused")
     void setUp() {
         clearData();
         insertData();

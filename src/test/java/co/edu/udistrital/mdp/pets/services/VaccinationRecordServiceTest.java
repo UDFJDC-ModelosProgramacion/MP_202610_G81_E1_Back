@@ -58,7 +58,7 @@ class VaccinationRecordServiceTest {
             entityManager.persist(pet);
 
             VaccineEntity vaccine = factory.manufacturePojo(VaccineEntity.class);
-            vaccine.setName(vaccine.getName() == null ? "Vacuna" + i : vaccine.getName());
+            vaccine.setName(vaccine.getName() == null ? "Vaccine" + i : vaccine.getName());
             entityManager.persist(vaccine);
 
             VaccinationRecordEntity entity = factory.manufacturePojo(VaccinationRecordEntity.class);
@@ -74,7 +74,7 @@ class VaccinationRecordServiceTest {
     }
 
     // ==========================================
-    // CREACIÓN
+    // CREATION
     // ==========================================
 
     @Test
@@ -187,7 +187,7 @@ class VaccinationRecordServiceTest {
     }
 
     // ==========================================
-    // LECTURA
+    // READ
     // ==========================================
 
     @Test
@@ -214,7 +214,7 @@ class VaccinationRecordServiceTest {
     }
 
     // ==========================================
-    // ACTUALIZACIÓN
+    // UPDATE
     // ==========================================
 
     @Test
@@ -264,7 +264,7 @@ class VaccinationRecordServiceTest {
 
         VaccinationRecordEntity updateData = factory.manufacturePojo(VaccinationRecordEntity.class);
         updateData.setApplicationDate(LocalDate.now());
-        updateData.setNextDueDate(LocalDate.now().minusDays(1)); // inválida
+        updateData.setNextDueDate(LocalDate.now().minusDays(1));
         updateData.setPet(existingRecord.getPet());
         updateData.setVaccine(existingRecord.getVaccine());
 
@@ -274,7 +274,7 @@ class VaccinationRecordServiceTest {
     }
 
     // ==========================================
-    // ELIMINACIÓN
+    // DELETE
     // ==========================================
 
     @Test
@@ -285,7 +285,7 @@ class VaccinationRecordServiceTest {
         vaccinationRecordService.deleteVaccinationRecord(id);
 
         VaccinationRecordEntity deleted = entityManager.find(VaccinationRecordEntity.class, id);
-        assertNull(deleted, "El registro debió ser eliminado de la base de datos");
+        assertNull(deleted, "The record should have been deleted from the database");
     }
 
     @Test

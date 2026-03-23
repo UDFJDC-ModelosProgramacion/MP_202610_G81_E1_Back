@@ -1,11 +1,15 @@
 package co.edu.udistrital.mdp.pets.entities;
 
+import java.time.LocalDate;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import uk.co.jemos.podam.common.PodamExclude;
-import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+import uk.co.jemos.podam.common.PodamExclude;
 
 /**
  * Entity representing the follow-up process of an adoption.
@@ -20,6 +24,7 @@ public class AdoptionFollowUpEntity extends BaseEntity {
 
     private String frequency;
     private String notes;
+    private LocalDate followUpDate;
 
     // Relation: 1 Veterinarian can perform many Follow-ups
     @PodamExclude
