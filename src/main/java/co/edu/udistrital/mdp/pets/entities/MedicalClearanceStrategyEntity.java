@@ -12,7 +12,7 @@ import lombok.EqualsAndHashCode;
 public class MedicalClearanceStrategyEntity extends  ApprovalStrategyEntity{
     @Override
     public boolean evaluate(AdoptionRequestEntity request) {
-        // Lógica: Revisar estado de salud/vacunas de la mascota
+        // Revisar estado de salud/vacunas de la mascota
         return true; 
     }
 }

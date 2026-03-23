@@ -13,7 +13,6 @@ public class AdoptionReportStrategyEntity extends ReportStrategyEntity {
 
     @Override
     public void generate(ReportEntity report) {
-        // TODO: Implementar lógica específica para reportes de adopción
-        // Ejemplo: Validar si la mascota ya fue entregada
+        // Implementar lógica específica para reportes de adopción
     }
 }

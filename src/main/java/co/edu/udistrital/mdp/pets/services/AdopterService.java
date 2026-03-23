@@ -66,7 +66,8 @@ public class AdopterService extends UserService {
      */
     @Override
     protected void validateDeletion(Long userId) throws EntityNotFoundException, IllegalOperationException {
-        AdopterEntity adopter = (AdopterEntity) getUser(userId);
+        AdopterEntity adopter = (AdopterEntity) userRepository.findById(userId)
+            .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.USER_NOT_FOUND));
         // Regla: No se puede eliminar un adoptante si tiene solicitudes de adopcion pendientes o en proceso
         if (adopter.getAdoptionRequests() != null && !adopter.getAdoptionRequests().isEmpty()) {
             log.warn("Attempted to delete adopter {} with active adoption requests", userId);

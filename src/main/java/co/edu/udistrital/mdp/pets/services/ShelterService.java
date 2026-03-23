@@ -35,7 +35,8 @@ public class ShelterService {
      */
     @Transactional
     public void subscribeUser(Long shelterId, Long userId) throws EntityNotFoundException {
-        ShelterEntity shelter = getShelter(shelterId);
+        ShelterEntity shelter = shelterRepository.findById(shelterId)
+			.orElseThrow(() -> new EntityNotFoundException(ErrorMessage.SHELTER_NOT_FOUND));
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
@@ -62,7 +63,8 @@ public class ShelterService {
     public void notifyAllSubscribers(Long shelterId, String message, NotificationStrategyEntity strategy) 
             throws EntityNotFoundException {
         
-        ShelterEntity shelter = getShelter(shelterId);
+        ShelterEntity shelter = shelterRepository.findById(shelterId)
+			.orElseThrow(() -> new EntityNotFoundException(ErrorMessage.SHELTER_NOT_FOUND));
 
         // 1. "Inflar" los observadores en memoria desde la tabla de suscripciones
         shelter.getObservers().clear(); // Limpiar lista @Transient

@@ -61,7 +61,8 @@ public class ReportService {
     @Transactional
     public ReportEntity assignStrategy(Long reportId, Long strategyId) 
             throws EntityNotFoundException {
-        ReportEntity report = getReport(reportId);
+        ReportEntity report = repository.findById(reportId)
+			.orElseThrow(() -> new EntityNotFoundException(ErrorMessage.REPORT_NOT_FOUND));
         ReportStrategyEntity strategy = strategyRepository.findById(strategyId)
                 .orElseThrow(() -> new EntityNotFoundException("Estrategia no encontrada"));
 
