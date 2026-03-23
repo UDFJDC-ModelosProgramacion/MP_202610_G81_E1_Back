@@ -3,6 +3,8 @@ package co.edu.udistrital.mdp.pets.entities;
 import java.time.LocalDate;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
@@ -31,5 +33,19 @@ public class ReportEntity extends BaseEntity {
     @JoinColumn(name = "strategy_id")
 	@EqualsAndHashCode.Exclude
     private ReportStrategyEntity reportStrategy;
-	
+
+    @ManyToOne
+    @JoinColumn(name = "reporter_id")
+    private UserEntity reporter;
+
+    @ManyToOne
+    @JoinColumn(name = "reported_user_id")
+    private UserEntity reportedUser;
+
+    private String reason;
+
+    @Enumerated(EnumType.STRING)
+    private Status status;
+
+    public enum Status { PENDING, REVIEWED, RESOLVED }
 }

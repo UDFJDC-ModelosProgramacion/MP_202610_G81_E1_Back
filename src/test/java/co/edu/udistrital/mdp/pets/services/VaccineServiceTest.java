@@ -33,7 +33,7 @@ class VaccineServiceTest {
     void setUp() {
         entityManager.getEntityManager().createQuery("delete from VaccineEntity").executeUpdate();
         VaccineEntity v = factory.manufacturePojo(VaccineEntity.class);
-        v.setName(v.getName() == null ? "VacunaInicial" : v.getName());
+        v.setName(v.getName() == null ? "InitialVaccine" : v.getName());
         Integer vm = v.getValidityMonths();
         if (vm == null) {
             v.setValidityMonths(12);
@@ -41,17 +41,16 @@ class VaccineServiceTest {
             v.setValidityMonths(vm);
         }
         persistedVaccine = entityManager.persistAndFlush(v);
-
     }
 
     // ==========================================
-    // CREACIÓN
+    // CREATION
     // ==========================================
 
     @Test
     void testCreateVaccineSuccess() throws IllegalOperationException {
         VaccineEntity vaccine = factory.manufacturePojo(VaccineEntity.class);
-        vaccine.setName("Antirrábica");
+        vaccine.setName("Rabies");
         vaccine.setValidityMonths(12);
 
         VaccineEntity result = vaccineService.createVaccine(vaccine);
@@ -59,9 +58,8 @@ class VaccineServiceTest {
         assertNotNull(result);
         assertNotNull(result.getId());
 
-        assertNotNull(result.getValidityMonths(), "validityMonths no debe ser null");
+        assertNotNull(result.getValidityMonths(), "validityMonths must not be null");
         assertEquals(12, result.getValidityMonths().intValue());
-
     }
 
     @Test
@@ -87,7 +85,7 @@ class VaccineServiceTest {
     @Test
     void testCreateVaccineValidityZeroFails() {
         VaccineEntity vaccine = factory.manufacturePojo(VaccineEntity.class);
-        vaccine.setName("Prueba");
+        vaccine.setName("Test");
         vaccine.setValidityMonths(0);
 
         IllegalOperationException ex = assertThrows(IllegalOperationException.class,
@@ -96,7 +94,7 @@ class VaccineServiceTest {
     }
 
     // ==========================================
-    // LECTURA
+    // READ
     // ==========================================
 
     @Test
@@ -114,20 +112,20 @@ class VaccineServiceTest {
     }
 
     // ==========================================
-    // ACTUALIZACIÓN
+    // UPDATE
     // ==========================================
 
     @Test
     void testUpdateVaccineSuccess() throws EntityNotFoundException, IllegalOperationException {
         VaccineEntity update = factory.manufacturePojo(VaccineEntity.class);
-        update.setName("NombreActualizado");
+        update.setName("UpdatedName");
         update.setValidityMonths(24);
 
         VaccineEntity updated = vaccineService.updateVaccine(persistedVaccine.getId(), update);
 
         assertNotNull(updated);
         assertEquals(persistedVaccine.getId(), updated.getId());
-        assertEquals("NombreActualizado", updated.getName());
+        assertEquals("UpdatedName", updated.getName());
         assertEquals(24, updated.getValidityMonths());
     }
 
@@ -156,7 +154,7 @@ class VaccineServiceTest {
     @Test
     void testUpdateVaccineInvalidValidityFails() {
         VaccineEntity update = factory.manufacturePojo(VaccineEntity.class);
-        update.setName("Valida");
+        update.setName("Valid");
         update.setValidityMonths(0);
 
         IllegalOperationException ex = assertThrows(IllegalOperationException.class,
@@ -165,7 +163,7 @@ class VaccineServiceTest {
     }
 
     // ==========================================
-    // ELIMINACIÓN
+    // DELETE
     // ==========================================
 
     @Test
