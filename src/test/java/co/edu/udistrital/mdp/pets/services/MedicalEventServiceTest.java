@@ -39,7 +39,8 @@ class MedicalEventServiceTest {
     private MedicalHistoryEntity commonHistory;
 
     @BeforeEach
-    public void setUp() {
+    @SuppressWarnings("unused")
+    void setUp() {
         data.clear();
         // Persistir un historial válido
         commonHistory = factory.manufacturePojo(MedicalHistoryEntity.class);
