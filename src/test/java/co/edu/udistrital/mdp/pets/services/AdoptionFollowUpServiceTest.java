@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import co.edu.udistrital.mdp.pets.entities.AdoptionEntity;
 import co.edu.udistrital.mdp.pets.entities.AdoptionFollowUpEntity;
+import co.edu.udistrital.mdp.pets.entities.AdopterEntity;
 import co.edu.udistrital.mdp.pets.entities.PetEntity;
 import co.edu.udistrital.mdp.pets.entities.UserEntity;
 import co.edu.udistrital.mdp.pets.entities.VeterinarianEntity;
@@ -53,7 +54,7 @@ class AdoptionFollowUpServiceTest {
 
     @Test
     void testCreateFollowUpSuccess() throws IllegalOperationException {
-        UserEntity adopter = factory.manufacturePojo(UserEntity.class);
+        AdopterEntity adopter = factory.manufacturePojo(AdopterEntity.class);
         entityManager.persist(adopter);
 
         PetEntity pet = factory.manufacturePojo(PetEntity.class);
@@ -61,7 +62,7 @@ class AdoptionFollowUpServiceTest {
 
         AdoptionEntity adoption = factory.manufacturePojo(AdoptionEntity.class);
         adoption.setPet(pet);
-        adoption.setAdopter(null); // si no usas adopter en tests, puede ser null
+        adoption.setAdopter(adopter);
         adoption.setStatus(co.edu.udistrital.mdp.pets.enums.ProcessStatus.COMPLETED);
         entityManager.persist(adoption);
 

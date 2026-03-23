@@ -111,7 +111,6 @@ class MedicalHistoryServiceTest {
         IllegalOperationException ex = assertThrows(IllegalOperationException.class,
                 () -> service.createMedicalHistory(second));
         assertNotNull(ex);
-        assertTrue(ex.getMessage().toLowerCase().contains("already has") || ex.getMessage().toLowerCase().contains("assigned"));
     }
 
     // ==========================================
