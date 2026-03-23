@@ -3,13 +3,19 @@ package co.edu.udistrital.mdp.pets.services;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import static org.junit.jupiter.api.Assertions.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
+import org.springframework.transaction.annotation.Transactional;
+
 import co.edu.udistrital.mdp.pets.entities.MedicalEventEntity;
 import co.edu.udistrital.mdp.pets.entities.MedicalHistoryEntity;
 import co.edu.udistrital.mdp.pets.exceptions.EntityNotFoundException;
@@ -18,51 +24,192 @@ import uk.co.jemos.podam.api.PodamFactory;
 import uk.co.jemos.podam.api.PodamFactoryImpl;
 
 @DataJpaTest
+@Transactional
 @Import(MedicalEventService.class)
 class MedicalEventServiceTest {
 
-    @Autowired private MedicalEventService service;
-    @Autowired private TestEntityManager entityManager;
+    @Autowired
+    private MedicalEventService medicalEventService;
+
+    @Autowired
+    private TestEntityManager entityManager;
+
     private final PodamFactory factory = new PodamFactoryImpl();
     private final List<MedicalEventEntity> data = new ArrayList<>();
+    private MedicalHistoryEntity commonHistory;
 
     @BeforeEach
-    void setUp() {
-        entityManager.getEntityManager().createQuery("delete from MedicalEventEntity").executeUpdate();
+    public void setUp() {
+        data.clear();
+        // Persistir un historial válido
+        commonHistory = factory.manufacturePojo(MedicalHistoryEntity.class);
+        entityManager.persist(commonHistory);
+
         for (int i = 0; i < 3; i++) {
             MedicalEventEntity entity = factory.manufacturePojo(MedicalEventEntity.class);
             entity.setEventDate(LocalDate.now().minusDays(i));
+            entity.setMedicalHistory(commonHistory);
             entityManager.persist(entity);
             data.add(entity);
         }
+        entityManager.flush();
     }
 
-    @Test 
-	void testCreate() throws IllegalOperationException {
-        MedicalEventEntity newE = factory.manufacturePojo(MedicalEventEntity.class);
-        newE.setEventDate(LocalDate.now());
-        MedicalHistoryEntity history = factory.manufacturePojo(MedicalHistoryEntity.class);
-        entityManager.persist(history);
-        newE.setMedicalHistory(history);
-        assertNotNull(service.createMedicalEvent(newE));
+    // ==========================================
+    // CREACIÓN
+    // ==========================================
+
+    @Test
+    void createMedicalEventWithExistingHistorySuccess() throws IllegalOperationException {
+        MedicalEventEntity newEntity = factory.manufacturePojo(MedicalEventEntity.class);
+        newEntity.setEventDate(LocalDate.now());
+        newEntity.setMedicalHistory(commonHistory);
+
+        MedicalEventEntity result = medicalEventService.createMedicalEvent(newEntity);
+
+        assertNotNull(result.getId());
+        assertEquals(commonHistory.getId(), result.getMedicalHistory().getId());
     }
 
-    @Test 
-	void testCreateFailFuture() {
-        MedicalEventEntity newE = factory.manufacturePojo(MedicalEventEntity.class);
-        newE.setEventDate(LocalDate.now().plusDays(10));
-        IllegalOperationException exception = assertThrows(IllegalOperationException.class, () -> service.createMedicalEvent(newE));
-        assertNotNull(exception);
+    @Test
+    void createMedicalEventWithNonexistentHistoryFails() {
+        MedicalEventEntity newEntity = factory.manufacturePojo(MedicalEventEntity.class);
+        newEntity.setEventDate(LocalDate.now());
+        // Historia con id no persistido
+        MedicalHistoryEntity fakeHistory = new MedicalHistoryEntity();
+        fakeHistory.setId(999999L);
+        newEntity.setMedicalHistory(fakeHistory);
+
+        IllegalOperationException ex = assertThrows(IllegalOperationException.class,
+                () -> medicalEventService.createMedicalEvent(newEntity));
+        assertNotNull(ex);
+        assertTrue(ex.getMessage().toLowerCase().contains("historia") || ex.getMessage().toLowerCase().contains("no existe"));
     }
 
-    @Test 
-	void testGetOne() throws EntityNotFoundException {
-        assertEquals(data.get(0).getId(), service.getMedicalEvent(data.get(0).getId()).getId());
+    @Test
+    void createMedicalEventFutureDateFails() {
+        MedicalEventEntity newEntity = factory.manufacturePojo(MedicalEventEntity.class);
+        newEntity.setEventDate(LocalDate.now().plusDays(10));
+        newEntity.setMedicalHistory(commonHistory);
+
+        IllegalOperationException ex = assertThrows(IllegalOperationException.class,
+                () -> medicalEventService.createMedicalEvent(newEntity));
+        assertNotNull(ex);
+        assertTrue(ex.getMessage().toLowerCase().contains("futuro") || ex.getMessage().toLowerCase().contains("fecha"));
     }
 
-    @Test 
-	void testDelete() throws EntityNotFoundException {
-        service.deleteMedicalEvent(data.get(0).getId());
-        assertNull(entityManager.find(MedicalEventEntity.class, data.get(0).getId()));
+    @Test
+    void createMedicalEventNullFails() {
+        IllegalOperationException ex = assertThrows(IllegalOperationException.class,
+                () -> medicalEventService.createMedicalEvent(null));
+        assertNotNull(ex);
+        assertTrue(ex.getMessage().toLowerCase().contains("nulo") || ex.getMessage().toLowerCase().contains("no puede ser nulo"));
+    }
+
+    // ==========================================
+    // LECTURA
+    // ==========================================
+
+    @Test
+    void getMedicalEventsReturnsAll() {
+        List<MedicalEventEntity> events = medicalEventService.getMedicalEvents();
+        assertNotNull(events);
+        assertTrue(events.size() >= data.size());
+    }
+
+    @Test
+    void getMedicalEventSuccess() throws EntityNotFoundException {
+        MedicalEventEntity existing = data.get(0);
+        MedicalEventEntity found = medicalEventService.getMedicalEvent(existing.getId());
+
+        assertNotNull(found);
+        assertEquals(existing.getId(), found.getId());
+    }
+
+    @Test
+    void getMedicalEventNotFound() {
+        EntityNotFoundException ex = assertThrows(EntityNotFoundException.class,
+                () -> medicalEventService.getMedicalEvent(999999L));
+        assertNotNull(ex);
+        assertNotNull(ex.getMessage());
+    }
+
+    // ==========================================
+    // ACTUALIZACIÓN
+    // ==========================================
+
+    @Test
+    void updateMedicalEventCannotChangeDate() {
+        MedicalEventEntity existing = data.get(0);
+        MedicalEventEntity update = factory.manufacturePojo(MedicalEventEntity.class);
+        // Intentar cambiar la fecha a otra distinta
+        update.setEventDate(existing.getEventDate().plusDays(1));
+        update.setMedicalHistory(commonHistory);
+
+        IllegalOperationException ex = assertThrows(IllegalOperationException.class,
+                () -> medicalEventService.updateMedicalEvent(existing.getId(), update));
+        assertNotNull(ex);
+        assertTrue(ex.getMessage().toLowerCase().contains("fecha") || ex.getMessage().toLowerCase().contains("modificar"));
+    }
+
+    @Test
+    void updateMedicalEventSameDateAllowed() throws EntityNotFoundException, IllegalOperationException {
+        MedicalEventEntity existing = data.get(1);
+        MedicalEventEntity update = factory.manufacturePojo(MedicalEventEntity.class);
+        // Mantener la misma fecha
+        update.setEventDate(existing.getEventDate());
+        update.setMedicalHistory(commonHistory);
+        update.setDescription("Descripción actualizada");
+
+        MedicalEventEntity updated = medicalEventService.updateMedicalEvent(existing.getId(), update);
+
+        assertNotNull(updated);
+        assertEquals(existing.getId(), updated.getId());
+        assertEquals(existing.getEventDate(), updated.getEventDate());
+        assertEquals("Descripción actualizada", updated.getDescription());
+    }
+
+    @Test
+    void updateMedicalEventNotFound() {
+        MedicalEventEntity update = factory.manufacturePojo(MedicalEventEntity.class);
+        update.setEventDate(LocalDate.now());
+        update.setMedicalHistory(commonHistory);
+
+        EntityNotFoundException ex = assertThrows(EntityNotFoundException.class,
+                () -> medicalEventService.updateMedicalEvent(123456L, update));
+        assertNotNull(ex);
+        assertNotNull(ex.getMessage());
+    }
+
+    @Test
+    void updateMedicalEventWithoutHistoryFails() {
+        MedicalEventEntity existing = data.get(0);
+        MedicalEventEntity update = factory.manufacturePojo(MedicalEventEntity.class);
+        update.setEventDate(existing.getEventDate());
+        update.setMedicalHistory(null);
+
+        IllegalOperationException ex = assertThrows(IllegalOperationException.class,
+                () -> medicalEventService.updateMedicalEvent(existing.getId(), update));
+        assertNotNull(ex);
+    }
+    // ==========================================
+    // ELIMINACIÓN
+    // ==========================================
+
+    @Test
+    void deleteMedicalEventSuccess() throws EntityNotFoundException {
+        MedicalEventEntity existing = data.get(2);
+        medicalEventService.deleteMedicalEvent(existing.getId());
+
+        EntityNotFoundException ex = assertThrows(EntityNotFoundException.class,
+                () -> medicalEventService.getMedicalEvent(existing.getId()));
+        assertNotNull(ex);
+    }
+
+    @Test
+    void deleteMedicalEventNotFound() {
+        EntityNotFoundException ex = assertThrows(EntityNotFoundException.class,
+                () -> medicalEventService.deleteMedicalEvent(888888L));
+        assertNotNull(ex);
     }
 }

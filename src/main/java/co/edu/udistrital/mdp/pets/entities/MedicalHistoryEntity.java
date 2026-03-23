@@ -7,6 +7,18 @@ import uk.co.jemos.podam.common.PodamExclude;
 import java.time.LocalDate;
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import uk.co.jemos.podam.common.PodamExclude;
+
 @Entity
 @Data
 @NoArgsConstructor
@@ -19,8 +31,11 @@ public class MedicalHistoryEntity extends BaseEntity {
 
 	@PodamExclude
     @OneToOne
-    @JoinColumn(name = "pet_id")
+    @JoinColumn(name = "pet_id", unique = true)
     private PetEntity pet;
+
+    @Column(length = 1000)
+    private String notes;
 	
 	@PodamExclude
     @OneToMany(mappedBy = "medicalHistory", cascade = CascadeType.ALL, orphanRemoval = true)

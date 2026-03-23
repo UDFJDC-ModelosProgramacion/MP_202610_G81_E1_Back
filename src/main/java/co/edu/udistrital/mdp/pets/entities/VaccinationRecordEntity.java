@@ -2,6 +2,7 @@ package co.edu.udistrital.mdp.pets.entities;
 
 import java.time.LocalDate;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -18,8 +19,14 @@ import uk.co.jemos.podam.common.PodamExclude;
 @EqualsAndHashCode(callSuper = true)
 public class VaccinationRecordEntity extends BaseEntity {
 
+    @Column(name = "application_date")
     private LocalDate applicationDate;
+    @Column(name = "next_due_date")
     private LocalDate nextDueDate;
+    @Column(name = "vaccination_date")
+    private LocalDate vaccinationDate;
+    @JoinColumn(name = "pet_id")
+    private PetEntity pet;
 
 	@PodamExclude
     @ManyToOne
