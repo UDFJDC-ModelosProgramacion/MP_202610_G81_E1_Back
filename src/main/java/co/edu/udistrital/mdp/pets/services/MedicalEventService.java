@@ -12,6 +12,7 @@ import co.edu.udistrital.mdp.pets.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.pets.exceptions.ErrorMessage;
 import co.edu.udistrital.mdp.pets.exceptions.IllegalOperationException;
 import co.edu.udistrital.mdp.pets.repositories.MedicalEventRepository;
+import co.edu.udistrital.mdp.pets.repositories.MedicalHistoryRepository;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -21,6 +22,8 @@ public class MedicalEventService {
 
     @Autowired
     private MedicalEventRepository repository;
+    @Autowired
+    private MedicalHistoryRepository historyRepository;
 
     /**
      * Valida los datos obligatorios del evento médico.
@@ -36,6 +39,10 @@ public class MedicalEventService {
         }
         if (event.getMedicalHistory() == null) {
             throw new IllegalOperationException("El evento debe estar asociado a una historia médica.");
+        }
+        Long historyId = event.getMedicalHistory().getId();
+        if (historyId == null || !historyRepository.existsById(historyId)) {
+            throw new IllegalOperationException("La historia médica asociada no existe.");
         }
     }
 
@@ -90,15 +97,16 @@ public class MedicalEventService {
     @Transactional
     public MedicalEventEntity updateMedicalEvent(Long eventId, MedicalEventEntity event) 
             throws EntityNotFoundException, IllegalOperationException {
-        log.info("Iniciando actualización para el evento médico con id = {}", eventId);
-        
-        repository.findById(eventId)
+        MedicalEventEntity persisted = repository.findById(eventId)
                 .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.MEDICAL_EVENT_NOT_FOUND));
-        
+
+        // impedir cambio de fecha
+        if (event.getEventDate() != null && !event.getEventDate().equals(persisted.getEventDate())) {
+            throw new IllegalOperationException("No se puede modificar la fecha de un evento ya creado.");
+        }
+
         validateData(event);
         event.setId(eventId);
-        
-        log.info("Evento médico con id = {} actualizado exitosamente", eventId);
         return repository.save(event);
     }
 
