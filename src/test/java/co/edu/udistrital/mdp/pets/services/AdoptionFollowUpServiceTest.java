@@ -19,7 +19,6 @@ import co.edu.udistrital.mdp.pets.entities.AdoptionEntity;
 import co.edu.udistrital.mdp.pets.entities.AdoptionFollowUpEntity;
 import co.edu.udistrital.mdp.pets.entities.AdopterEntity;
 import co.edu.udistrital.mdp.pets.entities.PetEntity;
-import co.edu.udistrital.mdp.pets.entities.UserEntity;
 import co.edu.udistrital.mdp.pets.entities.VeterinarianEntity;
 import co.edu.udistrital.mdp.pets.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.pets.exceptions.ErrorMessage;
@@ -209,16 +208,16 @@ class AdoptionFollowUpServiceTest {
     }
 
     @Test
-    void testFindByAdoptionIdAndVeterinarianAndFrequency() throws IllegalOperationException {
-        PetEntity pet = factory.manufacturePojo(PetEntity.class);
-        entityManager.persist(pet);
+	void testFindByAdoptionIdAndVeterinarianAndFrequency() { 
+		PetEntity pet = factory.manufacturePojo(PetEntity.class);
+		entityManager.persist(pet);
 
-        AdoptionEntity adoption = factory.manufacturePojo(AdoptionEntity.class);
-        adoption.setPet(pet);
-        adoption.setStatus(co.edu.udistrital.mdp.pets.enums.ProcessStatus.COMPLETED);
-        entityManager.persist(adoption);
+		AdoptionEntity adoption = factory.manufacturePojo(AdoptionEntity.class);
+		adoption.setPet(pet);
+		adoption.setStatus(co.edu.udistrital.mdp.pets.enums.ProcessStatus.COMPLETED);
+		entityManager.persist(adoption);
 
-        VeterinarianEntity vet = factory.manufacturePojo(VeterinarianEntity.class);
+		VeterinarianEntity vet = factory.manufacturePojo(VeterinarianEntity.class);
         entityManager.persist(vet);
 
         AdoptionFollowUpEntity f1 = new AdoptionFollowUpEntity();

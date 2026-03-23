@@ -54,9 +54,10 @@ public abstract class UserService {
         }
 
         // telefono solo números
-        if (!user.getPhone().matches("[0-9]+")) {
-            throw new IllegalOperationException("Phone must contain only numbers");
-        }
+        if (!user.getPhone().matches("\\d+")) {
+			throw new IllegalOperationException("Phone must contain only numbers");
+		}
+
     }
 
     private boolean isBlank(String str) {
