@@ -24,21 +24,21 @@ class AdoptionRequestStrategyTest {
     @Test
     void testMedicalClearanceStrategyCoverage() {
         MedicalClearanceStrategyEntity strategy = new MedicalClearanceStrategyEntity();
-        boolean result = strategy.evaluate(request);
+        strategy.evaluate(request);
         assertNotNull(strategy);
     }
 
     @Test
     void testManualApprovalStrategyCoverage() {
         ManualApprovalStrategyEntity strategy = new ManualApprovalStrategyEntity();
-        boolean result = strategy.evaluate(request);
+        strategy.evaluate(request);
         assertNotNull(strategy);
     }
 
     @Test
     void testScoreBasedApprovalStrategyCoverage() {
         ScoreBasedApprovalStrategyEntity strategy = new ScoreBasedApprovalStrategyEntity();
-        boolean result = strategy.evaluate(request);
+        strategy.evaluate(request);
         assertNotNull(strategy);
     }
 }
