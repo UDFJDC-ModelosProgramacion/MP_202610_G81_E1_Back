@@ -18,7 +18,6 @@ import co.edu.udistrital.mdp.pets.entities.UserEntity;
 import co.edu.udistrital.mdp.pets.entities.ReportEntity.Status;
 import co.edu.udistrital.mdp.pets.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.pets.exceptions.IllegalOperationException;
-import co.edu.udistrital.mdp.pets.exceptions.ErrorMessage;
 import uk.co.jemos.podam.api.PodamFactory;
 import uk.co.jemos.podam.api.PodamFactoryImpl;
 
@@ -95,7 +94,7 @@ class ReportServiceTest {
     }
 
     @Test
-    void testFindByGenerateDate() throws IllegalOperationException {
+    void testFindByGenerateDate(){
         LocalDate today = LocalDate.now();
         UserEntity reporter = createTestUser("a@test.com");
         UserEntity reported = createTestUser("b@test.com");
