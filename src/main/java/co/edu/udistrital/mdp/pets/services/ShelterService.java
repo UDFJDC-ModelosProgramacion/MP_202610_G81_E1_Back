@@ -6,9 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import co.edu.udistrital.mdp.pets.entities.NotificationStrategyEntity;
 import co.edu.udistrital.mdp.pets.entities.ShelterEntity;
+import co.edu.udistrital.mdp.pets.entities.SubscriptionEntity;
+import co.edu.udistrital.mdp.pets.entities.UserEntity;
 import co.edu.udistrital.mdp.pets.enums.ProcessStatus;
 import co.edu.udistrital.mdp.pets.repositories.ShelterRepository;
+import co.edu.udistrital.mdp.pets.repositories.UserRepository;
 import co.edu.udistrital.mdp.pets.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.pets.exceptions.IllegalOperationException;
 import co.edu.udistrital.mdp.pets.exceptions.ErrorMessage;
@@ -17,9 +21,63 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class ShelterService {
+
 	@Autowired
 	private ShelterRepository shelterRepository;
 	
+	@Autowired
+    private UserRepository userRepository; // Necesario para las suscripciones
+
+	// --- MÉTODOS DEL PATRÓN OBSERVER / SUBSCRIPTION ---
+
+    /**
+     * Suscribe un usuario a un refugio creando una SubscriptionEntity.
+     */
+    @Transactional
+    public void subscribeUser(Long shelterId, Long userId) throws EntityNotFoundException {
+        ShelterEntity shelter = getShelter(shelterId);
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        // Verificar si ya existe la suscripción para no duplicar
+        boolean alreadySubscribed = shelter.getSubscriptions().stream()
+                .anyMatch(sub -> sub.getUser().getId().equals(userId));
+
+        if (!alreadySubscribed) {
+            SubscriptionEntity subscription = new SubscriptionEntity();
+            subscription.setShelter(shelter);
+            subscription.setUser(user);
+            subscription.setActive(true);
+            
+            shelter.getSubscriptions().add(subscription);
+            shelterRepository.save(shelter);
+            log.info("User {} subscribed to shelter {}", userId, shelterId);
+        }
+    }
+
+    /**
+     * Notifica a todos los suscriptores activos usando el patrón Observer + Strategy.
+     */
+    @Transactional
+    public void notifyAllSubscribers(Long shelterId, String message, NotificationStrategyEntity strategy) 
+            throws EntityNotFoundException {
+        
+        ShelterEntity shelter = getShelter(shelterId);
+
+        // 1. "Inflar" los observadores en memoria desde la tabla de suscripciones
+        shelter.getObservers().clear(); // Limpiar lista @Transient
+        
+        shelter.getSubscriptions().stream()
+                .filter(SubscriptionEntity::getActive)
+                .forEach(sub -> shelter.attach(sub.getUser()));
+
+        // 2. Ejecutar la notificación (Patrón Observer)
+        log.info("Notifying {} observers in shelter {}", shelter.getObservers().size(), shelterId);
+        shelter.notifyObservers(message, strategy);
+
+        // 3. Persistir (esto guardará las nuevas NotificationEntity en cada User por cascada)
+        shelterRepository.save(shelter);
+    }
 	/**
 	 * Crea un shelter en la persistencia.
 	 *
