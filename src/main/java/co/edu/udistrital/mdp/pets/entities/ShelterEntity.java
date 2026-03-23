@@ -11,14 +11,46 @@ import java.util.ArrayList;
 @Data
 @Entity
 @EqualsAndHashCode(callSuper = true)
-public class ShelterEntity extends BaseEntity {
+public class ShelterEntity extends BaseEntity implements Subject{
 
     private String name;
     private String city;
     private String description;
     private String email;
     private String gallery;
+	
+	// --- Lógica del Patrón Observer ---
+		
+    @Transient // No se persiste, se maneja en tiempo de ejecución
+    @PodamExclude
+    private List<Observer> observers = new ArrayList<>();
 
+    @Override
+    public void attach(Observer observer) {
+        if (!observers.contains(observer)) {
+            observers.add(observer);
+        }
+    }
+
+    @Override
+    public void detach(Observer observer) {
+        observers.remove(observer);
+    }
+
+    @Override
+    public void notifyObservers(String message, NotificationStrategyEntity strategy) {
+        for (Observer observer : observers) {
+            NotificationEntity notification = new NotificationEntity();
+            notification.setMessage(message);
+            notification.setDate(new java.util.Date());
+            notification.setIsRead(false);
+            notification.setNotificationStrategy(strategy);
+            
+            // Cada UserEntity (Observer) procesará su propia notificación
+            observer.update(notification);
+        }
+    }
+	
 	// Relation 1:N with Veterinarian (Agregattion)
     @PodamExclude
     @OneToMany(mappedBy = "shelter")
@@ -46,4 +78,10 @@ public class ShelterEntity extends BaseEntity {
     @OneToMany(mappedBy = "shelter", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     private List<PetEntity> pets = new ArrayList<>();
+
+	// Relation 1:N with Suscription (Observer persistence)
+	@PodamExclude
+    @OneToMany(mappedBy = "shelter", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SubscriptionEntity> subscriptions = new ArrayList<>();
+
 }
