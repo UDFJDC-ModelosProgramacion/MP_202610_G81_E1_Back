@@ -13,7 +13,6 @@ public class MedicalEventReportStrategyEntity extends ReportStrategyEntity {
 
     @Override
     public void generate(ReportEntity report) {
-        // TODO: Implementar lógica específica para reportes médicos
-        // Ejemplo: Notificar al veterinario asignado
+        // Implementar lógica específica para reportes médicos
     }
 }
