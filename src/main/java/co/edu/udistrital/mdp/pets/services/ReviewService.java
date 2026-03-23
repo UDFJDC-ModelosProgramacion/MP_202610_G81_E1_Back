@@ -56,10 +56,10 @@ public class ReviewService {
     @Transactional
     public ReviewEntity createReview(ReviewEntity review)
             throws EntityNotFoundException, IllegalOperationException {
+        validateReview(review);
+        
         log.info("Creating review for adopter {} and pet {}",
                 review.getAdopter().getId(), review.getPet().getId());
-
-        validateReview(review);
 
         if (!adopterRepository.existsById(review.getAdopter().getId()))
             throw new EntityNotFoundException(ErrorMessage.ADOPTER_NOT_FOUND);
