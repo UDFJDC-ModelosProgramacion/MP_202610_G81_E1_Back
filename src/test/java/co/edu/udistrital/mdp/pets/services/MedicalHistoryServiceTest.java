@@ -37,7 +37,8 @@ class MedicalHistoryServiceTest {
     private final List<MedicalHistoryEntity> data = new ArrayList<>();
 
     @BeforeEach
-    public void setUp() {
+    @SuppressWarnings("unused")
+    void setUp() {
         clearData();
         insertData();
     }

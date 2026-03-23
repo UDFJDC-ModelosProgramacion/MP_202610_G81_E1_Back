@@ -8,10 +8,11 @@ import lombok.EqualsAndHashCode;
 @Data
 @Entity
 @EqualsAndHashCode(callSuper = true)
-@DiscriminatorValue("IN_APP")
-public class InAppNotificationStrategy extends NotificationStrategyEntity {
+@DiscriminatorValue("MANUAL")
+public class ManualApprovalStrategyEntity extends ApprovalStrategyEntity {
     @Override
-    public void send(NotificationEntity notification) {
-        // Lógica de envío de email (o vacía por ahora)
+    public boolean evaluate(AdoptionRequestEntity request) {
+        // Lógica: Requiere validación por un administrador
+		return true; 
     }
 }

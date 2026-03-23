@@ -29,7 +29,8 @@ class VaccineServiceTest {
     private VaccineEntity persistedVaccine;
 
     @BeforeEach
-    public void setUp() {
+    @SuppressWarnings("unused")
+    void setUp() {
         entityManager.getEntityManager().createQuery("delete from VaccineEntity").executeUpdate();
         VaccineEntity v = factory.manufacturePojo(VaccineEntity.class);
         v.setName(v.getName() == null ? "InitialVaccine" : v.getName());

@@ -23,9 +23,12 @@ import co.edu.udistrital.mdp.pets.exceptions.IllegalOperationException;
 import uk.co.jemos.podam.api.PodamFactory;
 import uk.co.jemos.podam.api.PodamFactoryImpl;
 
+import org.springframework.boot.autoconfigure.domain.EntityScan;
+
 @DataJpaTest
 @Transactional
 @Import(MedicalEventService.class)
+@EntityScan("co.edu.udistrital.mdp.pets.entities") // Explicitly scan for entities
 class MedicalEventServiceTest {
 
     @Autowired
@@ -39,7 +42,8 @@ class MedicalEventServiceTest {
     private MedicalHistoryEntity commonHistory;
 
     @BeforeEach
-    public void setUp() {
+    @SuppressWarnings("unused")
+    void setUp() {
         data.clear();
         // Persist a valid history
         commonHistory = factory.manufacturePojo(MedicalHistoryEntity.class);
@@ -87,6 +91,18 @@ class MedicalEventServiceTest {
     }
 
     @Test
+    void createMedicalEventNullMedicalHistoryFails() {
+        MedicalEventEntity newEntity = factory.manufacturePojo(MedicalEventEntity.class);
+        newEntity.setEventDate(LocalDate.now());
+        newEntity.setMedicalHistory(null); // Case: Null medical history
+
+        IllegalOperationException ex = assertThrows(IllegalOperationException.class,
+                () -> medicalEventService.createMedicalEvent(newEntity));
+        assertNotNull(ex);
+        assertTrue(ex.getMessage().toLowerCase().contains("historia") || ex.getMessage().toLowerCase().contains("asociado"));
+    }
+
+    @Test
     void createMedicalEventFutureDateFails() {
         MedicalEventEntity newEntity = factory.manufacturePojo(MedicalEventEntity.class);
         newEntity.setEventDate(LocalDate.now().plusDays(10));
@@ -96,6 +112,19 @@ class MedicalEventServiceTest {
                 () -> medicalEventService.createMedicalEvent(newEntity));
         assertNotNull(ex);
         assertTrue(ex.getMessage().toLowerCase().contains("future") || ex.getMessage().toLowerCase().contains("date"));
+    }
+
+    @Test
+    void createMedicalEventNullDateSuccess() throws IllegalOperationException {
+        MedicalEventEntity newEntity = factory.manufacturePojo(MedicalEventEntity.class);
+        newEntity.setEventDate(null); // Case: Null event date
+        newEntity.setMedicalHistory(commonHistory);
+
+        MedicalEventEntity result = medicalEventService.createMedicalEvent(newEntity);
+
+        assertNotNull(result.getId());
+        assertEquals(null, result.getEventDate()); // Expect null date to be persisted
+        assertEquals(commonHistory.getId(), result.getMedicalHistory().getId());
     }
 
     @Test
@@ -150,6 +179,20 @@ class MedicalEventServiceTest {
                 () -> medicalEventService.updateMedicalEvent(existing.getId(), update));
         assertNotNull(ex);
         assertTrue(ex.getMessage().toLowerCase().contains("date") || ex.getMessage().toLowerCase().contains("modify"));
+    }
+
+    @Test
+    void updateMedicalEventNullDateAllowed() throws EntityNotFoundException, IllegalOperationException {
+        MedicalEventEntity existing = data.get(0);
+        MedicalEventEntity update = factory.manufacturePojo(MedicalEventEntity.class);
+        update.setEventDate(null); // Case: Null event date in update data
+        update.setMedicalHistory(commonHistory); // Must provide valid history to pass validateData
+
+        MedicalEventEntity updated = medicalEventService.updateMedicalEvent(existing.getId(), update);
+
+        assertNotNull(updated);
+        assertEquals(existing.getId(), updated.getId());
+        assertEquals(existing.getEventDate(), updated.getEventDate()); // Original date should be retained
     }
 
     @Test

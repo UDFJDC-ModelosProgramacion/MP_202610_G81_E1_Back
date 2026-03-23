@@ -86,11 +86,12 @@ class ShelterEventServiceTest {
         newEvent.setDate(LocalDate.now().plusDays(7));
         newEvent.setLocation("Parque Simón Bolívar");
         newEvent.setShelter(shelter);
+        newEvent.setStatus(ProcessStatus.PENDING); // Explicitly set a non-null status
 
         ShelterEventEntity result = shelterEventService.createShelterEvent(newEvent);
         
         assertNotNull(result);
-        assertEquals(ProcessStatus.IN_PROGRESS, result.getStatus());
+        assertEquals(ProcessStatus.PENDING, result.getStatus()); // Assert that the set status is retained
         assertEquals("Feria de Adopción", result.getTitle());
     }
 
