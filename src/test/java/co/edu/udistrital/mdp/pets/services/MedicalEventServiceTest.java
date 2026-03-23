@@ -45,7 +45,7 @@ class MedicalEventServiceTest {
     @SuppressWarnings("unused")
     void setUp() {
         data.clear();
-        // Persistir un historial válido
+        // Persist a valid history
         commonHistory = factory.manufacturePojo(MedicalHistoryEntity.class);
         entityManager.persist(commonHistory);
 
@@ -60,7 +60,7 @@ class MedicalEventServiceTest {
     }
 
     // ==========================================
-    // CREACIÓN
+    // CREATION
     // ==========================================
 
     @Test
@@ -79,7 +79,7 @@ class MedicalEventServiceTest {
     void createMedicalEventWithNonexistentHistoryFails() {
         MedicalEventEntity newEntity = factory.manufacturePojo(MedicalEventEntity.class);
         newEntity.setEventDate(LocalDate.now());
-        // Historia con id no persistido
+        // History with non-persisted id
         MedicalHistoryEntity fakeHistory = new MedicalHistoryEntity();
         fakeHistory.setId(999999L);
         newEntity.setMedicalHistory(fakeHistory);
@@ -87,7 +87,7 @@ class MedicalEventServiceTest {
         IllegalOperationException ex = assertThrows(IllegalOperationException.class,
                 () -> medicalEventService.createMedicalEvent(newEntity));
         assertNotNull(ex);
-        assertTrue(ex.getMessage().toLowerCase().contains("historia") || ex.getMessage().toLowerCase().contains("no existe"));
+        assertTrue(ex.getMessage().toLowerCase().contains("history") || ex.getMessage().toLowerCase().contains("does not exist"));
     }
 
     @Test
@@ -111,7 +111,7 @@ class MedicalEventServiceTest {
         IllegalOperationException ex = assertThrows(IllegalOperationException.class,
                 () -> medicalEventService.createMedicalEvent(newEntity));
         assertNotNull(ex);
-        assertTrue(ex.getMessage().toLowerCase().contains("futuro") || ex.getMessage().toLowerCase().contains("fecha"));
+        assertTrue(ex.getMessage().toLowerCase().contains("future") || ex.getMessage().toLowerCase().contains("date"));
     }
 
     @Test
@@ -132,11 +132,11 @@ class MedicalEventServiceTest {
         IllegalOperationException ex = assertThrows(IllegalOperationException.class,
                 () -> medicalEventService.createMedicalEvent(null));
         assertNotNull(ex);
-        assertTrue(ex.getMessage().toLowerCase().contains("nulo") || ex.getMessage().toLowerCase().contains("no puede ser nulo"));
+        assertTrue(ex.getMessage().toLowerCase().contains("null") || ex.getMessage().toLowerCase().contains("cannot be null"));
     }
 
     // ==========================================
-    // LECTURA
+    // READ
     // ==========================================
 
     @Test
@@ -164,21 +164,21 @@ class MedicalEventServiceTest {
     }
 
     // ==========================================
-    // ACTUALIZACIÓN
+    // UPDATE
     // ==========================================
 
     @Test
     void updateMedicalEventCannotChangeDate() {
         MedicalEventEntity existing = data.get(0);
         MedicalEventEntity update = factory.manufacturePojo(MedicalEventEntity.class);
-        // Intentar cambiar la fecha a otra distinta
+        // Try to change the date to a different one
         update.setEventDate(existing.getEventDate().plusDays(1));
         update.setMedicalHistory(commonHistory);
 
         IllegalOperationException ex = assertThrows(IllegalOperationException.class,
                 () -> medicalEventService.updateMedicalEvent(existing.getId(), update));
         assertNotNull(ex);
-        assertTrue(ex.getMessage().toLowerCase().contains("fecha") || ex.getMessage().toLowerCase().contains("modificar"));
+        assertTrue(ex.getMessage().toLowerCase().contains("date") || ex.getMessage().toLowerCase().contains("modify"));
     }
 
     @Test
@@ -199,17 +199,17 @@ class MedicalEventServiceTest {
     void updateMedicalEventSameDateAllowed() throws EntityNotFoundException, IllegalOperationException {
         MedicalEventEntity existing = data.get(1);
         MedicalEventEntity update = factory.manufacturePojo(MedicalEventEntity.class);
-        // Mantener la misma fecha
+        // Keep the same date
         update.setEventDate(existing.getEventDate());
         update.setMedicalHistory(commonHistory);
-        update.setDescription("Descripción actualizada");
+        update.setDescription("Updated description");
 
         MedicalEventEntity updated = medicalEventService.updateMedicalEvent(existing.getId(), update);
 
         assertNotNull(updated);
         assertEquals(existing.getId(), updated.getId());
         assertEquals(existing.getEventDate(), updated.getEventDate());
-        assertEquals("Descripción actualizada", updated.getDescription());
+        assertEquals("Updated description", updated.getDescription());
     }
 
     @Test
@@ -235,8 +235,9 @@ class MedicalEventServiceTest {
                 () -> medicalEventService.updateMedicalEvent(existing.getId(), update));
         assertNotNull(ex);
     }
+
     // ==========================================
-    // ELIMINACIÓN
+    // DELETE
     // ==========================================
 
     @Test

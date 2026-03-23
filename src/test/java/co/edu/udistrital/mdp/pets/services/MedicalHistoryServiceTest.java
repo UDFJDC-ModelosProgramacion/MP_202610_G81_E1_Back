@@ -57,7 +57,7 @@ class MedicalHistoryServiceTest {
 
             MedicalHistoryEntity history = factory.manufacturePojo(MedicalHistoryEntity.class);
             history.setPet(pet);
-            history.setNotes("Notas iniciales " + i);
+            history.setNotes("Initial notes " + i);
             entityManager.persist(history);
 
             data.add(history);
@@ -66,7 +66,7 @@ class MedicalHistoryServiceTest {
     }
 
     // ==========================================
-    // CREACIÓN
+    // CREATION
     // ==========================================
 
     @Test
@@ -77,7 +77,7 @@ class MedicalHistoryServiceTest {
         entityManager.flush();
 
         newHistory.setPet(pet);
-        newHistory.setNotes("Historia nueva");
+        newHistory.setNotes("New history");
 
         MedicalHistoryEntity result = service.createMedicalHistory(newHistory);
         assertNotNull(result.getId());
@@ -106,16 +106,16 @@ class MedicalHistoryServiceTest {
         MedicalHistoryEntity existing = data.get(0);
         MedicalHistoryEntity second = factory.manufacturePojo(MedicalHistoryEntity.class);
         second.setPet(existing.getPet());
-        second.setNotes("Segunda historia");
+        second.setNotes("Second history");
 
         IllegalOperationException ex = assertThrows(IllegalOperationException.class,
                 () -> service.createMedicalHistory(second));
         assertNotNull(ex);
-        assertTrue(ex.getMessage().toLowerCase().contains("ya tiene") || ex.getMessage().toLowerCase().contains("asignada"));
+        assertTrue(ex.getMessage().toLowerCase().contains("already has") || ex.getMessage().toLowerCase().contains("assigned"));
     }
 
     // ==========================================
-    // LECTURA
+    // READ
     // ==========================================
 
     @Test
@@ -126,7 +126,7 @@ class MedicalHistoryServiceTest {
     }
 
     // ==========================================
-    // ACTUALIZACIÓN
+    // UPDATE
     // ==========================================
 
     @Test
@@ -134,12 +134,12 @@ class MedicalHistoryServiceTest {
         MedicalHistoryEntity existing = data.get(0);
         MedicalHistoryEntity updateData = factory.manufacturePojo(MedicalHistoryEntity.class);
         updateData.setPet(existing.getPet());
-        updateData.setNotes("Notas actualizadas de prueba");
+        updateData.setNotes("Updated test notes");
 
         MedicalHistoryEntity result = service.updateMedicalHistory(existing.getId(), updateData);
         assertNotNull(result);
         assertEquals(existing.getId(), result.getId());
-        assertEquals("Notas actualizadas de prueba", result.getNotes());
+        assertEquals("Updated test notes", result.getNotes());
     }
 
     @Test
@@ -167,7 +167,7 @@ class MedicalHistoryServiceTest {
     }
 
     // ==========================================
-    // ELIMINACIÓN
+    // DELETE
     // ==========================================
 
     @Test

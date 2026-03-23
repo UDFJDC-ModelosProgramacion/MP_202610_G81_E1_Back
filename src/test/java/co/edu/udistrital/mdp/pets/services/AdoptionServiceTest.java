@@ -34,11 +34,12 @@ class AdoptionServiceTest {
     @Autowired
     private TestEntityManager entityManager;
 
-    private PodamFactory factory = new PodamFactoryImpl();
+    private final PodamFactory factory = new PodamFactoryImpl();
 
-    private List<AdoptionEntity> data = new ArrayList<>();
+    private final List<AdoptionEntity> data = new ArrayList<>();
 
     @BeforeEach
+    @SuppressWarnings("unused")
     void setUp() {
         clearData();
         insertData();

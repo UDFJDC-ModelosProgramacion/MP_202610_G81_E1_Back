@@ -1,16 +1,23 @@
 package co.edu.udistrital.mdp.pets.entities;
 
-import lombok.Data;
-import uk.co.jemos.podam.common.PodamExclude;
-import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.List;
 
 import co.edu.udistrital.mdp.pets.enums.ProcessStatus;
-import lombok.ToString;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+import lombok.ToString;
+import uk.co.jemos.podam.common.PodamExclude;
 
 /**
  * Entity representing an Adoption process.
@@ -50,4 +57,5 @@ public class AdoptionEntity extends BaseEntity {
     @OneToMany(mappedBy = "adoption", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     private List<AdoptionFollowUpEntity> followUps;
+
 }
