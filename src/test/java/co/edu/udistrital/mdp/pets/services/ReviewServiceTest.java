@@ -54,36 +54,29 @@ class ReviewServiceTest {
     }
 
     private void insertData() {
-        // 1. Crear Adoptante
         adopter = factory.manufacturePojo(AdopterEntity.class);
         entityManager.persist(adopter);
 
-        // 2. Crear Mascota
         pet = factory.manufacturePojo(PetEntity.class);
         entityManager.persist(pet);
 
-        // 3. Crear la Adopción (Requisito indispensable para el Service)
         AdoptionEntity adoption = new AdoptionEntity();
         adoption.setAdopter(adopter);
         adoption.setPet(pet);
-        adoption.setAdoptionDate(LocalDate.now()); 
+        adoption.setAdoptionDate(LocalDate.now());
         entityManager.persist(adoption);
 
-        // 4. Crear datos de prueba para listas
         for (int i = 0; i < 3; i++) {
             ReviewEntity entity = factory.manufacturePojo(ReviewEntity.class);
             entity.setAdopter(adopter);
             entity.setPet(pet);
             entity.setRating(5);
-            entity.setDate(LocalDate.now()); 
-            
+            entity.setDate(LocalDate.now());
             entityManager.persist(entity);
             data.add(entity);
         }
         entityManager.flush();
     }
-
-    // --- TESTS DE CREACIÓN ---
 
     @Test
     void createReviewSuccessTest() throws EntityNotFoundException, IllegalOperationException {
@@ -95,7 +88,7 @@ class ReviewServiceTest {
         newReview.setPet(pet);
 
         ReviewEntity result = reviewService.createReview(newReview);
-        
+
         assertNotNull(result);
         assertNotNull(result.getId());
         assertEquals(5, result.getRating());
@@ -103,8 +96,12 @@ class ReviewServiceTest {
     }
 
     @Test
+    void createReviewNullTest() {
+        assertThrows(IllegalOperationException.class, () -> reviewService.createReview(null));
+    }
+
+    @Test
     void createReviewWithoutAdoptionTest() {
-        // Crear un adoptante que NO tiene una adopción registrada para este pet
         AdopterEntity randomAdopter = factory.manufacturePojo(AdopterEntity.class);
         entityManager.persist(randomAdopter);
 
@@ -114,14 +111,13 @@ class ReviewServiceTest {
         illegalReview.setAdopter(randomAdopter);
         illegalReview.setPet(pet);
 
-        // Debe fallar porque el service valida la existencia de la adopción
         assertThrows(IllegalOperationException.class, () -> reviewService.createReview(illegalReview));
     }
 
     @Test
     void createReviewInvalidRatingTest() {
         ReviewEntity badReview = new ReviewEntity();
-        badReview.setRating(0); // Fuera de rango (1-5)
+        badReview.setRating(0);
         badReview.setAdopter(adopter);
         badReview.setPet(pet);
         badReview.setDate(LocalDate.now());
@@ -129,35 +125,66 @@ class ReviewServiceTest {
         assertThrows(IllegalOperationException.class, () -> reviewService.createReview(badReview));
     }
 
-    // --- TESTS DE ACTUALIZACIÓN ---
-
     @Test
-    void updateReviewSuccessTest() throws EntityNotFoundException, IllegalOperationException {
-        ReviewEntity existing = data.get(0);
-        
-        ReviewEntity updateData = new ReviewEntity();
-        updateData.setRating(1);
-        updateData.setComment("Cambié de opinión sobre el comportamiento");
-        updateData.setDate(LocalDate.now());
-        updateData.setAdopter(adopter);
-        updateData.setPet(pet);
+    void createReviewRatingTooHighTest() {
+        ReviewEntity badReview = new ReviewEntity();
+        badReview.setRating(6);
+        badReview.setAdopter(adopter);
+        badReview.setPet(pet);
+        badReview.setDate(LocalDate.now());
 
-        ReviewEntity result = reviewService.updateReview(existing.getId(), adopter.getId(), updateData);
-        
-        assertEquals(1, result.getRating());
-        assertEquals("Cambié de opinión sobre el comportamiento", result.getComment());
+        assertThrows(IllegalOperationException.class, () -> reviewService.createReview(badReview));
     }
 
     @Test
-    void updateReviewUnauthorizedTest() {
-        ReviewEntity existing = data.get(0);
-        // Intentar actualizar con un ID de adoptante que no es el dueño (999L)
-        assertThrows(IllegalOperationException.class, () -> 
-            reviewService.updateReview(existing.getId(), 999L, existing)
-        );
+    void createReviewNullRatingTest() {
+        ReviewEntity badReview = new ReviewEntity();
+        badReview.setRating(null);
+        badReview.setAdopter(adopter);
+        badReview.setPet(pet);
+        badReview.setDate(LocalDate.now());
+
+        assertThrows(IllegalOperationException.class, () -> reviewService.createReview(badReview));
     }
 
-    // --- TESTS DE BÚSQUEDA ---
+    @Test
+    void createReviewNullDateTest() {
+        ReviewEntity badReview = new ReviewEntity();
+        badReview.setRating(5);
+        badReview.setAdopter(adopter);
+        badReview.setPet(pet);
+        badReview.setDate(null);
+
+        assertThrows(IllegalOperationException.class, () -> reviewService.createReview(badReview));
+    }
+
+    @Test
+    void createReviewNullAdopterTest() {
+        ReviewEntity badReview = new ReviewEntity();
+        badReview.setRating(5);
+        badReview.setAdopter(null);
+        badReview.setPet(pet);
+        badReview.setDate(LocalDate.now());
+
+        assertThrows(IllegalOperationException.class, () -> reviewService.createReview(badReview));
+    }
+
+    @Test
+    void createReviewNullPetTest() {
+        ReviewEntity badReview = new ReviewEntity();
+        badReview.setRating(5);
+        badReview.setAdopter(adopter);
+        badReview.setPet(null);
+        badReview.setDate(LocalDate.now());
+
+        assertThrows(IllegalOperationException.class, () -> reviewService.createReview(badReview));
+    }
+
+    @Test
+    void getReviewsTest() {
+        List<ReviewEntity> results = reviewService.getReviews();
+        assertEquals(data.size(), results.size());
+    }
 
     @Test
     void getReviewsByPetTest() throws EntityNotFoundException {
@@ -167,26 +194,82 @@ class ReviewServiceTest {
     }
 
     @Test
+    void getReviewsByPetNotFoundTest() {
+        assertThrows(EntityNotFoundException.class, () -> reviewService.getReviewsByPet(999L));
+    }
+
+    @Test
+    void getReviewsByAdopterTest() throws EntityNotFoundException {
+        List<ReviewEntity> results = reviewService.getReviewsByAdopter(adopter.getId());
+        assertFalse(results.isEmpty());
+        assertEquals(data.size(), results.size());
+    }
+
+    @Test
+    void getReviewsByAdopterNotFoundTest() {
+        assertThrows(EntityNotFoundException.class, () -> reviewService.getReviewsByAdopter(999L));
+    }
+
+    @Test
     void getReviewNotFoundTest() {
         assertThrows(EntityNotFoundException.class, () -> reviewService.getReview(999L));
     }
 
-    // --- TESTS DE BORRADO ---
+    @Test
+    void updateReviewSuccessTest() throws EntityNotFoundException, IllegalOperationException {
+        ReviewEntity existing = data.get(0);
+
+        ReviewEntity updateData = new ReviewEntity();
+        updateData.setRating(1);
+        updateData.setComment("Cambié de opinión sobre el comportamiento");
+        updateData.setDate(LocalDate.now());
+        updateData.setAdopter(adopter);
+        updateData.setPet(pet);
+
+        ReviewEntity result = reviewService.updateReview(existing.getId(), adopter.getId(), updateData);
+
+        assertEquals(1, result.getRating());
+        assertEquals("Cambié de opinión sobre el comportamiento", result.getComment());
+    }
+
+    @Test
+    void updateReviewNotFoundTest() {
+        ReviewEntity updateData = new ReviewEntity();
+        updateData.setRating(3);
+        updateData.setDate(LocalDate.now());
+        updateData.setAdopter(adopter);
+        updateData.setPet(pet);
+
+        assertThrows(EntityNotFoundException.class, () ->
+            reviewService.updateReview(999L, adopter.getId(), updateData));
+    }
+
+    @Test
+    void updateReviewUnauthorizedTest() {
+        ReviewEntity existing = data.get(0);
+        assertThrows(IllegalOperationException.class, () ->
+            reviewService.updateReview(existing.getId(), 999L, existing));
+    }
 
     @Test
     void deleteReviewSuccessTest() throws EntityNotFoundException, IllegalOperationException {
         ReviewEntity target = data.get(0);
         reviewService.deleteReview(target.getId(), adopter.getId());
-        
+
         ReviewEntity deleted = entityManager.find(ReviewEntity.class, target.getId());
         assertNull(deleted);
     }
 
     @Test
+    void deleteReviewNotFoundTest() {
+        assertThrows(EntityNotFoundException.class, () ->
+            reviewService.deleteReview(999L, adopter.getId()));
+    }
+
+    @Test
     void deleteReviewUnauthorizedTest() {
         ReviewEntity target = data.get(0);
-        assertThrows(IllegalOperationException.class, () -> 
-            reviewService.deleteReview(target.getId(), 999L)
-        );
+        assertThrows(IllegalOperationException.class, () ->
+            reviewService.deleteReview(target.getId(), 999L));
     }
 }
