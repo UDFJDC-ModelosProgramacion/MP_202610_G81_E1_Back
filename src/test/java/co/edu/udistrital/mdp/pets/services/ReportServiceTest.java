@@ -18,7 +18,6 @@ import co.edu.udistrital.mdp.pets.entities.UserEntity;
 import co.edu.udistrital.mdp.pets.entities.ReportEntity.Status;
 import co.edu.udistrital.mdp.pets.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.pets.exceptions.IllegalOperationException;
-import co.edu.udistrital.mdp.pets.exceptions.ErrorMessage;
 import uk.co.jemos.podam.api.PodamFactory;
 import uk.co.jemos.podam.api.PodamFactoryImpl;
 
@@ -95,16 +94,16 @@ class ReportServiceTest {
     }
 
     @Test
-    void testFindByGenerateDate() throws IllegalOperationException {
-        LocalDate today = LocalDate.now();
-        UserEntity reporter = createTestUser("a@test.com");
-        UserEntity reported = createTestUser("b@test.com");
+	void testFindByGenerateDate() { // <-- Limpio
+		LocalDate today = LocalDate.now();
+		UserEntity reporter = createTestUser("a@test.com");
+		UserEntity reported = createTestUser("b@test.com");
 
-        ReportEntity r1 = new ReportEntity();
-        r1.setReporter(reporter);
-        r1.setReportedUser(reported);
-        r1.setReason("Motivo 1");
-        r1.setGenerateDate(today);
+		ReportEntity r1 = new ReportEntity();
+		r1.setReporter(reporter);
+		r1.setReportedUser(reported);
+		r1.setReason("Motivo 1");
+		r1.setGenerateDate(today);
         r1.setStatus(Status.PENDING);
         entityManager.persist(r1);
         
