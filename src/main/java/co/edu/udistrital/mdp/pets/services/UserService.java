@@ -32,7 +32,8 @@ public abstract class UserService {
      */
     @Transactional(readOnly = true)
     public List<NotificationEntity> getNotifications(Long userId) throws EntityNotFoundException {
-        UserEntity user = getUser(userId);
+        UserEntity user = userRepository.findById(userId)
+    		.orElseThrow(() -> new EntityNotFoundException(ErrorMessage.USER_NOT_FOUND));
         return user.getNotifications();
     }
 
@@ -41,7 +42,8 @@ public abstract class UserService {
      */
     @Transactional
     public void markNotificationAsRead(Long userId, Long notificationId) throws EntityNotFoundException {
-        UserEntity user = getUser(userId);
+        UserEntity user = userRepository.findById(userId)
+			.orElseThrow(() -> new EntityNotFoundException(ErrorMessage.USER_NOT_FOUND));
         
         // Buscamos la notificación dentro de la lista del usuario
         NotificationEntity notification = user.getNotifications().stream()

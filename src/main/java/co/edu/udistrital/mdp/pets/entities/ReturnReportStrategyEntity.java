@@ -13,7 +13,6 @@ public class ReturnReportStrategyEntity extends ReportStrategyEntity {
 
     @Override
     public void generate(ReportEntity report) {
-        // TODO: Implementar lógica específica para devoluciones
-        // Ejemplo: Cambiar el estado de la mascota a AVAILABLE nuevamente
+        // Implementar lógica específica para devoluciones
     }
 }
