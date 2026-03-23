@@ -20,6 +20,7 @@ public class MedicalEventEntity extends BaseEntity {
 
     private String eventType; // Consulta, Cirugía, etc.
     private String diagnosis;
+    private String description;
     private String treatment;
     private LocalDate eventDate;
 

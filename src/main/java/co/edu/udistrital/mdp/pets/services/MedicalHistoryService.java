@@ -3,6 +3,7 @@ package co.edu.udistrital.mdp.pets.services;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,8 +46,24 @@ public class MedicalHistoryService {
     public MedicalHistoryEntity createMedicalHistory(MedicalHistoryEntity history) throws IllegalOperationException {
         log.info("Iniciando la creación de la historia clínica");
         validateData(history);
-        log.info("Historia clínica creada exitosamente");
-        return repository.save(history);
+
+        Long petId = history.getPet().getId();
+        if (petId == null) {
+            throw new IllegalOperationException("La mascota debe estar persistida con un id válido antes de crear la historia.");
+        }
+
+        if (repository.existsByPetId(petId)) {
+            throw new IllegalOperationException("La mascota ya tiene una historia clínica asignada.");
+        }
+
+        try {
+            MedicalHistoryEntity saved = repository.save(history);
+            log.info("Historia clínica creada exitosamente");
+            return saved;
+        } catch (DataIntegrityViolationException dive) {
+            // Si activas constraint única en BD, mapear la excepción a IllegalOperationException
+            throw new IllegalOperationException("No se pudo crear la historia clínica por restricción de integridad.");
+        }
     }
 
     /**
