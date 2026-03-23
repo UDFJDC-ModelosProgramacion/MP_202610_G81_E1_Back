@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,9 +25,12 @@ import co.edu.udistrital.mdp.pets.exceptions.IllegalOperationException;
 import uk.co.jemos.podam.api.PodamFactory;
 import uk.co.jemos.podam.api.PodamFactoryImpl;
 
+import org.springframework.boot.autoconfigure.domain.EntityScan;
+
 @DataJpaTest
 @Transactional
 @Import(VaccinationRecordService.class)
+@EntityScan("co.edu.udistrital.mdp.pets.entities") // Explicitly scan for entities
 class VaccinationRecordServiceTest {
 
     @Autowired
@@ -104,9 +108,28 @@ class VaccinationRecordServiceTest {
     }
 
     @Test
-    void testCreateRecordWithNullDateFails() {
+    void testCreateRecordWithNullApplicationDateFails() {
         VaccinationRecordEntity newRecord = factory.manufacturePojo(VaccinationRecordEntity.class);
         newRecord.setApplicationDate(null);
+
+        IllegalOperationException ex = assertThrows(IllegalOperationException.class,
+                () -> vaccinationRecordService.createVaccinationRecord(newRecord));
+        assertNotNull(ex);
+    }
+
+    @Test
+    void testCreateRecordWithNullNextDueDateFails() {
+        VaccinationRecordEntity newRecord = factory.manufacturePojo(VaccinationRecordEntity.class);
+        newRecord.setApplicationDate(LocalDate.now());
+        newRecord.setNextDueDate(null);
+
+        PetEntity pet = factory.manufacturePojo(PetEntity.class);
+        entityManager.persist(pet);
+        newRecord.setPet(pet);
+
+        VaccineEntity vaccine = factory.manufacturePojo(VaccineEntity.class);
+        entityManager.persist(vaccine);
+        newRecord.setVaccine(vaccine);
 
         IllegalOperationException ex = assertThrows(IllegalOperationException.class,
                 () -> vaccinationRecordService.createVaccinationRecord(newRecord));
@@ -185,6 +208,33 @@ class VaccinationRecordServiceTest {
         IllegalOperationException ex = assertThrows(IllegalOperationException.class,
                 () -> vaccinationRecordService.createVaccinationRecord(newRecord));
         assertNotNull(ex);
+    }
+
+    @Test
+    void createVaccinationRecordWithNullVaccineIdFails() {
+        VaccinationRecordEntity newRecord = factory.manufacturePojo(VaccinationRecordEntity.class);
+        newRecord.setApplicationDate(LocalDate.now());
+        newRecord.setNextDueDate(LocalDate.now().plusMonths(1));
+        
+        PetEntity pet = factory.manufacturePojo(PetEntity.class);
+        entityManager.persist(pet);
+        newRecord.setPet(pet);
+
+        VaccineEntity vaccineWithoutId = factory.manufacturePojo(VaccineEntity.class);
+        vaccineWithoutId.setId(null);
+        newRecord.setVaccine(vaccineWithoutId);
+
+        IllegalOperationException ex = assertThrows(IllegalOperationException.class,
+                () -> vaccinationRecordService.createVaccinationRecord(newRecord));
+        assertNotNull(ex);
+    }
+
+    @Test
+    void createVaccinationRecordNullFails() {
+        IllegalOperationException ex = assertThrows(IllegalOperationException.class,
+                () -> vaccinationRecordService.createVaccinationRecord(null));
+        assertNotNull(ex);
+        assertTrue(ex.getMessage().toLowerCase().contains("nulo"));
     }
 
     // ==========================================

@@ -9,7 +9,7 @@ import lombok.EqualsAndHashCode;
 @Entity
 @EqualsAndHashCode(callSuper = true)
 @DiscriminatorValue("IN_APP")
-public class InAppNotificationStrategy extends NotificationStrategyEntity {
+public class InAppNotificationStrategyEntity extends NotificationStrategyEntity {
     @Override
     public void send(NotificationEntity notification) {
         // Lógica de envío de email (o vacía por ahora)
