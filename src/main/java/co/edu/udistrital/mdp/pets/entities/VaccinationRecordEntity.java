@@ -21,10 +21,15 @@ public class VaccinationRecordEntity extends BaseEntity {
 
     @Column(name = "application_date")
     private LocalDate applicationDate;
+
     @Column(name = "next_due_date")
     private LocalDate nextDueDate;
+
     @Column(name = "vaccination_date")
     private LocalDate vaccinationDate;
+
+	@PodamExclude
+	@ManyToOne
     @JoinColumn(name = "pet_id")
     private PetEntity pet;
 
