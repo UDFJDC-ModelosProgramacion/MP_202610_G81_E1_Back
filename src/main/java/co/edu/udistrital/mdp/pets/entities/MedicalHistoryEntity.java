@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import uk.co.jemos.podam.common.PodamExclude;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -14,6 +15,7 @@ import java.util.List;
 public class MedicalHistoryEntity extends BaseEntity {
 
     private String description;
+	private LocalDate lastCheckout;
 
 	@PodamExclude
     @OneToOne
