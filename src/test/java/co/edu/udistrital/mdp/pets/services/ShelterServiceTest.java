@@ -17,6 +17,8 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
 import org.springframework.transaction.annotation.Transactional;
 
+import co.edu.udistrital.mdp.pets.entities.AdopterEntity;
+import co.edu.udistrital.mdp.pets.entities.EmailNotificationStrategyEntity;
 import co.edu.udistrital.mdp.pets.entities.PetEntity;
 import co.edu.udistrital.mdp.pets.entities.ShelterEntity;
 import co.edu.udistrital.mdp.pets.entities.ShelterEventEntity;
@@ -456,5 +458,92 @@ class ShelterServiceTest {
         assertEquals(shelterId, result.getId());
         assertEquals("Same Email, New Name", result.getName());
         assertEquals(existingShelter.getEmail(), result.getEmail()); // Email should remain unchanged
+    }
+
+	@Test
+    void testSubscribeUserSuccess() throws EntityNotFoundException {
+        ShelterEntity shelter = data.get(0);
+        
+        // Creamos un usuario (Adoptante) para suscribirlo
+        AdopterEntity adopter = factory.manufacturePojo(AdopterEntity.class);
+        entityManager.persist(adopter);
+        entityManager.flush();
+
+        shelterService.subscribeUser(shelter.getId(), adopter.getId());
+
+        ShelterEntity updatedShelter = entityManager.find(ShelterEntity.class, shelter.getId());
+        boolean isSubscribed = updatedShelter.getSubscriptions().stream()
+                .anyMatch(sub -> sub.getUser().getId().equals(adopter.getId()));
+        
+        assertTrue(isSubscribed, "El usuario debería estar suscrito al refugio");
+    }
+
+    @Test
+    void testSubscribeUserAlreadySubscribed() throws EntityNotFoundException {
+        ShelterEntity shelter = data.get(0);
+        AdopterEntity adopter = factory.manufacturePojo(AdopterEntity.class);
+        entityManager.persist(adopter);
+        
+        // Suscribimos por primera vez
+        shelterService.subscribeUser(shelter.getId(), adopter.getId());
+        int initialSize = shelter.getSubscriptions().size();
+
+        // Intentamos suscribir de nuevo
+        shelterService.subscribeUser(shelter.getId(), adopter.getId());
+        
+        assertEquals(initialSize, shelter.getSubscriptions().size(), "No debería duplicarse la suscripción");
+    }
+
+    @Test
+    void testSubscribeInvalidUser() {
+        ShelterEntity shelter = data.get(0);
+        assertThrows(EntityNotFoundException.class, () -> {
+            shelterService.subscribeUser(shelter.getId(), 999L);
+        });
+    }
+
+	@Test
+    void testNotifyAllSubscribersFlow() throws EntityNotFoundException {
+        ShelterEntity shelter = data.get(0);
+        
+        // 1. Creamos y persistimos una estrategia concreta
+        // (Asegúrate de que esta clase exista en tu código)
+        EmailNotificationStrategyEntity strategy = new EmailNotificationStrategyEntity();
+        entityManager.persist(strategy);
+
+        // 2. Creamos dos usuarios y los suscribimos (uno activo y uno inactivo)
+        AdopterEntity userActive = factory.manufacturePojo(AdopterEntity.class);
+        entityManager.persist(userActive);
+        
+        AdopterEntity userInactive = factory.manufacturePojo(AdopterEntity.class);
+        entityManager.persist(userInactive);
+        
+        entityManager.flush();
+
+        // Suscribir a ambos
+        shelterService.subscribeUser(shelter.getId(), userActive.getId());
+        shelterService.subscribeUser(shelter.getId(), userInactive.getId());
+
+        // Forzar a uno a estar inactivo para probar el filtro .filter(SubscriptionEntity::getActive)
+        shelter.getSubscriptions().stream()
+            .filter(sub -> sub.getUser().getId().equals(userInactive.getId()))
+            .findFirst().ifPresent(sub -> sub.setActive(false));
+        
+        entityManager.flush();
+
+        // 3. Ejecutar notificación masiva
+        String message = "¡Evento de adopción este sábado!";
+        shelterService.notifyAllSubscribers(shelter.getId(), message, strategy);
+
+        // 4. Verificaciones
+        AdopterEntity observer1 = entityManager.find(AdopterEntity.class, userActive.getId());
+        AdopterEntity observer2 = entityManager.find(AdopterEntity.class, userInactive.getId());
+
+        // El activo debe tener la notificación
+        assertFalse(observer1.getNotifications().isEmpty(), "El usuario activo debe recibir la notificación");
+        assertEquals(message, observer1.getNotifications().get(0).getMessage());
+        
+        // El inactivo NO debe tener la notificación
+        assertTrue(observer2.getNotifications().isEmpty(), "El usuario inactivo NO debe recibir la notificación");
     }
 }

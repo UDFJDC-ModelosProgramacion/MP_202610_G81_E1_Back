@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import co.edu.udistrital.mdp.pets.entities.UserEntity;
 import co.edu.udistrital.mdp.pets.entities.AdopterEntity;
 import co.edu.udistrital.mdp.pets.entities.AdoptionEntity;
+import co.edu.udistrital.mdp.pets.entities.NotificationEntity;
 import co.edu.udistrital.mdp.pets.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.pets.exceptions.IllegalOperationException;
 import uk.co.jemos.podam.api.PodamFactory;
@@ -53,10 +54,11 @@ class UserServiceTest {
         insertData();
     }
 
-    private void clearData() {
+	private void clearData() {
+		entityManager.getEntityManager().createQuery("delete from NotificationEntity").executeUpdate();
 		entityManager.getEntityManager().createQuery("delete from AdoptionEntity").executeUpdate();
-        entityManager.getEntityManager().createQuery("delete from UserEntity").executeUpdate();
-    }
+		entityManager.getEntityManager().createQuery("delete from UserEntity").executeUpdate();
+	}
 
     private void insertData() {
         for (int i = 0; i < 3; i++) {
@@ -416,6 +418,80 @@ class UserServiceTest {
 			userService.deleteUser(adopter.getId());
 		});
 	}
+
+	@Test
+    void testGetNotifications() throws EntityNotFoundException {
+        UserEntity user = data.get(0);
+        
+        // Creamos un par de notificaciones manualmente para el usuario
+        NotificationEntity note = new NotificationEntity();
+        note.setMessage("Test Message");
+        note.setIsRead(false);
+        note.setUser(user);
+        
+        entityManager.persist(note);
+        user.getNotifications().add(note);
+        entityManager.flush();
+
+        List<NotificationEntity> notifications = userService.getNotifications(user.getId());
+        
+        assertFalse(notifications.isEmpty());
+        assertEquals(1, notifications.size());
+        assertEquals("Test Message", notifications.get(0).getMessage());
+    }
+
+    @Test
+    void testMarkNotificationAsReadSuccess() throws EntityNotFoundException {
+        UserEntity user = data.get(0);
+        
+        // 1. Crear notificación no leída
+        NotificationEntity note = new NotificationEntity();
+        note.setMessage("Read me");
+        note.setIsRead(false);
+        note.setUser(user);
+        
+        entityManager.persist(note);
+        user.getNotifications().add(note);
+        entityManager.flush();
+
+        // 2. Marcar como leída
+        userService.markNotificationAsRead(user.getId(), note.getId());
+
+        // 3. Verificar
+        NotificationEntity result = entityManager.find(NotificationEntity.class, note.getId());
+        assertTrue(result.getIsRead(), "La notificación debería estar marcada como leída");
+    }
+
+    @Test
+    void testMarkNotificationAsReadNotFound() {
+        UserEntity user = data.get(0);
+        
+        // Intentar marcar una notificación con un ID inexistente (999L)
+        assertThrows(EntityNotFoundException.class, () -> {
+            userService.markNotificationAsRead(user.getId(), 999L);
+        });
+    }
+
+    @Test
+    void testMarkNotificationAsReadNotBelongingToUser() {
+        // Usuario A y su notificación
+        UserEntity userA = data.get(0);
+        NotificationEntity noteA = new NotificationEntity();
+        noteA.setMessage("Note A");
+        noteA.setUser(userA);
+        entityManager.persist(noteA);
+        
+        // Usuario B
+        UserEntity userB = data.get(1);
+        
+        entityManager.flush();
+
+        // Intentar que el Usuario B marque como leída la notificación del Usuario A
+        // Esto debería fallar por el filtro .filter(n -> n.getId().equals(notificationId))
+        assertThrows(EntityNotFoundException.class, () -> {
+            userService.markNotificationAsRead(userB.getId(), noteA.getId());
+        });
+    }
 }
 @Service
 class MockUserService extends UserService {

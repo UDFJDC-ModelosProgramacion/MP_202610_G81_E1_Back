@@ -21,6 +21,12 @@ import uk.co.jemos.podam.common.PodamExclude;
 public class ReportEntity extends BaseEntity {
 
     private LocalDate generateDate;
+	private String reason;
+    
+	public enum Status { PENDING, REVIEWED, RESOLVED }
+	@Enumerated(EnumType.STRING)
+    private Status status;
+ 
 
 	@PodamExclude
     @ManyToOne
@@ -41,11 +47,4 @@ public class ReportEntity extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "reported_user_id")
     private UserEntity reportedUser;
-
-    private String reason;
-
-    @Enumerated(EnumType.STRING)
-    private Status status;
-
-    public enum Status { PENDING, REVIEWED, RESOLVED }
 }
