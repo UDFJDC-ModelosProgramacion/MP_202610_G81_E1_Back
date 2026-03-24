@@ -96,18 +96,26 @@ public class PetService {
         return petRepository.save(pet);
     }
 
-    @Transactional
-    public PetEntity updatePet(Long petId, PetEntity pet) throws EntityNotFoundException, IllegalOperationException {
-        log.info("Updating pet with id = {}", petId);
-        
-        PetEntity existing = petRepository.findById(petId)
-                .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.PET_NOT_FOUND));
+	@Transactional
+	public PetEntity updatePet(Long petId, PetEntity pet) throws EntityNotFoundException, IllegalOperationException {
+		// 1. Buscamos el que ya existe (este tiene las listas con datos)
+		PetEntity existing = petRepository.findById(petId)
+				.orElseThrow(() -> new EntityNotFoundException(ErrorMessage.PET_NOT_FOUND));
 
-        validatePetData(pet);
-        validateStatusChange(existing, pet.getStatus());
-        pet.setId(petId);
-        return petRepository.save(pet);
-    }
+		// 2. Validamos la lógica de negocio
+		validatePetData(pet);
+		validateStatusChange(existing, pet.getStatus());
+
+		// 3. ACTUALIZAMOS solo los campos editables del 'existing'
+		existing.setName(pet.getName());
+		existing.setTemperament(pet.getTemperament());
+		existing.setStatus(pet.getStatus());
+		existing.setPhotos(pet.getPhotos());
+		// ... y así con los demás campos simples
+
+		// 4. Guardamos el 'existing' (que conserva sus listas originales)
+		return petRepository.save(existing);
+	}
 
     @Transactional(readOnly = true)
     public List<PetEntity> getPets() {
