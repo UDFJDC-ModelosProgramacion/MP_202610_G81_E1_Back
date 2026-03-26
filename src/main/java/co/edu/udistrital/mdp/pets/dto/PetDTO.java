@@ -1,4 +1,4 @@
-package co.edu.udistrital.mdp.pets.dtos;
+package co.edu.udistrital.mdp.pets.dto;
 
 import co.edu.udistrital.mdp.pets.enums.PetStatus;
 import lombok.Data;
@@ -8,8 +8,7 @@ import lombok.Data;
  * Focuses on performance and essential information.
  */
 @Data
-public class PetDTO {
-    private Long id;
+public class PetDTO extends BaseDTO {
     private String name;
     private String species;
     private String breed;
@@ -26,5 +25,6 @@ public class PetDTO {
     private Boolean goodWithKids;
     private Boolean goodWithPets;
     private String spaceRequired;
-
+	private ShelterDTO shelter;
+	private MedicalHistoryDTO medicalHistory;
 }
