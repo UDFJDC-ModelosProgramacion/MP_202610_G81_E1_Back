@@ -1,4 +1,4 @@
-package co.edu.udistrital.mdp.pets.dtos;
+package co.edu.udistrital.mdp.pets.dto;
 
 import java.util.ArrayList;
 import java.util.List;
