@@ -1,4 +1,4 @@
-package co.edu.udistrital.mdp.pets.dtos;
+package co.edu.udistrital.mdp.pets.dto;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
