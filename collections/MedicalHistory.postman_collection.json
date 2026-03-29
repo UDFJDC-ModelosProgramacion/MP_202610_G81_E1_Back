@@ -1,0 +1,661 @@
+{
+  "info": {
+    "_postman_id": "d6ea8666-68b8-4d5c-82af-02bfa3c6c5bd",
+    "name": "MedicalHistory",
+    "description": "Colección con requests y ejemplos para cada caso del MedicalHistoryServiceTest.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "53551118"
+  },
+  "item": [
+    {
+      "name": "MedicalHistory",
+      "item": [
+        {
+          "name": "CREATE History - Success",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notes\": \"New history\",\n  \"pet\": { \"id\": {{existingPetId}} }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/medical-histories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "medical-histories"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "201 Created - example",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"id\": 100,\r\n  \"notes\": \"New history\",\r\n  \"pet\": { \"id\": {{existingPetId}} }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/medical-histories",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "medical-histories"
+                  ]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "",
+                  "value": "",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"id\": 100,\n  \"notes\": \"New history\",\n  \"pet\": { \"id\": {{existingPetId}} }\n}"
+            }
+          ]
+        },
+        {
+          "name": "CREATE History - Fail (null entity)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "null"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/medical-histories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "medical-histories"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "412 Precondition Failed - null entity",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"apierror\": {\r\n    \"status\": \"PRECONDITION_FAILED\",\r\n    \"message\": \"MedicalHistory must not be null\",\r\n    \"timestamp\": \"2026-03-29T00:00:00\"\r\n  }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/medical-histories",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "medical-histories"
+                  ]
+                }
+              },
+              "status": "Precondition Failed",
+              "code": 412,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"apierror\": {\n    \"status\": \"PRECONDITION_FAILED\",\n    \"message\": \"MedicalHistory must not be null\",\n    \"timestamp\": \"2026-03-29T00:00:00\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "CREATE History - Fail (without pet)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notes\": \"History without pet\",\n  \"pet\": null\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/medical-histories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "medical-histories"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "412 Precondition Failed - pet null",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"apierror\": {\r\n    \"status\": \"PRECONDITION_FAILED\",\r\n    \"message\": \"MedicalHistory must be associated to a Pet\",\r\n    \"timestamp\": \"2026-03-29T00:00:00\"\r\n  }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/medical-histories",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "medical-histories"
+                  ]
+                }
+              },
+              "status": "Precondition Failed",
+              "code": 412,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"apierror\": {\n    \"status\": \"PRECONDITION_FAILED\",\n    \"message\": \"MedicalHistory must be associated to a Pet\",\n    \"timestamp\": \"2026-03-29T00:00:00\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "CREATE History - Fail (second history for same pet)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notes\": \"Second history\",\n  \"pet\": { \"id\": {{petWithHistoryId}} }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/medical-histories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "medical-histories"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "412 Precondition Failed - second history",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"apierror\": {\r\n    \"status\": \"PRECONDITION_FAILED\",\r\n    \"message\": \"A Pet can have only one MedicalHistory\",\r\n    \"timestamp\": \"2026-03-29T00:00:00\"\r\n  }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/medical-histories",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "medical-histories"
+                  ]
+                }
+              },
+              "status": "Precondition Failed",
+              "code": 412,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"apierror\": {\n    \"status\": \"PRECONDITION_FAILED\",\n    \"message\": \"A Pet can have only one MedicalHistory\",\n    \"timestamp\": \"2026-03-29T00:00:00\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "GET - Medical History by ID (success)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/medical-histories/{{historyId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "medical-histories",
+                "{{historyId}}"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK - single example",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"id\": {{historyId}},\r\n  \"notes\": \"Initial notes 0\",\r\n  \"pet\": { \"id\": {{existingPetId}} }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/medical-histories/{{historyId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "medical-histories",
+                    "{{historyId}}"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"id\": {{historyId}},\n  \"notes\": \"Initial notes 0\",\n  \"pet\": { \"id\": {{existingPetId}} }\n}"
+            }
+          ]
+        },
+        {
+          "name": "UPDATE - Success",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notes\": \"Updated test notes\",\n  \"pet\": { \"id\": {{existingPetId}} }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/medical-histories/{{historyId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "medical-histories",
+                "{{historyId}}"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK - updated",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"id\": {{historyId}},\r\n  \"notes\": \"Updated test notes\",\r\n  \"pet\": { \"id\": {{existingPetId}} }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/medical-histories/{{historyId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "medical-histories",
+                    "{{historyId}}"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"id\": {{historyId}},\n  \"notes\": \"Updated test notes\",\n  \"pet\": { \"id\": {{existingPetId}} }\n}"
+            }
+          ]
+        },
+        {
+          "name": "UPDATE - Not Found",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notes\": \"Update non existent\",\n  \"pet\": { \"id\": {{existingPetId}} }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/medical-histories/123456789",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "medical-histories",
+                "123456789"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "404 Not Found - update target missing",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"apierror\": {\r\n    \"status\": \"NOT_FOUND\",\r\n    \"message\": \"MedicalHistory to update not found\",\r\n    \"timestamp\": \"2026-03-29T00:00:00\"\r\n  }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/medical-histories/123456789",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "medical-histories",
+                    "123456789"
+                  ]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"apierror\": {\n    \"status\": \"NOT_FOUND\",\n    \"message\": \"MedicalHistory to update not found\",\n    \"timestamp\": \"2026-03-29T00:00:00\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "UPDATE - Fail (without pet)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notes\": \"Update without pet\",\n  \"pet\": null\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/medical-histories/{{historyId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "medical-histories",
+                "{{historyId}}"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "412 Precondition Failed - update without pet",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"apierror\": {\r\n    \"status\": \"PRECONDITION_FAILED\",\r\n    \"message\": \"MedicalHistory must be associated to a Pet\",\r\n    \"timestamp\": \"2026-03-29T00:00:00\"\r\n  }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/medical-histories/{{historyId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "medical-histories",
+                    "{{historyId}}"
+                  ]
+                }
+              },
+              "status": "Precondition Failed",
+              "code": 412,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"apierror\": {\n    \"status\": \"PRECONDITION_FAILED\",\n    \"message\": \"MedicalHistory must be associated to a Pet\",\n    \"timestamp\": \"2026-03-29T00:00:00\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "DELETE - Success",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/medical-histories/{{historyIdToDelete}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "medical-histories",
+                "{{historyIdToDelete}}"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "204 No Content - deleted",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/medical-histories/{{historyIdToDelete}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "medical-histories",
+                    "{{historyIdToDelete}}"
+                  ]
+                }
+              },
+              "status": "No Content",
+              "code": 204,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": ""
+            }
+          ]
+        },
+        {
+          "name": "DELETE - Not Found",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/medical-histories/999999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "medical-histories",
+                "999999"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "404 Not Found - delete missing",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"apierror\": {\r\n    \"status\": \"NOT_FOUND\",\r\n    \"message\": \"MedicalHistory not found\",\r\n    \"timestamp\": \"2026-03-29T00:00:00\"\r\n  }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/medical-histories/999999",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "medical-histories",
+                    "999999"
+                  ]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"apierror\": {\n    \"status\": \"NOT_FOUND\",\n    \"message\": \"MedicalHistory not found\",\n    \"timestamp\": \"2026-03-29T00:00:00\"\n  }\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080/api"
+    },
+    {
+      "key": "existingPetId",
+      "value": "1"
+    },
+    {
+      "key": "petWithHistoryId",
+      "value": "2"
+    },
+    {
+      "key": "historyId",
+      "value": "10"
+    },
+    {
+      "key": "historyIdToDelete",
+      "value": "11"
+    }
+  ]
+}

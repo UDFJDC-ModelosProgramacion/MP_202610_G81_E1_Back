@@ -1,0 +1,1240 @@
+{
+  "info": {
+    "_postman_id": "26f36f7b-e496-480b-a940-8be1d0d6af2a",
+    "name": "VaccinationRecord",
+    "description": "Colección con requests y ejemplos para cada caso del VaccinationRecordServiceTest.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "53551118"
+  },
+  "item": [
+    {
+      "name": "VaccinationRecord",
+      "item": [
+        {
+          "name": "CREATE Record - Success",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"applicationDate\": \"{{today}}\",\n  \"nextDueDate\": \"{{nextMonth}}\",\n  \"pet\": { \"id\": {{existingPetId}} },\n  \"vaccine\": { \"id\": {{existingVaccineId}} }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/vaccination-records",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vaccination-records"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "201 Created - example",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"id\": 100,\r\n  \"applicationDate\": \"{{today}}\",\r\n  \"nextDueDate\": \"{{nextMonth}}\",\r\n  \"pet\": { \"id\": {{existingPetId}} },\r\n  \"vaccine\": { \"id\": {{existingVaccineId}} }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/vaccination-records",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "vaccination-records"
+                  ]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"id\": 100,\n  \"applicationDate\": \"{{today}}\",\n  \"nextDueDate\": \"{{nextMonth}}\",\n  \"pet\": { \"id\": {{existingPetId}} },\n  \"vaccine\": { \"id\": {{existingVaccineId}} }\n}"
+            }
+          ]
+        },
+        {
+          "name": "CREATE Record - Fail (null applicationDate)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"applicationDate\": null,\n  \"nextDueDate\": \"{{nextMonth}}\",\n  \"pet\": { \"id\": {{existingPetId}} },\n  \"vaccine\": { \"id\": {{existingVaccineId}} }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/vaccination-records",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vaccination-records"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "412 Precondition Failed - null applicationDate",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"apierror\": {\r\n    \"status\": \"PRECONDITION_FAILED\",\r\n    \"message\": \"Application date must not be null\",\r\n    \"timestamp\": \"2026-03-29T00:00:00\"\r\n  }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/vaccination-records",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "vaccination-records"
+                  ]
+                }
+              },
+              "status": "Precondition Failed",
+              "code": 412,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"apierror\": {\n    \"status\": \"PRECONDITION_FAILED\",\n    \"message\": \"Application date must not be null\",\n    \"timestamp\": \"2026-03-29T00:00:00\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "CREATE Record - Fail (null nextDueDate)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"applicationDate\": \"{{today}}\",\n  \"nextDueDate\": null,\n  \"pet\": { \"id\": {{existingPetId}} },\n  \"vaccine\": { \"id\": {{existingVaccineId}} }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/vaccination-records",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vaccination-records"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "412 Precondition Failed - null nextDueDate",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"apierror\": {\r\n    \"status\": \"PRECONDITION_FAILED\",\r\n    \"message\": \"Next due date must not be null\",\r\n    \"timestamp\": \"2026-03-29T00:00:00\"\r\n  }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/vaccination-records",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "vaccination-records"
+                  ]
+                }
+              },
+              "status": "Precondition Failed",
+              "code": 412,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"apierror\": {\n    \"status\": \"PRECONDITION_FAILED\",\n    \"message\": \"Next due date must not be null\",\n    \"timestamp\": \"2026-03-29T00:00:00\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "CREATE Record - Fail (future applicationDate)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"applicationDate\": \"{{futureDate}}\",\n  \"nextDueDate\": \"{{futureNext}}\",\n  \"pet\": { \"id\": {{existingPetId}} },\n  \"vaccine\": { \"id\": {{existingVaccineId}} }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/vaccination-records",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vaccination-records"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "412 Precondition Failed - future date",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"apierror\": {\r\n    \"status\": \"PRECONDITION_FAILED\",\r\n    \"message\": \"Application date cannot be in the future\",\r\n    \"timestamp\": \"2026-03-29T00:00:00\"\r\n  }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/vaccination-records",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "vaccination-records"
+                  ]
+                }
+              },
+              "status": "Precondition Failed",
+              "code": 412,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"apierror\": {\n    \"status\": \"PRECONDITION_FAILED\",\n    \"message\": \"Application date cannot be in the future\",\n    \"timestamp\": \"2026-03-29T00:00:00\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "CREATE Record - Fail (nextDue before applicationDate)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"applicationDate\": \"{{today}}\",\n  \"nextDueDate\": \"{{yesterday}}\",\n  \"pet\": { \"id\": {{existingPetId}} },\n  \"vaccine\": { \"id\": {{existingVaccineId}} }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/vaccination-records",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vaccination-records"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "412 Precondition Failed - nextDue before application",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"apierror\": {\r\n    \"status\": \"PRECONDITION_FAILED\",\r\n    \"message\": \"Next due date must be after application date\",\r\n    \"timestamp\": \"2026-03-29T00:00:00\"\r\n  }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/vaccination-records",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "vaccination-records"
+                  ]
+                }
+              },
+              "status": "Precondition Failed",
+              "code": 412,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"apierror\": {\n    \"status\": \"PRECONDITION_FAILED\",\n    \"message\": \"Next due date must be after application date\",\n    \"timestamp\": \"2026-03-29T00:00:00\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "CREATE Record - Fail (null pet)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"applicationDate\": \"{{today}}\",\n  \"nextDueDate\": \"{{nextMonth}}\",\n  \"pet\": null,\n  \"vaccine\": { \"id\": {{existingVaccineId}} }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/vaccination-records",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vaccination-records"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "412 Precondition Failed - null pet",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"apierror\": {\r\n    \"status\": \"PRECONDITION_FAILED\",\r\n    \"message\": \"Pet must not be null\",\r\n    \"timestamp\": \"2026-03-29T00:00:00\"\r\n  }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/vaccination-records",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "vaccination-records"
+                  ]
+                }
+              },
+              "status": "Precondition Failed",
+              "code": 412,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"apierror\": {\n    \"status\": \"PRECONDITION_FAILED\",\n    \"message\": \"Pet must not be null\",\n    \"timestamp\": \"2026-03-29T00:00:00\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "CREATE Record - Fail (null vaccine)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"applicationDate\": \"{{today}}\",\n  \"nextDueDate\": \"{{nextMonth}}\",\n  \"pet\": { \"id\": {{existingPetId}} },\n  \"vaccine\": null\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/vaccination-records",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vaccination-records"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "412 Precondition Failed - null vaccine",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"apierror\": {\r\n    \"status\": \"PRECONDITION_FAILED\",\r\n    \"message\": \"Vaccine must not be null\",\r\n    \"timestamp\": \"2026-03-29T00:00:00\"\r\n  }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/vaccination-records",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "vaccination-records"
+                  ]
+                }
+              },
+              "status": "Precondition Failed",
+              "code": 412,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"apierror\": {\n    \"status\": \"PRECONDITION_FAILED\",\n    \"message\": \"Vaccine must not be null\",\n    \"timestamp\": \"2026-03-29T00:00:00\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "CREATE Record - Fail (nonexistent vaccine)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"applicationDate\": \"{{today}}\",\n  \"nextDueDate\": \"{{nextMonth}}\",\n  \"pet\": { \"id\": {{existingPetId}} },\n  \"vaccine\": { \"id\": 999999 }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/vaccination-records",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vaccination-records"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "412 Precondition Failed - vaccine not found",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"apierror\": {\r\n    \"status\": \"PRECONDITION_FAILED\",\r\n    \"message\": \"Vaccine not found\",\r\n    \"timestamp\": \"2026-03-29T00:00:00\"\r\n  }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/vaccination-records",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "vaccination-records"
+                  ]
+                }
+              },
+              "status": "Precondition Failed",
+              "code": 412,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"apierror\": {\n    \"status\": \"PRECONDITION_FAILED\",\n    \"message\": \"Vaccine not found\",\n    \"timestamp\": \"2026-03-29T00:00:00\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "CREATE Record - Fail (vaccine id null)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"applicationDate\": \"{{today}}\",\n  \"nextDueDate\": \"{{nextMonth}}\",\n  \"pet\": { \"id\": {{existingPetId}} },\n  \"vaccine\": { \"id\": null }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/vaccination-records",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vaccination-records"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "412 Precondition Failed - vaccine id null",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"apierror\": {\r\n    \"status\": \"PRECONDITION_FAILED\",\r\n    \"message\": \"Vaccine id must not be null\",\r\n    \"timestamp\": \"2026-03-29T00:00:00\"\r\n  }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/vaccination-records",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "vaccination-records"
+                  ]
+                }
+              },
+              "status": "Precondition Failed",
+              "code": 412,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"apierror\": {\n    \"status\": \"PRECONDITION_FAILED\",\n    \"message\": \"Vaccine id must not be null\",\n    \"timestamp\": \"2026-03-29T00:00:00\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "CREATE Record - Fail (null entity)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "null"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/vaccination-records",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vaccination-records"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "412 Precondition Failed - null entity",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"apierror\": {\r\n    \"status\": \"PRECONDITION_FAILED\",\r\n    \"message\": \"El registro de vacunación no puede ser nulo\",\r\n    \"timestamp\": \"2026-03-29T00:00:00\"\r\n  }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/vaccination-records",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "vaccination-records"
+                  ]
+                }
+              },
+              "status": "Precondition Failed",
+              "code": 412,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"apierror\": {\n    \"status\": \"PRECONDITION_FAILED\",\n    \"message\": \"El registro de vacunación no puede ser nulo\",\n    \"timestamp\": \"2026-03-29T00:00:00\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "GET - All Vaccination Records",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vaccination-records",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vaccination-records"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK - list example",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "[\r\n  {\r\n    \"id\": 100,\r\n    \"applicationDate\": \"{{today}}\",\r\n    \"nextDueDate\": \"{{nextMonth}}\",\r\n    \"pet\": { \"id\": {{existingPetId}} },\r\n    \"vaccine\": { \"id\": {{existingVaccineId}} }\r\n  },\r\n  {\r\n    \"id\": 101,\r\n    \"applicationDate\": \"{{yesterday}}\",\r\n    \"nextDueDate\": \"{{nextMonth2}}\",\r\n    \"pet\": { \"id\": {{existingPetId}} },\r\n    \"vaccine\": { \"id\": {{existingVaccineId}} }\r\n  }\r\n]",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/vaccination-records",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "vaccination-records"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "[\n  {\n    \"id\": 100,\n    \"applicationDate\": \"{{today}}\",\n    \"nextDueDate\": \"{{nextMonth}}\",\n    \"pet\": { \"id\": {{existingPetId}} },\n    \"vaccine\": { \"id\": {{existingVaccineId}} }\n  },\n  {\n    \"id\": 101,\n    \"applicationDate\": \"{{yesterday}}\",\n    \"nextDueDate\": \"{{nextMonth2}}\",\n    \"pet\": { \"id\": {{existingPetId}} },\n    \"vaccine\": { \"id\": {{existingVaccineId}} }\n  }\n]"
+            }
+          ]
+        },
+        {
+          "name": "GET - Vaccination Record by ID (success)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vaccination-records/{{recordId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vaccination-records",
+                "{{recordId}}"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK - single example",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"id\": {{recordId}},\r\n  \"applicationDate\": \"{{today}}\",\r\n  \"nextDueDate\": \"{{nextMonth}}\",\r\n  \"pet\": { \"id\": {{existingPetId}} },\r\n  \"vaccine\": { \"id\": {{existingVaccineId}} }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/vaccination-records/{{recordId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "vaccination-records",
+                    "{{recordId}}"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"id\": {{recordId}},\n  \"applicationDate\": \"{{today}}\",\n  \"nextDueDate\": \"{{nextMonth}}\",\n  \"pet\": { \"id\": {{existingPetId}} },\n  \"vaccine\": { \"id\": {{existingVaccineId}} }\n}"
+            }
+          ]
+        },
+        {
+          "name": "GET - Vaccination Record by ID (not found)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vaccination-records/9999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vaccination-records",
+                "9999"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "404 Not Found - example",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"apierror\": {\r\n    \"status\": \"NOT_FOUND\",\r\n    \"message\": \"VaccinationRecord not found\",\r\n    \"timestamp\": \"2026-03-29T00:00:00\"\r\n  }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/vaccination-records/9999",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "vaccination-records",
+                    "9999"
+                  ]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"apierror\": {\n    \"status\": \"NOT_FOUND\",\n    \"message\": \"VaccinationRecord not found\",\n    \"timestamp\": \"2026-03-29T00:00:00\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "UPDATE - Success",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"applicationDate\": \"{{today}}\",\n  \"nextDueDate\": \"{{nextMonth}}\",\n  \"pet\": { \"id\": {{existingPetId}} },\n  \"vaccine\": { \"id\": {{existingVaccineId}} }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/vaccination-records/{{recordId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vaccination-records",
+                "{{recordId}}"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK - updated",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"id\": {{recordId}},\r\n  \"applicationDate\": \"{{today}}\",\r\n  \"nextDueDate\": \"{{nextMonth}}\",\r\n  \"pet\": { \"id\": {{existingPetId}} },\r\n  \"vaccine\": { \"id\": {{existingVaccineId}} }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/vaccination-records/{{recordId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "vaccination-records",
+                    "{{recordId}}"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"id\": {{recordId}},\n  \"applicationDate\": \"{{today}}\",\n  \"nextDueDate\": \"{{nextMonth}}\",\n  \"pet\": { \"id\": {{existingPetId}} },\n  \"vaccine\": { \"id\": {{existingVaccineId}} }\n}"
+            }
+          ]
+        },
+        {
+          "name": "UPDATE - Not Found",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"applicationDate\": \"{{today}}\",\n  \"nextDueDate\": \"{{nextMonth}}\",\n  \"pet\": { \"id\": {{existingPetId}} },\n  \"vaccine\": { \"id\": {{existingVaccineId}} }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/vaccination-records/9999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vaccination-records",
+                "9999"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "404 Not Found - update target missing",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"apierror\": {\r\n    \"status\": \"NOT_FOUND\",\r\n    \"message\": \"VaccinationRecord to update not found\",\r\n    \"timestamp\": \"2026-03-29T00:00:00\"\r\n  }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/vaccination-records/9999",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "vaccination-records",
+                    "9999"
+                  ]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"apierror\": {\n    \"status\": \"NOT_FOUND\",\n    \"message\": \"VaccinationRecord to update not found\",\n    \"timestamp\": \"2026-03-29T00:00:00\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "UPDATE - Fail (future applicationDate)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"applicationDate\": \"{{futureDate}}\",\n  \"nextDueDate\": \"{{futureNext}}\",\n  \"pet\": { \"id\": {{existingPetId}} },\n  \"vaccine\": { \"id\": {{existingVaccineId}} }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/vaccination-records/{{recordId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vaccination-records",
+                "{{recordId}}"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "412 Precondition Failed - future date on update",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"apierror\": {\r\n    \"status\": \"PRECONDITION_FAILED\",\r\n    \"message\": \"Application date cannot be in the future\",\r\n    \"timestamp\": \"2026-03-29T00:00:00\"\r\n  }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/vaccination-records/{{recordId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "vaccination-records",
+                    "{{recordId}}"
+                  ]
+                }
+              },
+              "status": "Precondition Failed",
+              "code": 412,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"apierror\": {\n    \"status\": \"PRECONDITION_FAILED\",\n    \"message\": \"Application date cannot be in the future\",\n    \"timestamp\": \"2026-03-29T00:00:00\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "UPDATE - Fail (nextDue before applicationDate)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"applicationDate\": \"{{today}}\",\n  \"nextDueDate\": \"{{yesterday}}\",\n  \"pet\": { \"id\": {{existingPetId}} },\n  \"vaccine\": { \"id\": {{existingVaccineId}} }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/vaccination-records/{{recordId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vaccination-records",
+                "{{recordId}}"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "412 Precondition Failed - nextDue before application on update",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"apierror\": {\r\n    \"status\": \"PRECONDITION_FAILED\",\r\n    \"message\": \"Next due date must be after application date\",\r\n    \"timestamp\": \"2026-03-29T00:00:00\"\r\n  }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/vaccination-records/{{recordId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "vaccination-records",
+                    "{{recordId}}"
+                  ]
+                }
+              },
+              "status": "Precondition Failed",
+              "code": 412,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"apierror\": {\n    \"status\": \"PRECONDITION_FAILED\",\n    \"message\": \"Next due date must be after application date\",\n    \"timestamp\": \"2026-03-29T00:00:00\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "DELETE - Success",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vaccination-records/{{recordIdToDelete}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vaccination-records",
+                "{{recordIdToDelete}}"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "204 No Content - deleted",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/vaccination-records/{{recordIdToDelete}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "vaccination-records",
+                    "{{recordIdToDelete}}"
+                  ]
+                }
+              },
+              "status": "No Content",
+              "code": 204,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": ""
+            }
+          ]
+        },
+        {
+          "name": "DELETE - Not Found",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vaccination-records/9999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vaccination-records",
+                "9999"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "404 Not Found - delete missing",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"apierror\": {\r\n    \"status\": \"NOT_FOUND\",\r\n    \"message\": \"VaccinationRecord not found\",\r\n    \"timestamp\": \"2026-03-29T00:00:00\"\r\n  }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/vaccination-records/9999",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "vaccination-records",
+                    "9999"
+                  ]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"apierror\": {\n    \"status\": \"NOT_FOUND\",\n    \"message\": \"VaccinationRecord not found\",\n    \"timestamp\": \"2026-03-29T00:00:00\"\n  }\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080/api"
+    },
+    {
+      "key": "existingPetId",
+      "value": "1"
+    },
+    {
+      "key": "existingVaccineId",
+      "value": "1"
+    },
+    {
+      "key": "recordId",
+      "value": "100"
+    },
+    {
+      "key": "recordIdToDelete",
+      "value": "101"
+    },
+    {
+      "key": "today",
+      "value": "2026-03-29"
+    },
+    {
+      "key": "nextMonth",
+      "value": "2026-04-29"
+    },
+    {
+      "key": "nextMonth2",
+      "value": "2026-04-28"
+    },
+    {
+      "key": "yesterday",
+      "value": "2026-03-28"
+    },
+    {
+      "key": "futureDate",
+      "value": "2099-01-01"
+    },
+    {
+      "key": "futureNext",
+      "value": "2099-02-01"
+    }
+  ]
+}
