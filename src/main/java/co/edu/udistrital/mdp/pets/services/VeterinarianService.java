@@ -56,7 +56,7 @@ public class VeterinarianService extends UserService {
 	@Override
 	protected void validateDeletion(Long userId) throws EntityNotFoundException, IllegalOperationException {
         VeterinarianEntity vet = (VeterinarianEntity) userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.USER_NOT_FOUND));
+			.orElseThrow(() -> new EntityNotFoundException(ErrorMessage.USER_NOT_FOUND));
 
         //  seguimientos post-adopcion (AdoptionFollowUp)
         if (vet.getAdoptionFollowUps() != null && !vet.getAdoptionFollowUps().isEmpty()) {

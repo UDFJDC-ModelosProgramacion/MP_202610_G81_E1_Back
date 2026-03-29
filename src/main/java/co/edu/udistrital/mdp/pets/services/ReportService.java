@@ -8,10 +8,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import co.edu.udistrital.mdp.pets.entities.ReportEntity;
+import co.edu.udistrital.mdp.pets.entities.ReportStrategyEntity;
 import co.edu.udistrital.mdp.pets.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.pets.exceptions.ErrorMessage;
 import co.edu.udistrital.mdp.pets.exceptions.IllegalOperationException;
 import co.edu.udistrital.mdp.pets.repositories.ReportRepository;
+import co.edu.udistrital.mdp.pets.repositories.ReportStrategyRepository;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -20,6 +22,9 @@ public class ReportService {
 
     @Autowired
     private ReportRepository repository;
+
+    @Autowired
+    private ReportStrategyRepository strategyRepository; // Inyección necesaria
 
     private void validateForCreate(ReportEntity report) throws IllegalOperationException {
         if (report == null) {
@@ -37,8 +42,33 @@ public class ReportService {
     public ReportEntity createReport(ReportEntity report) throws IllegalOperationException {
         log.info("Creando reporte");
         validateForCreate(report);
+        
         report.setGenerateDate(LocalDate.now());
         report.setStatus(ReportEntity.Status.PENDING);
+
+        // EJECUCIÓN DEL PATRÓN STRATEGY:
+        // Si el reporte ya trae una estrategia asignada, ejecutamos su lógica
+        if (report.getReportStrategy() != null) {
+            report.getReportStrategy().generate(report);
+        }
+
+        return repository.save(report);
+    }
+
+    /**
+     * Permite asignar una estrategia a un reporte existente y ejecutarla.
+     */
+    @Transactional
+    public ReportEntity assignStrategy(Long reportId, Long strategyId) 
+            throws EntityNotFoundException {
+        ReportEntity report = repository.findById(reportId)
+			.orElseThrow(() -> new EntityNotFoundException(ErrorMessage.REPORT_NOT_FOUND));
+        ReportStrategyEntity strategy = strategyRepository.findById(strategyId)
+                .orElseThrow(() -> new EntityNotFoundException("Estrategia no encontrada"));
+
+        report.setReportStrategy(strategy);
+        strategy.generate(report); // Se ejecuta la lógica polimórfica
+        
         return repository.save(report);
     }
 
@@ -82,5 +112,19 @@ public class ReportService {
     @Transactional(readOnly = true)
     public List<ReportEntity> findByReportStrategy(co.edu.udistrital.mdp.pets.entities.ReportStrategyEntity strategy) {
         return repository.findByReportStrategy(strategy);
+    }
+
+	/**
+     * Elimina un reporte del sistema.
+     * @param id Identificador del reporte a eliminar.
+     * @throws EntityNotFoundException Si el reporte no existe.
+     */
+    @Transactional
+    public void deleteReport(Long id) throws EntityNotFoundException {
+        log.info("Eliminando reporte con id: {}", id);
+        ReportEntity report = repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.REPORT_NOT_FOUND));
+        
+        repository.delete(report);
     }
 }

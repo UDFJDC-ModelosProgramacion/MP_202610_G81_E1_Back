@@ -9,10 +9,10 @@ import lombok.EqualsAndHashCode;
 @Entity
 @EqualsAndHashCode(callSuper = true)
 @DiscriminatorValue("MEDICAL")
-public class MedicalClearanceStrategyEntity extends  ApprovalStrategyEntity{
+public class MedicalEventReportStrategyEntity extends ReportStrategyEntity {
+
     @Override
-    public boolean evaluate(AdoptionRequestEntity request) {
-        // Revisar estado de salud/vacunas de la mascota
-        return true; 
+    public void generate(ReportEntity report) {
+        // Implementar lógica específica para reportes médicos
     }
 }

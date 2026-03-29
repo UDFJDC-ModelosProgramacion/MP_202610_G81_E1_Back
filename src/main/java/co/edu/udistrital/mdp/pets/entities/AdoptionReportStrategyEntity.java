@@ -8,11 +8,11 @@ import lombok.EqualsAndHashCode;
 @Data
 @Entity
 @EqualsAndHashCode(callSuper = true)
-@DiscriminatorValue("MEDICAL")
-public class MedicalClearanceStrategyEntity extends  ApprovalStrategyEntity{
+@DiscriminatorValue("ADOPTION")
+public class AdoptionReportStrategyEntity extends ReportStrategyEntity {
+
     @Override
-    public boolean evaluate(AdoptionRequestEntity request) {
-        // Revisar estado de salud/vacunas de la mascota
-        return true; 
+    public void generate(ReportEntity report) {
+        // Implementar lógica específica para reportes de adopción
     }
 }

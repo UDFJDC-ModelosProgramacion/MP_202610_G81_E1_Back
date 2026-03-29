@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import co.edu.udistrital.mdp.pets.entities.NotificationEntity;
 import co.edu.udistrital.mdp.pets.entities.UserEntity;
 import co.edu.udistrital.mdp.pets.repositories.UserRepository;
 import co.edu.udistrital.mdp.pets.exceptions.EntityNotFoundException;
@@ -26,7 +27,34 @@ public abstract class UserService {
 	// LOS HIJOS IMPLEMENTAN SU LOGICA EN ESTE METODO ABSTRACTO
 	protected abstract void validateDeletion(Long userId) throws EntityNotFoundException, IllegalOperationException;
     
-	
+	/**
+     * Obtiene todas las notificaciones de un usuario específico.
+     */
+    @Transactional(readOnly = true)
+    public List<NotificationEntity> getNotifications(Long userId) throws EntityNotFoundException {
+        UserEntity user = userRepository.findById(userId)
+    		.orElseThrow(() -> new EntityNotFoundException(ErrorMessage.USER_NOT_FOUND));
+        return user.getNotifications();
+    }
+
+    /**
+     * Marca una notificación como leída.
+     */
+    @Transactional
+    public void markNotificationAsRead(Long userId, Long notificationId) throws EntityNotFoundException {
+        UserEntity user = userRepository.findById(userId)
+			.orElseThrow(() -> new EntityNotFoundException(ErrorMessage.USER_NOT_FOUND));
+        
+        // Buscamos la notificación dentro de la lista del usuario
+        NotificationEntity notification = user.getNotifications().stream()
+                .filter(n -> n.getId().equals(notificationId))
+                .findFirst()
+                .orElseThrow(() -> new EntityNotFoundException("Notification not found for this user"));
+
+        notification.setIsRead(true);
+        userRepository.save(user);
+    }
+
 	/**
 	 * Valida los datos basicos de un usuario 
 	 */
