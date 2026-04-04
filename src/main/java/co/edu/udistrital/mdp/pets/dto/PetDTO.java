@@ -2,12 +2,14 @@ package co.edu.udistrital.mdp.pets.dto;
 
 import co.edu.udistrital.mdp.pets.enums.PetStatus;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * DTO for list representations of a Pet.
  * Focuses on performance and essential information.
  */
 @Data
+@NoArgsConstructor
 public class PetDTO extends BaseDTO {
     private String name;
     private String species;
