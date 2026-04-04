@@ -10,7 +10,15 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class ApplicationConfig {
 	@Bean
 	public ModelMapper modelMapper() {
-		return new ModelMapper();
+		ModelMapper modelMapper = new ModelMapper();
+		modelMapper.getConfiguration()
+			.setSkipNullEnabled(true)
+			.setAmbiguityIgnored(true)
+			.setFieldMatchingEnabled(false)
+			.setMethodAccessLevel(org.modelmapper.config.Configuration.AccessLevel.PUBLIC)
+			.setFieldAccessLevel(org.modelmapper.config.Configuration.AccessLevel.PRIVATE);
+			
+		return modelMapper;
 	}
 
 	@Bean
