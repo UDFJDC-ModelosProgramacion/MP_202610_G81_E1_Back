@@ -1,5 +1,7 @@
 package co.edu.udistrital.mdp.pets.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Data;
 
 /**
@@ -12,6 +14,6 @@ public abstract class UserDTO extends BaseDTO{
     private String email;
     private String phone;
     
-    // CRITICAL: Notice there is NO password field here.
-    // We never expose the password in a GET or PUT response.
+	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private String password;
 }
