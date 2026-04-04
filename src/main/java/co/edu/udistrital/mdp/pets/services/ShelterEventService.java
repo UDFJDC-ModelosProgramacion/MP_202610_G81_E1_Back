@@ -89,7 +89,6 @@ public class ShelterEventService {
         existing.setDate(updatedData.getDate());
         existing.setLocation(updatedData.getLocation());
         existing.setDescription(updatedData.getDescription());
-        // El estado solo debería cambiarse vía finishEvent para mayor control, 
 
         return shelterEventRepository.save(existing);
     }
@@ -102,8 +101,6 @@ public class ShelterEventService {
         ShelterEventEntity event = shelterEventRepository.findById(eventId)
                 .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.SHELTER_EVENT_NOT_FOUND));
 
-        // Regla de negocio: Si ya terminó, es historia y no se debería borrar 
-        // Tu lógica decía que SOLO se borran los terminados. La mantengo, pero ojo con eso.
         if (event.getStatus() != ProcessStatus.COMPLETED) {
             throw new IllegalOperationException(
                     "Cannot delete a shelter event that is not finished yet");
