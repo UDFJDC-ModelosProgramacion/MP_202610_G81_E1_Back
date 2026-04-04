@@ -11,3 +11,5 @@ no se si los IDE's solucionen esto internamente
 
 Si les pasa lo mismo que a mi recomiendo modificiar el pom para que surefire este en la version
 3.2.5 pero no guardar estos cambios a la rama principal.
+
+si
