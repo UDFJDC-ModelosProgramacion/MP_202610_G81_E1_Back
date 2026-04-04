@@ -12,10 +12,4 @@ import java.util.ArrayList;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class PetDetailDTO extends PetDTO {
-
-    private List<ReviewDTO> reviews = new ArrayList<>();
-    private List<AdoptionDTO> adoptions = new ArrayList<>();
-    private List<AdoptionRequestDTO> adoptionRequests = new ArrayList<>();
-    private List<AdoptionFollowUpDTO> followUps = new ArrayList<>();
-    private List<TrialCohabitationDTO> trials = new ArrayList<>();
 }
