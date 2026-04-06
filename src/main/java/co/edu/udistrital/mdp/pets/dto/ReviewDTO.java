@@ -2,12 +2,12 @@ package co.edu.udistrital.mdp.pets.dto;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.time.LocalDate;
 
-/**
- * llenar :) 
- */
 @Data
 @NoArgsConstructor
 public class ReviewDTO extends BaseDTO {
-	// llenar :)
+    private Integer rating;
+    private String comment;
+    private LocalDate date;
 }
