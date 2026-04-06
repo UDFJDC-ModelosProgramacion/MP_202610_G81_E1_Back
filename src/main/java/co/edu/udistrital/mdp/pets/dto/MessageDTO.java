@@ -6,8 +6,8 @@ import java.util.Date;
 
 @Data
 @NoArgsConstructor
-public class NotificationDTO extends BaseDTO {
-    private String message;
-    private Date date;
+public class MessageDTO extends BaseDTO {
+    private String content;
+    private Date timestamp;
     private Boolean isRead;
 }
