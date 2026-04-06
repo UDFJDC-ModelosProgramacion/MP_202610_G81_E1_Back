@@ -23,7 +23,8 @@ public final class ErrorMessage {
     public static final String REPORT_NOT_FOUND = "The report does not exist.";
     public static final String REPORT_REASON_EMPTY = "The reason for the report cannot be empty.";
     public static final String REPORT_REPORTED_USER_REQUIRED = "The report must indicate the reported user.";
-    public static final String REPORT_PERMISSION_DENIED = "You do not have permission to change the report status.";
+    public static final String REPORT_STRATEGY_NOT_FOUND = "The report type not found.";
+	public static final String REPORT_PERMISSION_DENIED = "You do not have permission to change the report status.";
     public static final String ADOPTION_FOLLOWUP_NOT_FOUND = "Adoption follow-up does not exist.";
     public static final String ADOPTION_NOT_COMPLETED = "Tracking cannot be created: adoption is not complete.";
     public static final String FOLLOWUP_DATE_REQUIRED = "The follow-up date is required.";

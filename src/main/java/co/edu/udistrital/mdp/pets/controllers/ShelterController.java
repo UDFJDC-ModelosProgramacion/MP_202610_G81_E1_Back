@@ -2,7 +2,9 @@ package co.edu.udistrital.mdp.pets.controllers;
 
 import co.edu.udistrital.mdp.pets.dto.ShelterDTO;
 import co.edu.udistrital.mdp.pets.dto.ShelterDetailDTO;
+import co.edu.udistrital.mdp.pets.dto.MessageDTO;
 import co.edu.udistrital.mdp.pets.dto.PetDTO;
+import co.edu.udistrital.mdp.pets.dto.ReportDTO;
 import co.edu.udistrital.mdp.pets.dto.ShelterEventDTO;
 import co.edu.udistrital.mdp.pets.dto.VeterinarianDTO;
 import co.edu.udistrital.mdp.pets.entities.ShelterEntity;
@@ -83,6 +85,29 @@ public class ShelterController {
     public void subscribe(@PathVariable Long id, @PathVariable Long userId) throws EntityNotFoundException {
         shelterService.subscribeUser(id, userId);
     }
+
+	/**
+     * Obtiene los reportes asociados a un refugio.
+     * Acceso: Generalmente restringido a Admin del refugio.
+     */
+    @GetMapping("/{id}/reports")
+    @ResponseStatus(HttpStatus.OK)
+    public List<ReportDTO> getReports(@PathVariable Long id) throws EntityNotFoundException {
+        ShelterEntity shelter = shelterService.getShelter(id);
+        return modelMapper.map(shelter.getReports(), new TypeToken<List<ReportDTO>>() {}.getType());
+    }
+
+    /**
+     * Obtiene los mensajes (buzón) de un refugio.
+     * Acceso: Solo personal autorizado del refugio.
+     */
+    @GetMapping("/{id}/messages")
+    @ResponseStatus(HttpStatus.OK)
+    public List<MessageDTO> getMessages(@PathVariable Long id) throws EntityNotFoundException {
+        ShelterEntity shelter = shelterService.getShelter(id);
+        return modelMapper.map(shelter.getMessages(), new TypeToken<List<MessageDTO>>() {}.getType());
+    }
+
 
 	@PostMapping(value = "/{id}/notifications")
 	@ResponseStatus(code = HttpStatus.ACCEPTED)

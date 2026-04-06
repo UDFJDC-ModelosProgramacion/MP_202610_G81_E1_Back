@@ -5,7 +5,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Data
-@EqualsAndHashCode(callSuper = true) // use in inheritance
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
-public class VeterinarianDetailDTO extends VeterinarianDTO {
+public class AdoptionFollowUpDetailDTO extends AdoptionFollowUpDTO {
 }

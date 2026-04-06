@@ -1,5 +1,7 @@
 package co.edu.udistrital.mdp.pets.dto;
 
+import java.time.LocalDate;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,6 +11,11 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class AdoptionFollowUpDTO extends BaseDTO {
-	// llenar :)
+	private String frequency;
+    private String notes;
+    private LocalDate followUpDate;
+	private VeterinarianDTO veterinarian;
+    private AdoptionDTO adoption;
+    private PetDTO pet;
 }
 
