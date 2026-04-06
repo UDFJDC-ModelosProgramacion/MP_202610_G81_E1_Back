@@ -20,4 +20,6 @@ public class AdopterDetailDTO extends AdopterDTO {
 
     /** List of adoption requests submitted by this adopter. */
     private List<AdoptionRequestDTO> adoptionRequests;
+
+
 }
