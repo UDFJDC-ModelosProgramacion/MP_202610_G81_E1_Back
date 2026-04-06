@@ -1,11 +1,541 @@
 {
   "info": {
-    "_postman_id": "5b5dfd35-a321-42f1-954d-76d3ae38718c",
+    "_postman_id": "c914af52-b799-4412-82a4-e3d3532fbcb4",
     "name": "pets collection",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "53551118"
+    "_exporter_id": "50397886",
+    "_collection_link": "https://go.postman.co/collection/50397886-c914af52-b799-4412-82a4-e3d3532fbcb4?source=collection_link"
   },
   "item": [
+    {
+      "name": "Flujo",
+      "item": [
+        {
+          "name": "1 - Configurar ecosistema",
+          "item": [
+            {
+              "name": "Create a shelter Copy",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Refugio Patitas Felices\",\n  \"city\": \"Bogota\",\n  \"description\": \"Refugio dedicado al rescate de perros y gatos abandonados\",\n  \"email\": \"patitasfelices@gmail.com\",\n  \"gallery\": \"https://imagenes.com/refugio1\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseURL}}/shelters",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "shelters"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Create a vet Copy",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Dr. Carlos Rodríguez\",\n  \"email\": \"carlos.vet@ejemplo.com\",\n  \"phone\": \"3105551234\",\n  \"password\": \"miPasswordSeguro123\",\n  \"specialty\": \"Cirugía Veterinaria\",\n    \"shelter\": {\n        \"id\": 1 \n    },\n  \"availability\": \"Lunes a Viernes de 8:00 AM a 5:00 PM\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseURL}}/veterinarians",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "veterinarians"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Create a Vacune Copy",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Rabies\",\n  \"description\": \"null\",\n  \"validityMonths\": 11\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseURL}}/vaccines",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "vaccines"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "2 - Mascota",
+          "item": [
+            {
+              "name": "Create a pet Copy",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"name\": \"Firulais3\",\n    \"species\": \"Perro\",\n    \"breed\": \"Labrador Retriever\",\n    \"age\": 3,\n    \"sex\": \"Macho\",\n    \"size\": \"Grande\",\n    \"photos\": \"https://images.com/firulais.jpg\",\n    \"temperament\": \"Juguetón y muy sociable\",\n    \"specialNeeds\": \"Ninguna\",\n    \"description\": \"Un perro muy activo que busca una familia con espacio.\",\n    \"activityLevel\": \"Alto\",\n    \"origin\": \"Rescatado de la calle\",\n    \"goodWithKids\": true,\n    \"goodWithPets\": true,\n    \"spaceRequired\": \"HOUSE\",\n    \"shelter\": {\n        \"id\": 1 \n    },\n    \"status\": \"AVAILABLE\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseURL}}/pets",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "pets"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Create a Medical Event Copy",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"eventDate\": \"2026-04-04\",\r\n  \"description\": \"Vacunación anual\",\r\n  \"notes\": \"Vacuna antirrábica aplicada\",\r\n  \"medicalHistory\": {\r\n    \"id\": 1\r\n  }\r\n}\r\n",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseURL}}/medical-events",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "medical-events"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Create a Vaccination Record Copy",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"applicationDate\": \"2026-04-04\",\n  \"nextDueDate\": \"2026-05-04\",\n  \"pet\": { \n    \"id\": 1 \n  },\n  \"vaccine\": { \n    \"id\": 1 \n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseURL}}/vaccination-records",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "vaccination-records"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "3 - Adoptador y estrategia",
+          "item": [
+            {
+              "name": "Create Adopter Copy",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"María García López\",\n  \"email\": \"maria.garcia@ejemplo.com\",\n  \"phone\": \"3101234567\",\n  \"password\": \"Password123\",\n  \"housingType\": \"HOUSE\",\n  \"hasChildren\": true,\n  \"hasOtherPets\": false\n}"
+                },
+                "url": {
+                  "raw": "{{baseURL}}/adopters",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "adopters"
+                  ]
+                },
+                "description": "Crea un nuevo adoptante. El ID se guarda automáticamente en la variable 'adopterId'."
+              },
+              "response": []
+            },
+            {
+              "name": "Create a scored-based Copy",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseURL}}/approval-strategies?type=SCORE",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "approval-strategies"
+                  ],
+                  "query": [
+                    {
+                      "key": "type",
+                      "value": "SCORE"
+                    }
+                  ]
+                },
+                "description": "Crea la estrategia que usará el sistema para evaluar la solicitud."
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "4 - Pedir adopcion",
+          "item": [
+            {
+              "name": "Create a request Copy",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"requestDate\": \"2026-04-05\",\n    \"status\": \"PENDING\",\n    \"adopterId\": 2,\n    \"petId\" : 1,\n    \"approvalStrategyId\": 1\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseURL}}/adoption-requests",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "adoption-requests"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Approve a request Copy",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseURL}}/adoption-requests/1/evaluate/1",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "adoption-requests",
+                    "1",
+                    "evaluate",
+                    "1"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get a pet with ID Copy",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseURL}}/pets/1",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "pets",
+                    "1"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "5- Prueba de Convivencia",
+          "item": [
+            {
+              "name": "Create a trial IN_PROGRESS",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"startDate\": \"2026-04-06\",\n    \"endDate\": \"2026-04-20\",\n    \"result\": \"EN_PROCESO\",\n    \"petId\": 1,\n    \"adopterId\": 2\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseURL}}/trial-cohabitations",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "trial-cohabitations"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Complete Trial ⚡ (enables Adoption finalization) Copy",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"result\": \"EXITOSA\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseURL}}/trial-cohabitations/1",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "trial-cohabitations",
+                    "1"
+                  ]
+                },
+                "description": "⚡ PASO CLAVE: Marca el TrialCohabitation como COMPLETED con un resultado.\n\nDespués de este paso, la adopción SÍ puede finalizarse con POST /adoptions/:id/finalize\n\nSi no se envía endDate, el sistema lo asigna automáticamente a la fecha actual."
+              },
+              "response": []
+            },
+            {
+              "name": "Get a trial by ID",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseURL}}/trial-cohabitations/1",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "trial-cohabitations",
+                    "1"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "6 - Adopcion completada",
+          "item": [
+            {
+              "name": "Create Adoption Copy",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"adoptionDate\": \"2026-04-06\",\n    \"status\": \"COMPLETED\",\n    \"adopterId\": 2,\n    \"petId\": 1\n}"
+                },
+                "url": {
+                  "raw": "{{baseURL}}/adoptions",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "adoptions"
+                  ]
+                },
+                "description": "Crea una nueva adopción. Estado inicial: CREATED. Requiere que el adopterId exista."
+              },
+              "response": []
+            },
+            {
+              "name": "Create a follow-up Copy",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"followUpDate\": \"2026-04-06\",\n    \"notes\": \"La mascota está perfecta, ya se adaptó al sofá.\",\n    \"frequency\": \"MENSUAL\",\n    \"adoption\": {\n        \"id\": 1,\n        \"status\": \"COMPLETED\"\n    },\n    \"veterinarian\": {\n        \"id\": 1\n    },\n    \"pet\": {\n        \"id\": 1\n    }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseURL}}/follow-ups",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "follow-ups"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Create a review Copy",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"rating\": 5,\n    \"comment\": \"Excelente proceso de adopción, muy profesionales\",\n    \"date\": \"2026-04-01\",\n    \"adopter\": { \"id\": 2 },\n    \"pet\": { \"id\": 1 }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseURL}}/reviews",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "reviews"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
     {
       "name": "Vaccine",
       "item": [
@@ -20,6 +550,15 @@
                 "type": "text"
               }
             ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Rabies\",\n  \"description\": \"null\",\n  \"validityMonths\": 11\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
             "url": {
               "raw": "{{baseURL}}/vaccines",
               "host": [
@@ -63,7 +602,7 @@
               },
               "status": "Created",
               "code": 201,
-              "_postman_previewlanguage": "",
+              "_postman_previewlanguage": "Text",
               "header": [],
               "cookie": [
                 {
@@ -106,10 +645,10 @@
               },
               "status": "Precondition Failed",
               "code": 412,
-              "_postman_previewlanguage": null,
-              "header": null,
+              "_postman_previewlanguage": "Text",
+              "header": [],
               "cookie": [],
-              "body": null
+              "body": ""
             },
             {
               "name": "Error - Months null",
@@ -143,10 +682,10 @@
               },
               "status": "Precondition Failed",
               "code": 412,
-              "_postman_previewlanguage": null,
-              "header": null,
+              "_postman_previewlanguage": "Text",
+              "header": [],
               "cookie": [],
-              "body": null
+              "body": ""
             }
           ]
         },
@@ -183,15 +722,6 @@
                     "type": "text"
                   }
                 ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "[\r\n  { \"id\": 1, \"name\": \"InitialVaccine\", \"validityMonths\": 12 },\r\n  { \"id\": 2, \"name\": \"Rabies\", \"validityMonths\": 12 }\r\n]",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
                 "url": {
                   "raw": "{{baseURL}}/vaccines",
                   "host": [
@@ -204,7 +734,7 @@
               },
               "status": "OK",
               "code": 200,
-              "_postman_previewlanguage": "",
+              "_postman_previewlanguage": "Text",
               "header": [],
               "cookie": [
                 {
@@ -263,15 +793,6 @@
                     "type": "text"
                   }
                 ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\r\n  \"id\": 1,\r\n  \"name\": \"InitialVaccine\",\r\n  \"validityMonths\": 12\r\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
                 "url": {
                   "raw": "{{baseURL}}/vaccines/{{vaccineId}}",
                   "host": [
@@ -285,7 +806,7 @@
               },
               "status": "OK",
               "code": 200,
-              "_postman_previewlanguage": "",
+              "_postman_previewlanguage": "Text",
               "header": [],
               "cookie": [
                 {
@@ -307,15 +828,6 @@
                     "type": "text"
                   }
                 ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\r\n  \"apierror\": {\r\n    \"status\": \"NOT_FOUND\",\r\n    \"message\": \"Vaccine with id 999999 not found\",\r\n    \"timestamp\": \"2026-04-04T21:13:00\"\r\n  }\r\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
                 "url": {
                   "raw": "{{baseURL}}/vaccines/{{vaccineId}}",
                   "host": [
@@ -329,10 +841,10 @@
               },
               "status": "Not Found",
               "code": 404,
-              "_postman_previewlanguage": null,
-              "header": null,
+              "_postman_previewlanguage": "Text",
+              "header": [],
               "cookie": [],
-              "body": null
+              "body": ""
             }
           ]
         },
@@ -392,7 +904,7 @@
               },
               "status": "OK",
               "code": 200,
-              "_postman_previewlanguage": "",
+              "_postman_previewlanguage": "Text",
               "header": [],
               "cookie": [
                 {
@@ -436,10 +948,10 @@
               },
               "status": "Not Found",
               "code": 404,
-              "_postman_previewlanguage": null,
-              "header": null,
+              "_postman_previewlanguage": "Text",
+              "header": [],
               "cookie": [],
-              "body": null
+              "body": ""
             },
             {
               "name": "Error - Name Null",
@@ -474,10 +986,10 @@
               },
               "status": "Precondition Failed",
               "code": 412,
-              "_postman_previewlanguage": null,
-              "header": null,
+              "_postman_previewlanguage": "Text",
+              "header": [],
               "cookie": [],
-              "body": null
+              "body": ""
             },
             {
               "name": "Error - Months Null",
@@ -512,10 +1024,10 @@
               },
               "status": "Precondition Failed",
               "code": 412,
-              "_postman_previewlanguage": null,
-              "header": null,
+              "_postman_previewlanguage": "Text",
+              "header": [],
               "cookie": [],
-              "body": null
+              "body": ""
             }
           ]
         },
@@ -566,7 +1078,7 @@
               },
               "status": "No Content",
               "code": 204,
-              "_postman_previewlanguage": "",
+              "_postman_previewlanguage": "Text",
               "header": [],
               "cookie": [
                 {
@@ -610,10 +1122,10 @@
               },
               "status": "Not Found",
               "code": 404,
-              "_postman_previewlanguage": null,
-              "header": null,
+              "_postman_previewlanguage": "Text",
+              "header": [],
               "cookie": [],
-              "body": null
+              "body": ""
             }
           ]
         }
@@ -633,6 +1145,15 @@
                 "type": "text"
               }
             ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"applicationDate\": \"2026-04-04\",\n  \"nextDueDate\": \"2026-05-04\",\n  \"pet\": { \"id\": 1 },\n  \"vaccine\": { \"id\": 1 }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
             "url": {
               "raw": "{{baseURL}}/vaccination-records",
               "host": [
@@ -676,10 +1197,10 @@
               },
               "status": "Created",
               "code": 201,
-              "_postman_previewlanguage": null,
-              "header": null,
+              "_postman_previewlanguage": "Text",
+              "header": [],
               "cookie": [],
-              "body": null
+              "body": ""
             },
             {
               "name": "Error - Date null",
@@ -713,10 +1234,10 @@
               },
               "status": "Precondition Failed",
               "code": 412,
-              "_postman_previewlanguage": null,
-              "header": null,
+              "_postman_previewlanguage": "Text",
+              "header": [],
               "cookie": [],
-              "body": null
+              "body": ""
             },
             {
               "name": "Error - Due Date Null",
@@ -750,10 +1271,10 @@
               },
               "status": "Precondition Failed",
               "code": 412,
-              "_postman_previewlanguage": null,
-              "header": null,
+              "_postman_previewlanguage": "Text",
+              "header": [],
               "cookie": [],
-              "body": null
+              "body": ""
             },
             {
               "name": "Error - Date Future Fails",
@@ -787,10 +1308,10 @@
               },
               "status": "Precondition Failed",
               "code": 412,
-              "_postman_previewlanguage": null,
-              "header": null,
+              "_postman_previewlanguage": "Text",
+              "header": [],
               "cookie": [],
-              "body": null
+              "body": ""
             },
             {
               "name": "Error - DueDate Fails",
@@ -824,10 +1345,10 @@
               },
               "status": "Precondition Failed",
               "code": 412,
-              "_postman_previewlanguage": null,
-              "header": null,
+              "_postman_previewlanguage": "Text",
+              "header": [],
               "cookie": [],
-              "body": null
+              "body": ""
             },
             {
               "name": "Error - Pet Null",
@@ -861,10 +1382,10 @@
               },
               "status": "Precondition Failed",
               "code": 412,
-              "_postman_previewlanguage": null,
-              "header": null,
+              "_postman_previewlanguage": "Text",
+              "header": [],
               "cookie": [],
-              "body": null
+              "body": ""
             },
             {
               "name": "Error - Vaccine null",
@@ -898,10 +1419,10 @@
               },
               "status": "Precondition Failed",
               "code": 412,
-              "_postman_previewlanguage": null,
-              "header": null,
+              "_postman_previewlanguage": "Text",
+              "header": [],
               "cookie": [],
-              "body": null
+              "body": ""
             },
             {
               "name": "Error - Body Null",
@@ -935,10 +1456,10 @@
               },
               "status": "Bad Request",
               "code": 400,
-              "_postman_previewlanguage": null,
-              "header": null,
+              "_postman_previewlanguage": "Text",
+              "header": [],
               "cookie": [],
-              "body": null
+              "body": ""
             }
           ]
         },
@@ -975,15 +1496,6 @@
                     "type": "text"
                   }
                 ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "[\r\n  {\r\n    \"id\": 301,\r\n    \"applicationDate\": \"2026-03-30\",\r\n    \"nextDueDate\": \"2026-04-30\",\r\n    \"pet\": { \"id\": 11 },\r\n    \"vaccine\": { \"id\": 2 }\r\n  },\r\n  {\r\n    \"id\": 302,\r\n    \"applicationDate\": \"2026-03-29\",\r\n    \"nextDueDate\": \"2026-04-29\",\r\n    \"pet\": { \"id\": 12 },\r\n    \"vaccine\": { \"id\": 3 }\r\n  }\r\n]",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
                 "url": {
                   "raw": "{{baseURL}}/vaccination-records",
                   "host": [
@@ -996,7 +1508,7 @@
               },
               "status": "OK",
               "code": 200,
-              "_postman_previewlanguage": "",
+              "_postman_previewlanguage": "Text",
               "header": [],
               "cookie": [
                 {
@@ -1043,15 +1555,6 @@
                     "type": "text"
                   }
                 ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\r\n  \"id\": 301,\r\n  \"applicationDate\": \"2026-03-30\",\r\n  \"nextDueDate\": \"2026-04-30\",\r\n  \"pet\": { \"id\": 11 },\r\n  \"vaccine\": { \"id\": 2 }\r\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
                 "url": {
                   "raw": "GET {{baseURL}}/vaccination-records/301",
                   "host": [
@@ -1065,7 +1568,7 @@
               },
               "status": "OK",
               "code": 200,
-              "_postman_previewlanguage": "",
+              "_postman_previewlanguage": "Text",
               "header": [],
               "cookie": [
                 {
@@ -1087,15 +1590,6 @@
                     "type": "text"
                   }
                 ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\r\n  \"apierror\": {\r\n    \"status\": \"NOT_FOUND\",\r\n    \"message\": \"Vaccination record with id 9999 not found\",\r\n    \"timestamp\": \"2026-04-04T20:17:00\"\r\n  }\r\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
                 "url": {
                   "raw": "GET {{baseURL}}/vaccination-records/301",
                   "host": [
@@ -1109,10 +1603,10 @@
               },
               "status": "Not Found",
               "code": 404,
-              "_postman_previewlanguage": null,
-              "header": null,
+              "_postman_previewlanguage": "Text",
+              "header": [],
               "cookie": [],
-              "body": null
+              "body": ""
             }
           ]
         },
@@ -1172,7 +1666,7 @@
               },
               "status": "OK",
               "code": 200,
-              "_postman_previewlanguage": "",
+              "_postman_previewlanguage": "Text",
               "header": [],
               "cookie": [
                 {
@@ -1216,10 +1710,10 @@
               },
               "status": "Not Found",
               "code": 404,
-              "_postman_previewlanguage": null,
-              "header": null,
+              "_postman_previewlanguage": "Text",
+              "header": [],
               "cookie": [],
-              "body": null
+              "body": ""
             },
             {
               "name": "Error - Date Future",
@@ -1254,10 +1748,10 @@
               },
               "status": "Precondition Failed",
               "code": 412,
-              "_postman_previewlanguage": null,
-              "header": null,
+              "_postman_previewlanguage": "Text",
+              "header": [],
               "cookie": [],
-              "body": null
+              "body": ""
             },
             {
               "name": "Error - Due Date",
@@ -1292,10 +1786,10 @@
               },
               "status": "Precondition Failed",
               "code": 412,
-              "_postman_previewlanguage": null,
-              "header": null,
+              "_postman_previewlanguage": "Text",
+              "header": [],
               "cookie": [],
-              "body": null
+              "body": ""
             }
           ]
         },
@@ -1346,7 +1840,7 @@
               },
               "status": "No Content",
               "code": 204,
-              "_postman_previewlanguage": "",
+              "_postman_previewlanguage": "Text",
               "header": [],
               "cookie": [
                 {
@@ -1390,10 +1884,10 @@
               },
               "status": "Not Found",
               "code": 404,
-              "_postman_previewlanguage": null,
-              "header": null,
+              "_postman_previewlanguage": "Text",
+              "header": [],
               "cookie": [],
-              "body": null
+              "body": ""
             }
           ]
         }
@@ -1456,10 +1950,10 @@
               },
               "status": "Created",
               "code": 201,
-              "_postman_previewlanguage": null,
-              "header": null,
+              "_postman_previewlanguage": "Text",
+              "header": [],
               "cookie": [],
-              "body": null
+              "body": ""
             },
             {
               "name": "Error - Body Null",
@@ -1493,10 +1987,10 @@
               },
               "status": "Bad Request",
               "code": 400,
-              "_postman_previewlanguage": null,
-              "header": null,
+              "_postman_previewlanguage": "Text",
+              "header": [],
               "cookie": [],
-              "body": null
+              "body": ""
             },
             {
               "name": "Error - Pet Null",
@@ -1530,10 +2024,10 @@
               },
               "status": "Precondition Failed",
               "code": 412,
-              "_postman_previewlanguage": null,
-              "header": null,
+              "_postman_previewlanguage": "Text",
+              "header": [],
               "cookie": [],
-              "body": null
+              "body": ""
             },
             {
               "name": "Error - Second History Pet",
@@ -1567,10 +2061,10 @@
               },
               "status": "Precondition Failed",
               "code": 412,
-              "_postman_previewlanguage": null,
-              "header": null,
+              "_postman_previewlanguage": "Text",
+              "header": [],
               "cookie": [],
-              "body": null
+              "body": ""
             }
           ]
         },
@@ -1608,15 +2102,6 @@
                     "type": "text"
                   }
                 ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\r\n  \"id\": 101,\r\n  \"notes\": \"Initial notes 0\",\r\n  \"pet\": { \"id\": 11 }\r\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
                 "url": {
                   "raw": "{{baseURL}}/medical-histories/101",
                   "host": [
@@ -1630,7 +2115,7 @@
               },
               "status": "OK",
               "code": 200,
-              "_postman_previewlanguage": "",
+              "_postman_previewlanguage": "Text",
               "header": [],
               "cookie": [
                 {
@@ -1652,15 +2137,6 @@
                     "type": "text"
                   }
                 ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\r\n  \"apierror\": {\r\n    \"status\": \"NOT_FOUND\",\r\n    \"message\": \"Medical history with id 999999 not found\",\r\n    \"timestamp\": \"2026-04-04T20:03:00\"\r\n  }\r\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
                 "url": {
                   "raw": "{{baseURL}}/medical-histories/101",
                   "host": [
@@ -1674,10 +2150,10 @@
               },
               "status": "Not Found",
               "code": 404,
-              "_postman_previewlanguage": null,
-              "header": null,
+              "_postman_previewlanguage": "Text",
+              "header": [],
               "cookie": [],
-              "body": null
+              "body": ""
             }
           ]
         },
@@ -1746,7 +2222,7 @@
               },
               "status": "OK",
               "code": 200,
-              "_postman_previewlanguage": "",
+              "_postman_previewlanguage": "Text",
               "header": [],
               "cookie": [
                 {
@@ -1790,10 +2266,10 @@
               },
               "status": "Not Found",
               "code": 404,
-              "_postman_previewlanguage": null,
-              "header": null,
+              "_postman_previewlanguage": "Text",
+              "header": [],
               "cookie": [],
-              "body": null
+              "body": ""
             },
             {
               "name": "Error - Pet Null",
@@ -1828,10 +2304,10 @@
               },
               "status": "Precondition Failed",
               "code": 412,
-              "_postman_previewlanguage": null,
-              "header": null,
+              "_postman_previewlanguage": "Text",
+              "header": [],
               "cookie": [],
-              "body": null
+              "body": ""
             }
           ]
         },
@@ -1900,7 +2376,7 @@
               },
               "status": "No Content",
               "code": 204,
-              "_postman_previewlanguage": "",
+              "_postman_previewlanguage": "Text",
               "header": [],
               "cookie": [
                 {
@@ -1944,10 +2420,10 @@
               },
               "status": "Not Found",
               "code": 404,
-              "_postman_previewlanguage": null,
-              "header": null,
+              "_postman_previewlanguage": "Text",
+              "header": [],
               "cookie": [],
-              "body": null
+              "body": ""
             }
           ]
         },
@@ -1984,15 +2460,6 @@
                     "type": "text"
                   }
                 ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "[\r\n  { \"id\": 101, \"notes\": \"Initial notes 0\", \"pet\": { \"id\": 11 } },\r\n  { \"id\": 102, \"notes\": \"Initial notes 1\", \"pet\": { \"id\": 12 } }\r\n]",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
                 "url": {
                   "raw": "{{baseURL}}/medical-histories",
                   "host": [
@@ -2005,10 +2472,10 @@
               },
               "status": "OK",
               "code": 200,
-              "_postman_previewlanguage": null,
-              "header": null,
+              "_postman_previewlanguage": "Text",
+              "header": [],
               "cookie": [],
-              "body": null
+              "body": ""
             }
           ]
         }
@@ -2985,13 +3452,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseURL}}/pets/3",
+              "raw": "{{baseURL}}/pets/1",
               "host": [
                 "{{baseURL}}"
               ],
               "path": [
                 "pets",
-                "3"
+                "1"
               ]
             }
           },
@@ -6397,13 +6864,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseURL}}/adopters/1",
+              "raw": "{{baseURL}}/adopters/2",
               "host": [
                 "{{baseURL}}"
               ],
               "path": [
                 "adopters",
-                "1"
+                "2"
               ]
             },
             "description": "Obtiene un adoptante por ID. El campo 'password' nunca se expone."
@@ -6600,25 +7067,28 @@
       ]
     },
     {
-      "name": "📋 Adoptions",
+      "name": "🏡 Trial Cohabitations",
       "item": [
         {
-          "name": "Create Adoption",
+          "name": "Create Trial Cohabitation",
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status 201 - Adoption created', function () {",
+                  "pm.test('Status 201 - Trial created', function () {",
                   "    pm.response.to.have.status(201);",
                   "});",
                   "const res = pm.response.json();",
-                  "pm.test('Adoption has status CREATED', function () {",
+                  "pm.test('Trial has status CREATED', function () {",
                   "    pm.expect(res.data.status).to.equal('CREATED');",
                   "});",
+                  "pm.test('Linked adoption auto-set to IN_PROGRESS', function () {",
+                  "    pm.expect(res.success).to.be.true;",
+                  "});",
                   "if (res.data && res.data._id) {",
-                  "    pm.collectionVariables.set('adoptionId', res.data._id);",
-                  "    console.log('adoptionId guardado:', res.data._id);",
+                  "    pm.collectionVariables.set('trialId', res.data._id);",
+                  "    console.log('trialId guardado:', res.data._id);",
                   "}"
                 ],
                 "type": "text/javascript"
@@ -6635,7 +7105,337 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"adopter\": \"{{adopterId}}\",\n  \"adoptionDate\": \"2025-06-15\",\n  \"notes\": \"Adopción iniciada para perro Labrador. Adoptante con experiencia previa.\"\n}"
+              "raw": "{\n  \"adoption\": \"{{adoptionId}}\",\n  \"startDate\": \"2025-06-20\",\n  \"endDate\": \"2025-07-20\"\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/trial-cohabitations",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "trial-cohabitations"
+              ]
+            },
+            "description": "Crea un periodo de convivencia de prueba vinculado a una adopción.\n\nEfecto secundario automático: la adopción pasa a estado IN_PROGRESS.\n\nRestricciones:\n- La adopción debe existir\n- Solo puede existir 1 TrialCohabitation por adopción (1:1)\n- La adopción no puede estar COMPLETED ni CANCELLED"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Trial Cohabitations",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Returns list', function () {",
+                  "    const res = pm.response.json();",
+                  "    pm.expect(res.data).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/trial-cohabitations?page=1&limit=10",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "trial-cohabitations"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "status",
+                  "value": "IN_PROGRESS",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Lista todos los periodos de convivencia. Filtro: ?status=CREATED|IN_PROGRESS|COMPLETED|CANCELLED|PENDING"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Trial by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Includes linked adoption', function () {",
+                  "    const res = pm.response.json();",
+                  "    pm.expect(res.data).to.have.property('adoption');",
+                  "    pm.expect(res.data).to.have.property('status');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/trial-cohabitations/{{trialId}}",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "trial-cohabitations",
+                "{{trialId}}"
+              ]
+            },
+            "description": "Obtiene un periodo de convivencia por ID con la adopción y el adoptante incluidos."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Trial by Adoption ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Trial found by adoption', function () {",
+                  "    const res = pm.response.json();",
+                  "    pm.expect(res.data).to.have.property('adoption');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/trial-cohabitations/by-adoption/{{adoptionId}}",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "trial-cohabitations",
+                "by-adoption",
+                "{{adoptionId}}"
+              ]
+            },
+            "description": "Busca el periodo de convivencia vinculado a una adopción específica."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Trial (status → IN_PROGRESS)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Status updated', function () {",
+                  "    const res = pm.response.json();",
+                  "    pm.expect(res.data.status).to.equal('IN_PROGRESS');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"IN_PROGRESS\"\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/trial-cohabitations/{{trialId}}",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "trial-cohabitations",
+                "{{trialId}}"
+              ]
+            },
+            "description": "Actualiza el estado a IN_PROGRESS. La mascota ha sido entregada para el periodo de prueba."
+          },
+          "response": []
+        },
+        {
+          "name": "Complete Trial ⚡ (enables Adoption finalization)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"COMPLETED\",\n  \"result\": \"Convivencia exitosa. La mascota se adaptó perfectamente al hogar. El adoptante demuestra responsabilidad y cariño.\",\n  \"endDate\": \"2025-07-18\"\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/trial-cohabitations/{{trialId}}",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "trial-cohabitations",
+                "{{trialId}}"
+              ]
+            },
+            "description": "⚡ PASO CLAVE: Marca el TrialCohabitation como COMPLETED con un resultado.\n\nDespués de este paso, la adopción SÍ puede finalizarse con POST /adoptions/:id/finalize\n\nSi no se envía endDate, el sistema lo asigna automáticamente a la fecha actual."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Trial Cohabitation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 or 422', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 422]);",
+                  "});",
+                  "const res = pm.response.json();",
+                  "if (pm.response.code === 422) {",
+                  "    pm.test('Cannot delete IN_PROGRESS trial', function () {",
+                  "        pm.expect(res.message).to.include('en curso');",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/trial-cohabitations/{{trialId}}",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "trial-cohabitations",
+                "{{trialId}}"
+              ]
+            },
+            "description": "Elimina un periodo de convivencia. No se puede eliminar si está en estado IN_PROGRESS."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Trial - Duplicate Error (409)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 409 - Duplicate trial', function () {",
+                  "    pm.response.to.have.status(409);",
+                  "});",
+                  "pm.test('Error message about existing trial', function () {",
+                  "    const res = pm.response.json();",
+                  "    pm.expect(res.success).to.be.false;",
+                  "    pm.expect(res.message).to.include('ya tiene');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"adoption\": \"{{adoptionId}}\",\n  \"startDate\": \"2025-08-01\"\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/trial-cohabitations",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "trial-cohabitations"
+              ]
+            },
+            "description": "Demuestra el error 409 al intentar crear un segundo TrialCohabitation para la misma adopción (relación 1:1)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "📋 Adoptions",
+      "item": [
+        {
+          "name": "Create Adoption",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"startDate\": \"2026-04-06\",\n    \"endDate\": \"2026-04-20\",\n    \"status\": \"IN_PROGRESS\",\n    \"petId\": 1,\n    \"adopterId\": 2\n}"
             },
             "url": {
               "raw": "{{baseURL}}/adoptions",
@@ -6657,14 +7457,11 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
-                  "pm.test('Paginated response', function () {",
-                  "    const res = pm.response.json();",
-                  "    pm.expect(res.data).to.be.an('array');",
-                  "    pm.expect(res).to.have.property('total');",
-                  "});"
+                  ""
                 ],
-                "type": "text/javascript"
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
               }
             }
           ],
@@ -6943,351 +7740,6 @@
     {
       "name": "🔄 Flujo Completo (Business Flow)",
       "item": [
-        {
-          "name": "🏡 Trial Cohabitations",
-          "item": [
-            {
-              "name": "Create Trial Cohabitation",
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test('Status 201 - Trial created', function () {",
-                      "    pm.response.to.have.status(201);",
-                      "});",
-                      "const res = pm.response.json();",
-                      "pm.test('Trial has status CREATED', function () {",
-                      "    pm.expect(res.data.status).to.equal('CREATED');",
-                      "});",
-                      "pm.test('Linked adoption auto-set to IN_PROGRESS', function () {",
-                      "    pm.expect(res.success).to.be.true;",
-                      "});",
-                      "if (res.data && res.data._id) {",
-                      "    pm.collectionVariables.set('trialId', res.data._id);",
-                      "    console.log('trialId guardado:', res.data._id);",
-                      "}"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ],
-              "request": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"adoption\": \"{{adoptionId}}\",\n  \"startDate\": \"2025-06-20\",\n  \"endDate\": \"2025-07-20\"\n}"
-                },
-                "url": {
-                  "raw": "{{baseURL}}/trial-cohabitations",
-                  "host": [
-                    "{{baseURL}}"
-                  ],
-                  "path": [
-                    "trial-cohabitations"
-                  ]
-                },
-                "description": "Crea un periodo de convivencia de prueba vinculado a una adopción.\n\nEfecto secundario automático: la adopción pasa a estado IN_PROGRESS.\n\nRestricciones:\n- La adopción debe existir\n- Solo puede existir 1 TrialCohabitation por adopción (1:1)\n- La adopción no puede estar COMPLETED ni CANCELLED"
-              },
-              "response": []
-            },
-            {
-              "name": "Get All Trial Cohabitations",
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
-                      "pm.test('Returns list', function () {",
-                      "    const res = pm.response.json();",
-                      "    pm.expect(res.data).to.be.an('array');",
-                      "});"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ],
-              "request": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{baseURL}}/trial-cohabitations?page=1&limit=10",
-                  "host": [
-                    "{{baseURL}}"
-                  ],
-                  "path": [
-                    "trial-cohabitations"
-                  ],
-                  "query": [
-                    {
-                      "key": "page",
-                      "value": "1"
-                    },
-                    {
-                      "key": "limit",
-                      "value": "10"
-                    },
-                    {
-                      "key": "status",
-                      "value": "IN_PROGRESS",
-                      "disabled": true
-                    }
-                  ]
-                },
-                "description": "Lista todos los periodos de convivencia. Filtro: ?status=CREATED|IN_PROGRESS|COMPLETED|CANCELLED|PENDING"
-              },
-              "response": []
-            },
-            {
-              "name": "Get Trial by ID",
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
-                      "pm.test('Includes linked adoption', function () {",
-                      "    const res = pm.response.json();",
-                      "    pm.expect(res.data).to.have.property('adoption');",
-                      "    pm.expect(res.data).to.have.property('status');",
-                      "});"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ],
-              "request": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{baseURL}}/trial-cohabitations/{{trialId}}",
-                  "host": [
-                    "{{baseURL}}"
-                  ],
-                  "path": [
-                    "trial-cohabitations",
-                    "{{trialId}}"
-                  ]
-                },
-                "description": "Obtiene un periodo de convivencia por ID con la adopción y el adoptante incluidos."
-              },
-              "response": []
-            },
-            {
-              "name": "Get Trial by Adoption ID",
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
-                      "pm.test('Trial found by adoption', function () {",
-                      "    const res = pm.response.json();",
-                      "    pm.expect(res.data).to.have.property('adoption');",
-                      "});"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ],
-              "request": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{baseURL}}/trial-cohabitations/by-adoption/{{adoptionId}}",
-                  "host": [
-                    "{{baseURL}}"
-                  ],
-                  "path": [
-                    "trial-cohabitations",
-                    "by-adoption",
-                    "{{adoptionId}}"
-                  ]
-                },
-                "description": "Busca el periodo de convivencia vinculado a una adopción específica."
-              },
-              "response": []
-            },
-            {
-              "name": "Update Trial (status → IN_PROGRESS)",
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
-                      "pm.test('Status updated', function () {",
-                      "    const res = pm.response.json();",
-                      "    pm.expect(res.data.status).to.equal('IN_PROGRESS');",
-                      "});"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ],
-              "request": {
-                "method": "PUT",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"status\": \"IN_PROGRESS\"\n}"
-                },
-                "url": {
-                  "raw": "{{baseURL}}/trial-cohabitations/{{trialId}}",
-                  "host": [
-                    "{{baseURL}}"
-                  ],
-                  "path": [
-                    "trial-cohabitations",
-                    "{{trialId}}"
-                  ]
-                },
-                "description": "Actualiza el estado a IN_PROGRESS. La mascota ha sido entregada para el periodo de prueba."
-              },
-              "response": []
-            },
-            {
-              "name": "Complete Trial ⚡ (enables Adoption finalization)",
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
-                      "pm.test('Trial status is COMPLETED', function () {",
-                      "    const res = pm.response.json();",
-                      "    pm.expect(res.data.status).to.equal('COMPLETED');",
-                      "    pm.expect(res.data.endDate).to.exist;",
-                      "});",
-                      "console.log('✅ Trial completado! Ahora puedes finalizar la Adoption con POST /adoptions/{{adoptionId}}/finalize');"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ],
-              "request": {
-                "method": "PUT",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"status\": \"COMPLETED\",\n  \"result\": \"Convivencia exitosa. La mascota se adaptó perfectamente al hogar. El adoptante demuestra responsabilidad y cariño.\",\n  \"endDate\": \"2025-07-18\"\n}"
-                },
-                "url": {
-                  "raw": "{{baseURL}}/trial-cohabitations/{{trialId}}",
-                  "host": [
-                    "{{baseURL}}"
-                  ],
-                  "path": [
-                    "trial-cohabitations",
-                    "{{trialId}}"
-                  ]
-                },
-                "description": "⚡ PASO CLAVE: Marca el TrialCohabitation como COMPLETED con un resultado.\n\nDespués de este paso, la adopción SÍ puede finalizarse con POST /adoptions/:id/finalize\n\nSi no se envía endDate, el sistema lo asigna automáticamente a la fecha actual."
-              },
-              "response": []
-            },
-            {
-              "name": "Delete Trial Cohabitation",
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test('Status 200 or 422', function () {",
-                      "    pm.expect(pm.response.code).to.be.oneOf([200, 422]);",
-                      "});",
-                      "const res = pm.response.json();",
-                      "if (pm.response.code === 422) {",
-                      "    pm.test('Cannot delete IN_PROGRESS trial', function () {",
-                      "        pm.expect(res.message).to.include('en curso');",
-                      "    });",
-                      "}"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ],
-              "request": {
-                "method": "DELETE",
-                "header": [],
-                "url": {
-                  "raw": "{{baseURL}}/trial-cohabitations/{{trialId}}",
-                  "host": [
-                    "{{baseURL}}"
-                  ],
-                  "path": [
-                    "trial-cohabitations",
-                    "{{trialId}}"
-                  ]
-                },
-                "description": "Elimina un periodo de convivencia. No se puede eliminar si está en estado IN_PROGRESS."
-              },
-              "response": []
-            },
-            {
-              "name": "Create Trial - Duplicate Error (409)",
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test('Status 409 - Duplicate trial', function () {",
-                      "    pm.response.to.have.status(409);",
-                      "});",
-                      "pm.test('Error message about existing trial', function () {",
-                      "    const res = pm.response.json();",
-                      "    pm.expect(res.success).to.be.false;",
-                      "    pm.expect(res.message).to.include('ya tiene');",
-                      "});"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ],
-              "request": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"adoption\": \"{{adoptionId}}\",\n  \"startDate\": \"2025-08-01\"\n}"
-                },
-                "url": {
-                  "raw": "{{baseURL}}/trial-cohabitations",
-                  "host": [
-                    "{{baseURL}}"
-                  ],
-                  "path": [
-                    "trial-cohabitations"
-                  ]
-                },
-                "description": "Demuestra el error 409 al intentar crear un segundo TrialCohabitation para la misma adopción (relación 1:1)."
-              },
-              "response": []
-            }
-          ]
-        },
         {
           "name": "STEP 1 — Crear Adopter",
           "event": [
@@ -7691,7 +8143,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"requestDate\": \"2026-04-05\",\n    \"status\": \"PENDING\",\n    \"adopter\": {\n        \"id\": 1\n    },\n    \"pet\": {\n        \"id\": 1\n    },\n    \"approvalStrategyId\": 1\n}",
+              "raw": "{\n    \"requestDate\": \"2026-04-05\",\n    \"status\": \"PENDING\",\n    \"adopterId\": 1,\n    \"petId\" : 1,\n    \"approvalStrategyId\": 1\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -7716,12 +8168,12 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseURL}}/requests",
+              "raw": "{{baseURL}}/adoption-requests",
               "host": [
                 "{{baseURL}}"
               ],
               "path": [
-                "requests"
+                "adoption-requests"
               ]
             }
           },
@@ -7733,12 +8185,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseURL}}/requests",
+              "raw": "{{baseURL}}/adoption-requests/2",
               "host": [
                 "{{baseURL}}"
               ],
               "path": [
-                "requests"
+                "adoption-requests",
+                "2"
               ]
             }
           },
@@ -7750,12 +8203,12 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseURL}}/requests/1/trial",
+              "raw": "{{baseURL}}/adoption-requests/1/trial",
               "host": [
                 "{{baseURL}}"
               ],
               "path": [
-                "requests",
+                "adoption-requests",
                 "1",
                 "trial"
               ]
@@ -8149,7 +8602,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"message\": \"Tu solicitud de adopción fue aprobada\",\n    \"date\": \"2026-04-01T10:00:00\",\n    \"isRead\": false,\n    \"user\": { \"id\": 1 },\n    \"notificationStrategy\": { \"id\": 1 }\n}",
+              "raw": "{\n    \"message\": \"Tu solicitud de vacunas fue aprobada\",\n    \"date\": \"2026-04-01T10:00:00\",\n    \"isRead\": false,\n    \"userId\": 1,\n    \"notificationStrategy\": { \"id\": 1 }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -9490,7 +9943,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"rating\": 5,\n    \"comment\": \"Excelente proceso de adopción, muy profesionales\",\n    \"date\": \"2026-04-01\",\n    \"adopter\": { \"id\": 1 },\n    \"pet\": { \"id\": 1 }\n}",
+              "raw": "{\n    \"rating\": 5,\n    \"comment\": \"Excelente proceso de adopción, muy profesionales\",\n    \"date\": \"2026-04-01\",\n    \"adopter\": { \"id\": 2 },\n    \"pet\": { \"id\": 1 }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -10869,8 +11322,8 @@
               },
               "status": "Created",
               "code": 201,
-              "_postman_previewlanguage": null,
-              "header": null,
+              "_postman_previewlanguage": "Text",
+              "header": [],
               "cookie": [],
               "body": "{\r\n  \"id\": 42,\r\n  \"eventDate\": \"2026-04-04\",\r\n  \"description\": \"Vacunación anual\",\r\n  \"notes\": \"Vacuna antirrábica aplicada\",\r\n  \"medicalHistory\": {\r\n    \"id\": 1\r\n  }\r\n}"
             },
@@ -10906,8 +11359,8 @@
               },
               "status": "Precondition Failed",
               "code": 412,
-              "_postman_previewlanguage": null,
-              "header": null,
+              "_postman_previewlanguage": "Text",
+              "header": [],
               "cookie": [],
               "body": ""
             },
@@ -10943,8 +11396,8 @@
               },
               "status": "Precondition Failed",
               "code": 412,
-              "_postman_previewlanguage": null,
-              "header": null,
+              "_postman_previewlanguage": "Text",
+              "header": [],
               "cookie": [],
               "body": ""
             },
@@ -10980,8 +11433,8 @@
               },
               "status": "Precondition Failed",
               "code": 412,
-              "_postman_previewlanguage": null,
-              "header": null,
+              "_postman_previewlanguage": "Text",
+              "header": [],
               "cookie": [],
               "body": ""
             },
@@ -11017,8 +11470,8 @@
               },
               "status": "Created",
               "code": 201,
-              "_postman_previewlanguage": null,
-              "header": null,
+              "_postman_previewlanguage": "Text",
+              "header": [],
               "cookie": [],
               "body": ""
             },
@@ -11054,10 +11507,10 @@
               },
               "status": "Bad Request",
               "code": 400,
-              "_postman_previewlanguage": null,
-              "header": null,
+              "_postman_previewlanguage": "Text",
+              "header": [],
               "cookie": [],
-              "body": null
+              "body": ""
             }
           ]
         },
@@ -11087,11 +11540,14 @@
               "name": "Get All Medical Event",
               "originalRequest": {
                 "method": "GET",
-                "header": []
+                "header": [],
+                "url": {
+                  "raw": ""
+                }
               },
               "status": "OK",
               "code": 200,
-              "_postman_previewlanguage": "",
+              "_postman_previewlanguage": "Text",
               "header": [],
               "cookie": [
                 {
@@ -11160,7 +11616,7 @@
               },
               "status": "OK",
               "code": 200,
-              "_postman_previewlanguage": "",
+              "_postman_previewlanguage": "Text",
               "header": [],
               "cookie": [
                 {
@@ -11204,10 +11660,10 @@
               },
               "status": "Precondition Failed",
               "code": 412,
-              "_postman_previewlanguage": null,
-              "header": null,
+              "_postman_previewlanguage": "Text",
+              "header": [],
               "cookie": [],
-              "body": null
+              "body": ""
             },
             {
               "name": "Error - Null History",
@@ -11242,10 +11698,10 @@
               },
               "status": "Precondition Failed",
               "code": 412,
-              "_postman_previewlanguage": null,
-              "header": null,
+              "_postman_previewlanguage": "Text",
+              "header": [],
               "cookie": [],
-              "body": null
+              "body": ""
             },
             {
               "name": "Error - Not found",
@@ -11280,10 +11736,10 @@
               },
               "status": "Not Found",
               "code": 404,
-              "_postman_previewlanguage": null,
-              "header": null,
+              "_postman_previewlanguage": "Text",
+              "header": [],
               "cookie": [],
-              "body": null
+              "body": ""
             }
           ]
         },
@@ -11321,15 +11777,6 @@
                     "type": "text"
                   }
                 ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
                 "url": {
                   "raw": "{{baseURL}}/medical-events/{{existingEventId}}",
                   "host": [
@@ -11343,7 +11790,7 @@
               },
               "status": "OK",
               "code": 200,
-              "_postman_previewlanguage": "",
+              "_postman_previewlanguage": "Text",
               "header": [],
               "cookie": [
                 {
@@ -11378,10 +11825,10 @@
               },
               "status": "Not Found",
               "code": 404,
-              "_postman_previewlanguage": null,
-              "header": null,
+              "_postman_previewlanguage": "Text",
+              "header": [],
               "cookie": [],
-              "body": null
+              "body": ""
             }
           ]
         },
@@ -11432,7 +11879,7 @@
               },
               "status": "No Content",
               "code": 204,
-              "_postman_previewlanguage": "",
+              "_postman_previewlanguage": "Text",
               "header": [],
               "cookie": [
                 {
@@ -11476,12 +11923,103 @@
               },
               "status": "Not Found",
               "code": 404,
-              "_postman_previewlanguage": null,
-              "header": null,
+              "_postman_previewlanguage": "Text",
+              "header": [],
               "cookie": [],
-              "body": null
+              "body": ""
             }
           ]
+        }
+      ]
+    },
+    {
+      "name": "Notification Strategies",
+      "item": [
+        {
+          "name": "Create a notification EMAIL",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/notification-strategies?type=EMAIL",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "notification-strategies"
+              ],
+              "query": [
+                {
+                  "key": "type",
+                  "value": "EMAIL"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create a notification SMS",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/notification-strategies?type=SMS",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "notification-strategies"
+              ],
+              "query": [
+                {
+                  "key": "type",
+                  "value": "SMS"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create a notification IN_APP",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/notification-strategies?type=SMS",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "notification-strategies"
+              ],
+              "query": [
+                {
+                  "key": "type",
+                  "value": "SMS"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get all strategies",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/notification-strategies",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "notification-strategies"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     }
