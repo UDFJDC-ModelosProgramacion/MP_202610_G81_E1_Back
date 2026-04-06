@@ -2,16 +2,13 @@ package co.edu.udistrital.mdp.pets.controllers;
 
 import co.edu.udistrital.mdp.pets.dto.AdopterDTO;
 import co.edu.udistrital.mdp.pets.dto.AdopterDetailDTO;
-import co.edu.udistrital.mdp.pets.dto.NotificationDTO;
 import co.edu.udistrital.mdp.pets.dto.AdoptionDTO;
 import co.edu.udistrital.mdp.pets.dto.AdoptionRequestDTO;
-import co.edu.udistrital.mdp.pets.dto.ReviewDTO;
-import co.edu.udistrital.mdp.pets.entities.NotificationEntity;
-import co.edu.udistrital.mdp.pets.entities.UserEntity;
 import co.edu.udistrital.mdp.pets.entities.AdopterEntity;
-import co.edu.udistrital.mdp.pets.services.AdopterService;
+import co.edu.udistrital.mdp.pets.entities.UserEntity;
 import co.edu.udistrital.mdp.pets.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.pets.exceptions.IllegalOperationException;
+import co.edu.udistrital.mdp.pets.services.AdopterService;
 
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
@@ -21,6 +18,20 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * REST controller for managing Adopter resources.
+ *
+ * Base URL: /adopters
+ *
+ * Endpoints:
+ *   GET    /adopters           -> Returns all adopters
+ *   GET    /adopters/{id}      -> Returns a specific adopter with details
+ *   POST   /adopters           -> Creates a new adopter
+ *   PUT    /adopters/{id}      -> Updates an existing adopter
+ *   DELETE /adopters/{id}      -> Deletes an adopter (if no active requests/adoptions)
+ *   GET    /adopters/{id}/adoptions  -> Returns adoptions of a specific adopter
+ *   GET    /adopters/{id}/requests   -> Returns adoption requests of a specific adopter
+ */
 @RestController
 @RequestMapping("/adopters")
 public class AdopterController {
@@ -31,80 +42,112 @@ public class AdopterController {
     @Autowired
     private ModelMapper modelMapper;
 
+    /**
+     * GET /adopters
+     * Retrieves all registered adopters.
+     *
+     * @return List of AdopterDTO with basic adopter information.
+     */
     @GetMapping
-    @ResponseStatus(code = HttpStatus.OK)
+    @ResponseStatus(HttpStatus.OK)
     public List<AdopterDTO> findAll() {
-        List<UserEntity> allUsers = adopterService.getUsers(); 
-        List<UserEntity> onlyAdopters = allUsers.stream()
-            .filter(user -> user instanceof AdopterEntity)
-            .toList();
-        return modelMapper.map(onlyAdopters, new TypeToken<List<AdopterDTO>>() {}.getType());
+        List<UserEntity> adopters = adopterService.getUsers();
+        return modelMapper.map(adopters, new TypeToken<List<AdopterDTO>>() {}.getType());
     }
 
-    @GetMapping(value = "/{id}")
-    @ResponseStatus(code = HttpStatus.OK)
+    /**
+     * GET /adopters/{id}
+     * Retrieves a specific adopter by their ID, including related adoptions and requests.
+     *
+     * @param id The ID of the adopter to retrieve.
+     * @return AdopterDetailDTO with full adopter information and nested collections.
+     * @throws EntityNotFoundException if no adopter with the given ID exists.
+     */
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public AdopterDetailDTO findOne(@PathVariable Long id) throws EntityNotFoundException {
-        UserEntity user = adopterService.getUser(id);
-        if (!(user instanceof AdopterEntity)) {
-            throw new EntityNotFoundException("User with ID " + id + " is not an adopter.");
-        }
-        return modelMapper.map(user, AdopterDetailDTO.class);
+        UserEntity entity = adopterService.getUser(id);
+        return modelMapper.map(entity, AdopterDetailDTO.class);
     }
 
+    /**
+     * POST /adopters
+     * Creates a new adopter. Fields housingType, hasChildren, and hasOtherPets are mandatory.
+     *
+     * @param adopterDTO DTO containing the new adopter's data.
+     * @return AdopterDTO of the newly created adopter.
+     * @throws IllegalOperationException if business rules are violated (e.g., missing fields).
+     */
     @PostMapping
-    @ResponseStatus(code = HttpStatus.CREATED)
-    public AdopterDTO create(@RequestBody AdopterDTO adopterDTO) throws IllegalOperationException, EntityNotFoundException {
+    @ResponseStatus(HttpStatus.CREATED)
+    public AdopterDTO create(@RequestBody AdopterDTO adopterDTO) throws IllegalOperationException {
         AdopterEntity entity = modelMapper.map(adopterDTO, AdopterEntity.class);
-        UserEntity newEntity = adopterService.createUser(entity);
-        return modelMapper.map(newEntity, AdopterDTO.class);
+        UserEntity created = adopterService.createUser(entity);
+        return modelMapper.map(created, AdopterDTO.class);
     }
 
-    @PutMapping(value = "/{id}")
-    @ResponseStatus(code = HttpStatus.OK)
-    public AdopterDTO update(@PathVariable Long id, @RequestBody AdopterDTO adopterDTO) 
+    /**
+     * PUT /adopters/{id}
+     * Updates an existing adopter's data.
+     *
+     * @param id         The ID of the adopter to update.
+     * @param adopterDTO DTO with the updated adopter data.
+     * @return AdopterDTO of the updated adopter.
+     * @throws EntityNotFoundException   if no adopter with the given ID exists.
+     * @throws IllegalOperationException if business rules are violated.
+     */
+    @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public AdopterDTO update(@PathVariable Long id, @RequestBody AdopterDTO adopterDTO)
             throws EntityNotFoundException, IllegalOperationException {
         AdopterEntity entity = modelMapper.map(adopterDTO, AdopterEntity.class);
-        UserEntity updatedEntity = adopterService.updateUser(id, entity);
-        return modelMapper.map(updatedEntity, AdopterDTO.class);
+        UserEntity updated = adopterService.updateUser(id, entity);
+        return modelMapper.map(updated, AdopterDTO.class);
     }
 
-    @DeleteMapping(value = "/{id}")
-    @ResponseStatus(code = HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long id) throws EntityNotFoundException, IllegalOperationException {
+    /**
+     * DELETE /adopters/{id}
+     * Deletes an adopter by ID.
+     * Not allowed if the adopter has pending adoption requests or registered adoptions.
+     *
+     * @param id The ID of the adopter to delete.
+     * @throws EntityNotFoundException   if no adopter with the given ID exists.
+     * @throws IllegalOperationException if the adopter has adoption records or active requests.
+     */
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id)
+            throws EntityNotFoundException, IllegalOperationException {
         adopterService.deleteUser(id);
     }
 
-    @GetMapping(value = "/{id}/notifications")
-    @ResponseStatus(code = HttpStatus.OK)
-    public List<NotificationDTO> getNotifications(@PathVariable Long id) throws EntityNotFoundException {
-        List<NotificationEntity> notifications = adopterService.getNotifications(id);
-        return modelMapper.map(notifications, new TypeToken<List<NotificationDTO>>() {}.getType());
-    }
-
-    @PatchMapping(value = "/{id}/notifications/{notificationId}")
-    @ResponseStatus(code = HttpStatus.NO_CONTENT)
-    public void markAsRead(@PathVariable Long id, @PathVariable Long notificationId) throws EntityNotFoundException {
-        adopterService.markNotificationAsRead(id, notificationId);
-    }
-
+    /**
+     * GET /adopters/{id}/adoptions
+     * Retrieves all adoptions associated with a specific adopter.
+     *
+     * @param id The ID of the adopter.
+     * @return List of AdoptionDTO linked to the adopter.
+     * @throws EntityNotFoundException if no adopter with the given ID exists.
+     */
     @GetMapping("/{id}/adoptions")
-    @ResponseStatus(code = HttpStatus.OK)
+    @ResponseStatus(HttpStatus.OK)
     public List<AdoptionDTO> getAdoptions(@PathVariable Long id) throws EntityNotFoundException {
         AdopterEntity adopter = (AdopterEntity) adopterService.getUser(id);
         return modelMapper.map(adopter.getAdoptions(), new TypeToken<List<AdoptionDTO>>() {}.getType());
     }
 
-    @GetMapping("/{id}/adoption-requests")
-    @ResponseStatus(code = HttpStatus.OK)
+    /**
+     * GET /adopters/{id}/requests
+     * Retrieves all adoption requests submitted by a specific adopter.
+     *
+     * @param id The ID of the adopter.
+     * @return List of AdoptionRequestDTO linked to the adopter.
+     * @throws EntityNotFoundException if no adopter with the given ID exists.
+     */
+    @GetMapping("/{id}/requests")
+    @ResponseStatus(HttpStatus.OK)
     public List<AdoptionRequestDTO> getAdoptionRequests(@PathVariable Long id) throws EntityNotFoundException {
         AdopterEntity adopter = (AdopterEntity) adopterService.getUser(id);
         return modelMapper.map(adopter.getAdoptionRequests(), new TypeToken<List<AdoptionRequestDTO>>() {}.getType());
-    }
-
-    @GetMapping("/{id}/reviews")
-    @ResponseStatus(code = HttpStatus.OK)
-    public List<ReviewDTO> getReviews(@PathVariable Long id) throws EntityNotFoundException {
-        AdopterEntity adopter = (AdopterEntity) adopterService.getUser(id);
-        return modelMapper.map(adopter.getReviews(), new TypeToken<List<ReviewDTO>>() {}.getType());
     }
 }
