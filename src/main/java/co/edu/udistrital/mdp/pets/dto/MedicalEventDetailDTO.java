@@ -12,5 +12,4 @@ import lombok.NoArgsConstructor;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class MedicalEventDetailDTO extends MedicalEventDTO {
     private String notes;
-    private MedicalHistoryDTO medicalHistory;
 }

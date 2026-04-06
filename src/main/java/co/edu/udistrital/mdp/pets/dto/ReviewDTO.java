@@ -10,4 +10,6 @@ public class ReviewDTO extends BaseDTO {
     private Integer rating;
     private String comment;
     private LocalDate date;
+	private AdopterDTO adopter;
+	private PetDTO pet;
 }

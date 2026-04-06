@@ -10,4 +10,6 @@ public class NotificationDTO extends BaseDTO {
     private String message;
     private Date date;
     private Boolean isRead;
+	private UserDTO user;
+	private NotificationStrategyDTO notificationStrategy;
 }

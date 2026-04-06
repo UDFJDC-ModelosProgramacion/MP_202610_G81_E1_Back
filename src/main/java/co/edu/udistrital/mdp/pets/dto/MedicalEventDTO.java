@@ -12,8 +12,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class MedicalEventDTO {
-    private Long id;
+public class MedicalEventDTO extends BaseDTO{
     private LocalDate eventDate;
     private String description;
+    private MedicalHistoryDTO medicalHistory;
 }

@@ -11,7 +11,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class VaccinationRecordDetailDTO extends VaccinationRecordDTO {
-    private VaccineDTO vaccine;
-    private PetDTO pet;
     private String notes;
 }

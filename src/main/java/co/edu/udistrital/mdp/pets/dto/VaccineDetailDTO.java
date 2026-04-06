@@ -11,6 +11,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class VaccineDetailDTO extends VaccineDTO {
-    private Integer validityMonths;
     private String description;
 }
