@@ -11,5 +11,4 @@ public class NotificationDTO extends BaseDTO {
     private Date date;
     private Boolean isRead;
 	private Long userId;
-	private NotificationStrategyDTO notificationStrategy;
 }
