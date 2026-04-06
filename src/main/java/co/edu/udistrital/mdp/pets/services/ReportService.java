@@ -7,8 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import co.edu.udistrital.mdp.pets.entities.AdoptionReportStrategyEntity;
+import co.edu.udistrital.mdp.pets.entities.MedicalEventReportStrategyEntity;
 import co.edu.udistrital.mdp.pets.entities.ReportEntity;
 import co.edu.udistrital.mdp.pets.entities.ReportStrategyEntity;
+import co.edu.udistrital.mdp.pets.entities.ReturnReportStrategyEntity;
 import co.edu.udistrital.mdp.pets.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.pets.exceptions.ErrorMessage;
 import co.edu.udistrital.mdp.pets.exceptions.IllegalOperationException;
@@ -127,4 +130,25 @@ public class ReportService {
         
         repository.delete(report);
     }
+
+	@Transactional(readOnly = true)
+	public List<ReportStrategyEntity> getStrategies() {
+		return strategyRepository.findAll();
+	}
+
+	@Transactional
+	public ReportStrategyEntity createStrategy(String type) {
+		ReportStrategyEntity strategy = switch (type.toUpperCase()) {
+			case "ADOPTION" -> new AdoptionReportStrategyEntity();
+			case "RETURN" -> new ReturnReportStrategyEntity();
+			case "MEDICAL" -> new MedicalEventReportStrategyEntity();
+			default -> throw new IllegalArgumentException("Tipo de estrategia no válido: " + type);
+		};
+		return strategyRepository.save(strategy);
+	}
+	@Transactional
+	public ReportStrategyEntity getStrategy(Long id) throws EntityNotFoundException {
+		return strategyRepository.findById(id)
+				.orElseThrow(() -> new EntityNotFoundException("Strategy not found"));
+	}
 }

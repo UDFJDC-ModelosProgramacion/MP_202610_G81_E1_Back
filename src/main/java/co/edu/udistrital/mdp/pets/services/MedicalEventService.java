@@ -36,34 +36,28 @@ public class MedicalEventService {
         }
     }
 
-    @SuppressWarnings("CallToPrintStackTrace")
-    private MedicalHistoryEntity fetchMedicalHistoryOrThrow(Long historyId) {
-        try {
-            return historyRepository.findById(historyId)
-                    .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.MEDICAL_HISTORY_NOT_FOUND));
-        } catch (EntityNotFoundException e) {
-            e.printStackTrace();
-        }
-        return null;   
-    }
+	private MedicalHistoryEntity fetchMedicalHistoryOrThrow(Long historyId) throws IllegalOperationException {
+		return historyRepository.findById(historyId)
+				.orElseThrow(() -> new IllegalOperationException(ErrorMessage.MEDICAL_HISTORY_NOT_FOUND));
+	}
 
-    @Transactional
-    public MedicalEventEntity createMedicalEvent(MedicalEventEntity event) throws IllegalOperationException {
-        log.info("Iniciando proceso de creación para un evento médico");
-        validateBasicRules(event);
+	@Transactional
+	public MedicalEventEntity createMedicalEvent(MedicalEventEntity event) throws IllegalOperationException {
+		log.info("Iniciando proceso de creación para un evento médico");
+		validateBasicRules(event);
 
-        if (event.getMedicalHistory() == null || event.getMedicalHistory().getId() == null) {
-            throw new IllegalOperationException("El evento debe estar asociado a una historia médica.");
-        }
+		if (event.getMedicalHistory() == null || event.getMedicalHistory().getId() == null) {
+			throw new IllegalOperationException("El evento debe estar asociado a una historia médica.");
+		}
 
-        Long historyId = event.getMedicalHistory().getId();
-        MedicalHistoryEntity history = fetchMedicalHistoryOrThrow(historyId);
-        event.setMedicalHistory(history);
+		Long historyId = event.getMedicalHistory().getId();
+		MedicalHistoryEntity history = fetchMedicalHistoryOrThrow(historyId);
+		event.setMedicalHistory(history);
 
-        MedicalEventEntity saved = repository.save(event);
-        log.info("Evento médico creado exitosamente con id={}", saved.getId());
-        return saved;
-    }
+		MedicalEventEntity saved = repository.save(event);
+		log.info("Evento médico creado exitosamente con id={}", saved.getId());
+		return saved;
+	}
 
     @Transactional(readOnly = true)
     public List<MedicalEventEntity> getMedicalEvents() {
@@ -81,50 +75,38 @@ public class MedicalEventService {
                 });
     }
 
-    @Transactional
-    public MedicalEventEntity updateMedicalEvent(Long eventId, MedicalEventEntity event)
-            throws EntityNotFoundException, IllegalOperationException {
+	@Transactional
+	public MedicalEventEntity updateMedicalEvent(Long eventId, MedicalEventEntity event)
+			throws EntityNotFoundException, IllegalOperationException {
 
-        MedicalEventEntity persisted = repository.findById(eventId)
-                .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.MEDICAL_EVENT_NOT_FOUND));
+		MedicalEventEntity persisted = repository.findById(eventId)
+				.orElseThrow(() -> new EntityNotFoundException(ErrorMessage.MEDICAL_EVENT_NOT_FOUND));
 
-        // impedir cambio de fecha
-        if (event.getEventDate() != null && !event.getEventDate().equals(persisted.getEventDate())) {
-            throw new IllegalOperationException("No se puede modificar la fecha de un evento ya creado.");
-        }
+		// Impedir cambio de fecha
+		if (event.getEventDate() != null && !event.getEventDate().equals(persisted.getEventDate())) {
+			throw new IllegalOperationException("No se puede modificar la fecha de un evento ya creado.");
+		}
 
-        validateBasicRules(event);
+		validateBasicRules(event);
 
-        // Si viene medicalHistory en payload, validar y asociar la gestionada
-        if (event.getMedicalHistory() != null) {
-            Long historyId = event.getMedicalHistory().getId();
-            if (historyId == null) {
-                throw new IllegalOperationException("La historia médica asociada debe incluir un id.");
-            }
-            MedicalHistoryEntity history = fetchMedicalHistoryOrThrow(historyId);
-            persisted.setMedicalHistory(history);
-        }
+		// Validación estricta para el test: La historia es obligatoria en el update
+		if (event.getMedicalHistory() == null || event.getMedicalHistory().getId() == null) {
+			throw new IllegalOperationException("La historia médica asociada debe incluir un id.");
+		}
 
-        // Merge parcial: actualizar solo campos existentes en la entidad
-        if (event.getEventType() != null) {
-            persisted.setEventType(event.getEventType());
-        }
-        if (event.getDiagnosis() != null) {
-            persisted.setDiagnosis(event.getDiagnosis());
-        }
-        if (event.getDescription() != null) {
-            persisted.setDescription(event.getDescription());
-        }
-        if (event.getTreatment() != null) {
-            persisted.setTreatment(event.getTreatment());
-        }
-        // No se modifica eventDate por política
+		Long historyId = event.getMedicalHistory().getId();
+		MedicalHistoryEntity history = fetchMedicalHistoryOrThrow(historyId);
+		persisted.setMedicalHistory(history);
 
-        log.info("Actualizando evento médico id={}", eventId);
-        MedicalEventEntity updated = repository.save(persisted);
-        log.info("Evento médico id={} actualizado", updated.getId());
-        return updated;
-    }
+		// Merge parcial de campos
+		if (event.getEventType() != null) persisted.setEventType(event.getEventType());
+		if (event.getDiagnosis() != null) persisted.setDiagnosis(event.getDiagnosis());
+		if (event.getDescription() != null) persisted.setDescription(event.getDescription());
+		if (event.getTreatment() != null) persisted.setTreatment(event.getTreatment());
+
+		log.info("Actualizando evento médico id={}", eventId);
+		return repository.save(persisted);
+	}
 
     @Transactional
     public void deleteMedicalEvent(Long eventId) throws EntityNotFoundException {

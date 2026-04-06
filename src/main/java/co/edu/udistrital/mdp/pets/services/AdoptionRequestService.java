@@ -1,10 +1,15 @@
 package co.edu.udistrital.mdp.pets.services;
 
 import co.edu.udistrital.mdp.pets.entities.AdoptionRequestEntity;
+import co.edu.udistrital.mdp.pets.entities.ApprovalStrategyEntity;
+import co.edu.udistrital.mdp.pets.entities.ManualApprovalStrategyEntity;
+import co.edu.udistrital.mdp.pets.entities.MedicalClearanceStrategyEntity;
+import co.edu.udistrital.mdp.pets.entities.ScoreBasedApprovalStrategyEntity;
 import co.edu.udistrital.mdp.pets.enums.PetStatus;
 import co.edu.udistrital.mdp.pets.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.pets.exceptions.IllegalOperationException;
 import co.edu.udistrital.mdp.pets.repositories.AdoptionRequestRepository;
+import co.edu.udistrital.mdp.pets.repositories.ApprovalStrategyRepository;
 import co.edu.udistrital.mdp.pets.repositories.PetRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +29,73 @@ public class AdoptionRequestService {
     @Autowired
     private PetRepository petRepository;
 
+    @Autowired
+    private ApprovalStrategyRepository strategyRepository; // Para gestionar las estrategias
+
+    // --- MÉTODOS DE ESTRATEGIA ---
+
+    @Transactional(readOnly = true)
+    public List<ApprovalStrategyEntity> getStrategies() {
+        return strategyRepository.findAll();
+    }
+
+    @Transactional
+    public ApprovalStrategyEntity createStrategy(String type) {
+        ApprovalStrategyEntity strategy = switch (type.toUpperCase()) {
+            case "MANUAL" -> new ManualApprovalStrategyEntity();
+            case "MEDICAL" -> new MedicalClearanceStrategyEntity();
+            case "SCORE" -> new ScoreBasedApprovalStrategyEntity();
+            default -> throw new IllegalArgumentException("Invalid strategy type: " + type);
+        };
+        return strategyRepository.save(strategy);
+    }
+
+    // --- MÉTODOS DE SOLICITUD ---
+
+    @Transactional
+    public AdoptionRequestEntity createRequest(AdoptionRequestEntity request) throws IllegalOperationException {
+        log.info("Processing new adoption request");
+        
+        request.setRequestDate(LocalDate.now());
+        request.setStatus("PENDING"); 
+        
+        validateNewRequest(request);
+
+        // EJECUCIÓN DEL PATRÓN STRATEGY (Opcional al crear)
+        // Si la solicitud ya viene con una estrategia, la evaluamos de una vez
+        if (request.getApprovalStrategy() != null) {
+            boolean autoApproved = request.getApprovalStrategy().evaluate(request);
+            if (autoApproved) {
+                request.setStatus("APPROVED");
+                log.info("Request auto-approved by strategy: {}", request.getApprovalStrategy().getClass().getSimpleName());
+            }
+        }
+        
+        return requestRepository.save(request);
+    }
+
     /**
+     * Permite ejecutar una estrategia sobre una solicitud existente.
+     */
+    @Transactional
+    public AdoptionRequestEntity evaluateRequest(Long requestId, Long strategyId) 
+            throws EntityNotFoundException, IllegalOperationException {
+        
+        AdoptionRequestEntity request = getRequest(requestId);
+        ApprovalStrategyEntity strategy = strategyRepository.findById(strategyId)
+                .orElseThrow(() -> new EntityNotFoundException("Strategy not found"));
+
+        validateStatusUpdate(request, "APPROVED"); // Validar que no esté finalizada
+
+        request.setApprovalStrategy(strategy);
+        boolean result = strategy.evaluate(request);
+        
+        request.setStatus(result ? "APPROVED" : "REJECTED");
+        
+        log.info("Request {} evaluated with result: {}", requestId, request.getStatus());
+        return requestRepository.save(request);
+    }  
+	/**
      * Valida reglas de negocio para la creación de una solicitud.
      */
     private void validateNewRequest(AdoptionRequestEntity request) throws IllegalOperationException {
@@ -74,17 +145,6 @@ public class AdoptionRequestService {
         }
     }
 
-    @Transactional
-    public AdoptionRequestEntity createRequest(AdoptionRequestEntity request) throws IllegalOperationException {
-        log.info("Creating adoption request for pet: {}", request.getPet().getId());
-        
-        request.setRequestDate(LocalDate.now());
-        request.setStatus("PENDING"); // Siempre inicia en Pendiente
-        
-        validateNewRequest(request);
-        
-        return requestRepository.save(request);
-    }
 
     @Transactional
     public AdoptionRequestEntity updateRequestStatus(Long requestId, String newStatus) 
