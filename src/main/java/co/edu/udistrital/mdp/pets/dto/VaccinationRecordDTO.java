@@ -14,8 +14,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class VaccinationRecordDTO {
-    private Long id;
+public class VaccinationRecordDTO extends BaseDTO{
     private LocalDate applicationDate;
     private LocalDate nextDueDate;
+    private VaccineDTO vaccine;
+    private PetDTO pet;
 }
