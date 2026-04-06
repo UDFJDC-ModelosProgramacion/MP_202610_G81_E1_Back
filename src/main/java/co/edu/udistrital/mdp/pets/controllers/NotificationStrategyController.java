@@ -1,6 +1,5 @@
 package co.edu.udistrital.mdp.pets.controllers;
 
-import co.edu.udistrital.mdp.pets.dto.NotificationDetailDTO;
 import co.edu.udistrital.mdp.pets.dto.NotificationStrategyDTO;
 import co.edu.udistrital.mdp.pets.entities.NotificationEntity;
 import co.edu.udistrital.mdp.pets.entities.NotificationStrategyEntity;
@@ -31,22 +30,13 @@ public class NotificationStrategyController {
      * The type can be EMAIL, IN_APP, or SMS.
      */
     @PostMapping
-	public NotificationDetailDTO createNotification(@RequestBody NotificationDetailDTO dto) throws IllegalOperationException {
-    // 1. Mapeamos la notificación pero ignoramos la estrategia por un momento
-    NotificationEntity entity = modelMapper.map(dto, NotificationEntity.class);
-
-    // 2. Hidratación manual: Buscamos la estrategia REAL en la DB
-    if (dto.getNotificationStrategy() != null) {
-        try {
-            NotificationStrategyEntity strategy = notificationService.getStrategy(dto.getNotificationStrategy().getId());
-            entity.setNotificationStrategy(strategy);
-        } catch (EntityNotFoundException e) {
-            throw new IllegalOperationException("Strategy not found");
-        }
+    @ResponseStatus(HttpStatus.CREATED)
+    public NotificationStrategyDTO createStrategy(@RequestParam String type) 
+            throws IllegalOperationException {
+        // Notamos que no enviamos Body porque BaseEntity solo tiene ID
+        NotificationStrategyEntity entity = notificationService.createStrategy(type);
+        return modelMapper.map(entity, NotificationStrategyDTO.class);
     }
-
-    return modelMapper.map(notificationService.createNotification(entity), NotificationDetailDTO.class);
-	}
 
     /**
      * Retrieves all available notification strategies.

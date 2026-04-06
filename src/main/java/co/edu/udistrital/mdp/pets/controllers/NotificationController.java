@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import co.edu.udistrital.mdp.pets.dto.NotificationDTO;
 import co.edu.udistrital.mdp.pets.dto.NotificationDetailDTO;
 import co.edu.udistrital.mdp.pets.entities.NotificationEntity;
+import co.edu.udistrital.mdp.pets.entities.NotificationStrategyEntity;
 import co.edu.udistrital.mdp.pets.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.pets.exceptions.IllegalOperationException;
 import co.edu.udistrital.mdp.pets.services.NotificationService;
@@ -19,12 +20,22 @@ public class NotificationController {
     @Autowired
     private ModelMapper modelMapper;
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public NotificationDetailDTO createNotification(@RequestBody NotificationDetailDTO dto)
-            throws IllegalOperationException {
-        NotificationEntity entity = modelMapper.map(dto, NotificationEntity.class);
-        return modelMapper.map(notificationService.createNotification(entity), NotificationDetailDTO.class);
+	public NotificationDetailDTO createNotification(@RequestBody NotificationDetailDTO dto) throws IllegalOperationException {
+    // 1. Mapeamos la notificación pero ignoramos la estrategia por un momento
+    NotificationEntity entity = modelMapper.map(dto, NotificationEntity.class);
+
+    // 2. Hidratación manual: Buscamos la estrategia REAL en la DB
+    if (dto.getNotificationStrategy() != null) {
+        try {
+            NotificationStrategyEntity strategy = notificationService.getStrategy(dto.getNotificationStrategy().getId());
+            entity.setNotificationStrategy(strategy);
+        } catch (EntityNotFoundException e) {
+            throw new IllegalOperationException("Strategy not found");
+        }
     }
+
+    return modelMapper.map(notificationService.createNotification(entity), NotificationDetailDTO.class);
+	}
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<NotificationDTO> getNotifications() {
