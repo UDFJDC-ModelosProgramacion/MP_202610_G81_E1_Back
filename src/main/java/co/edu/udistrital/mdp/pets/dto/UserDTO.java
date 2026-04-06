@@ -1,5 +1,7 @@
 package co.edu.udistrital.mdp.pets.dto;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
@@ -16,4 +18,6 @@ public abstract class UserDTO extends BaseDTO{
     
 	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
+
+	private List<NotificationDTO> notifications;
 }

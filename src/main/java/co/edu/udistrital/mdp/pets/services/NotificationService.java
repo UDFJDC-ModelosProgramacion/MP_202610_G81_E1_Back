@@ -6,8 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import co.edu.udistrital.mdp.pets.entities.EmailNotificationStrategyEntity;
+import co.edu.udistrital.mdp.pets.entities.InAppNotificationStrategyEntity;
 import co.edu.udistrital.mdp.pets.entities.NotificationEntity;
 import co.edu.udistrital.mdp.pets.entities.NotificationStrategyEntity;
+import co.edu.udistrital.mdp.pets.entities.SMSNotificationStrategyEntity;
 import co.edu.udistrital.mdp.pets.repositories.NotificationRepository;
 import co.edu.udistrital.mdp.pets.repositories.NotificationStrategyRepository;
 import co.edu.udistrital.mdp.pets.repositories.UserRepository;
@@ -62,18 +65,23 @@ public class NotificationService {
 		}
     }
 
-    @Transactional
+	@Transactional
     public NotificationEntity createNotification(NotificationEntity notification)
             throws IllegalOperationException {
-        // Primero validamos para evitar el NPE en los logs o validaciones posteriores
+        
         validateNotification(notification);
 
-        log.info("Creating notification for user: {}", 
-                notification.getUser() != null ? notification.getUser().getId() : "null");
-        
         if (notification.getIsRead() == null) {
             notification.setIsRead(false);
         }
+
+        // --- AQUÍ SE EJECUTA EL PATRÓN STRATEGY ---
+        // Buscamos la estrategia real de la DB para que tenga el código del 'send'
+        NotificationStrategyEntity strategy = notificationStrategyRepository
+                .findById(notification.getNotificationStrategy().getId()).get();
+        
+        strategy.send(notification); 
+        // ------------------------------------------
 
         return notificationRepository.save(notification);
     }
@@ -156,4 +164,52 @@ public class NotificationService {
         notification.setNotificationStrategy(strategy);
         return notificationRepository.save(notification);
     }
+	
+	/**
+     * Crea una nueva estrategia de notificación según el tipo discriminador.
+     * @param type Tipo de estrategia: "EMAIL", "IN_APP", "SMS".
+     * @return La estrategia persistida.
+     */
+    @Transactional
+    public NotificationStrategyEntity createStrategy(String type) throws IllegalOperationException {
+        log.info("Creating notification strategy of type: {}", type);
+        
+        NotificationStrategyEntity strategy;
+
+        // Instanciación basada en el tipo (Factory Pattern)
+        switch (type.toUpperCase()) {
+            case "EMAIL":
+                strategy = new EmailNotificationStrategyEntity();
+                break;
+            case "IN_APP":
+                strategy = new InAppNotificationStrategyEntity();
+                break;
+            case "SMS":
+                strategy = new SMSNotificationStrategyEntity();
+                break;
+            default:
+                throw new IllegalOperationException("Invalid strategy type: " + type);
+        }
+
+        return notificationStrategyRepository.save(strategy);
+    }
+
+    /**
+     * Obtiene todas las estrategias de la tabla única.
+     */
+    @Transactional(readOnly = true)
+    public List<NotificationStrategyEntity> getStrategies() {
+        log.info("Consulting all notification strategies");
+        return notificationStrategyRepository.findAll();
+    }
+
+    /**
+     * Busca una estrategia por ID.
+     */
+    @Transactional(readOnly = true)
+    public NotificationStrategyEntity getStrategy(Long strategyId) throws EntityNotFoundException {
+        return notificationStrategyRepository.findById(strategyId)
+                .orElseThrow(() -> new EntityNotFoundException("Notification strategy not found"));
+    }
+
 }
