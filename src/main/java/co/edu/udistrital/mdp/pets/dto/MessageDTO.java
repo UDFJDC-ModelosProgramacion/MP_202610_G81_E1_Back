@@ -10,4 +10,6 @@ public class MessageDTO extends BaseDTO {
     private String content;
     private Date timestamp;
     private Boolean isRead;
+	private AdopterDTO adopter;
+	private ShelterDTO shelter;
 }
