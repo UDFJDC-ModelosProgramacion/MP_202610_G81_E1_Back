@@ -77,24 +77,34 @@ public class AdoptionRequestService {
     /**
      * Permite ejecutar una estrategia sobre una solicitud existente.
      */
-    @Transactional
-    public AdoptionRequestEntity evaluateRequest(Long requestId, Long strategyId) 
-            throws EntityNotFoundException, IllegalOperationException {
-        
-        AdoptionRequestEntity request = getRequest(requestId);
-        ApprovalStrategyEntity strategy = strategyRepository.findById(strategyId)
-                .orElseThrow(() -> new EntityNotFoundException("Strategy not found"));
+	@Transactional
+	public AdoptionRequestEntity evaluateRequest(Long requestId, Long strategyId) 
+			throws EntityNotFoundException, IllegalOperationException {
+		
+		AdoptionRequestEntity request = getRequest(requestId);
+		ApprovalStrategyEntity strategy = strategyRepository.findById(strategyId)
+				.orElseThrow(() -> new EntityNotFoundException("Strategy not found"));
 
-        validateStatusUpdate(request, "APPROVED"); // Validar que no esté finalizada
+		validateStatusUpdate(request, "APPROVED");
 
-        request.setApprovalStrategy(strategy);
-        boolean result = strategy.evaluate(request);
-        
-        request.setStatus(result ? "APPROVED" : "REJECTED");
-        
-        log.info("Request {} evaluated with result: {}", requestId, request.getStatus());
-        return requestRepository.save(request);
-    }  
+		request.setApprovalStrategy(strategy);
+		boolean result = strategy.evaluate(request);
+		
+		String finalStatus = result ? "APPROVED" : "REJECTED";
+		request.setStatus(finalStatus);
+		
+		// --- AQUÍ ESTÁ EL TRUCO ---
+		if (result) {
+			var pet = request.getPet();
+			pet.setStatus(PetStatus.RESERVED); // Cambiamos a RESERVED porque ya fue aprobada
+			petRepository.save(pet); // Persistimos el cambio en la mascota
+			log.info("Pet ID {} status updated to RESERVED", pet.getId());
+		}
+		// --------------------------
+		
+		log.info("Request {} evaluated with result: {}", requestId, request.getStatus());
+		return requestRepository.save(request);
+	}
 	/**
      * Valida reglas de negocio para la creación de una solicitud.
      */
