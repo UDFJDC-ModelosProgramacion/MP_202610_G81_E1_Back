@@ -17,7 +17,7 @@ public class DateStrategy implements AttributeStrategy<Date> {
     @Override
     public Date getValue(Class<?> attributeType, List<Annotation> annotations) {
         Calendar c = Calendar.getInstance();
-        int maxYear = 2030; // Evita fechas demasiado lejanas para no romper la DB
+        int maxYear = 2030; 
         int minYear = 2020;
         
         c.set(Calendar.YEAR, r.nextInt(maxYear - minYear + 1) + minYear);

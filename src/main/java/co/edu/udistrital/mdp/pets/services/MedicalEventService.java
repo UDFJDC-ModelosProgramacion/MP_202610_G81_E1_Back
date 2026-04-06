@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import co.edu.udistrital.mdp.pets.entities.MedicalEventEntity;
+import co.edu.udistrital.mdp.pets.entities.MedicalHistoryEntity;
 import co.edu.udistrital.mdp.pets.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.pets.exceptions.ErrorMessage;
 import co.edu.udistrital.mdp.pets.exceptions.IllegalOperationException;
@@ -22,60 +23,48 @@ public class MedicalEventService {
 
     @Autowired
     private MedicalEventRepository repository;
+
     @Autowired
     private MedicalHistoryRepository historyRepository;
 
-    /**
-     * Valida los datos obligatorios del evento médico.
-     * @param event Entidad a validar.
-     * @throws IllegalOperationException Si los datos no cumplen las reglas de negocio.
-     */
-    private void validateData(MedicalEventEntity event) throws IllegalOperationException {
+    private void validateBasicRules(MedicalEventEntity event) throws IllegalOperationException {
         if (event == null) {
             throw new IllegalOperationException("El evento médico no puede ser nulo.");
         }
         if (event.getEventDate() != null && event.getEventDate().isAfter(LocalDate.now())) {
             throw new IllegalOperationException("La fecha del evento médico no puede ser en el futuro.");
         }
-        if (event.getMedicalHistory() == null) {
-            throw new IllegalOperationException("El evento debe estar asociado a una historia médica.");
-        }
-        Long historyId = event.getMedicalHistory().getId();
-        if (historyId == null || !historyRepository.existsById(historyId)) {
-            throw new IllegalOperationException("La historia médica asociada no existe.");
-        }
     }
 
-    /**
-     * Crea un nuevo evento médico.
-     * @param event Entidad a crear.
-     * @return El evento creado.
-     * @throws IllegalOperationException Si no cumple las reglas.
-     */
-    @Transactional
-    public MedicalEventEntity createMedicalEvent(MedicalEventEntity event) throws IllegalOperationException {
-        log.info("Iniciando proceso de creación para un evento médico");
-        validateData(event);
-        log.info("Evento médico creado exitosamente");
-        return repository.save(event);
-    }
+	private MedicalHistoryEntity fetchMedicalHistoryOrThrow(Long historyId) throws IllegalOperationException {
+		return historyRepository.findById(historyId)
+				.orElseThrow(() -> new IllegalOperationException(ErrorMessage.MEDICAL_HISTORY_NOT_FOUND));
+	}
 
-    /**
-     * Obtiene todos los eventos médicos.
-     * @return Lista de eventos.
-     */
+	@Transactional
+	public MedicalEventEntity createMedicalEvent(MedicalEventEntity event) throws IllegalOperationException {
+		log.info("Iniciando proceso de creación para un evento médico");
+		validateBasicRules(event);
+
+		if (event.getMedicalHistory() == null || event.getMedicalHistory().getId() == null) {
+			throw new IllegalOperationException("El evento debe estar asociado a una historia médica.");
+		}
+
+		Long historyId = event.getMedicalHistory().getId();
+		MedicalHistoryEntity history = fetchMedicalHistoryOrThrow(historyId);
+		event.setMedicalHistory(history);
+
+		MedicalEventEntity saved = repository.save(event);
+		log.info("Evento médico creado exitosamente con id={}", saved.getId());
+		return saved;
+	}
+
     @Transactional(readOnly = true)
     public List<MedicalEventEntity> getMedicalEvents() {
         log.info("Consultando todos los eventos médicos");
         return repository.findAll();
     }
 
-    /**
-     * Obtiene un evento médico por su ID.
-     * @param eventId ID del evento.
-     * @return El evento encontrado.
-     * @throws EntityNotFoundException Si no existe.
-     */
     @Transactional(readOnly = true)
     public MedicalEventEntity getMedicalEvent(Long eventId) throws EntityNotFoundException {
         log.info("Consultando evento médico con id = {}", eventId);
@@ -86,45 +75,61 @@ public class MedicalEventService {
                 });
     }
 
-    /**
-     * Actualiza un evento médico existente.
-     * @param eventId ID a actualizar.
-     * @param event Datos actualizados.
-     * @return El evento actualizado.
-     * @throws EntityNotFoundException Si no existe.
-     * @throws IllegalOperationException Si no cumple las reglas.
-     */
-    @Transactional
-    public MedicalEventEntity updateMedicalEvent(Long eventId, MedicalEventEntity event) 
-            throws EntityNotFoundException, IllegalOperationException {
-        MedicalEventEntity persisted = repository.findById(eventId)
-                .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.MEDICAL_EVENT_NOT_FOUND));
+	@Transactional
+	public MedicalEventEntity updateMedicalEvent(Long eventId, MedicalEventEntity event)
+			throws EntityNotFoundException, IllegalOperationException {
 
-        // impedir cambio de fecha
-        if (event.getEventDate() != null && !event.getEventDate().equals(persisted.getEventDate())) {
-            throw new IllegalOperationException("No se puede modificar la fecha de un evento ya creado.");
-        }
+		MedicalEventEntity persisted = repository.findById(eventId)
+				.orElseThrow(() -> new EntityNotFoundException(ErrorMessage.MEDICAL_EVENT_NOT_FOUND));
 
-        validateData(event);
-        event.setId(eventId);
-        return repository.save(event);
-    }
+		// Impedir cambio de fecha
+		if (event.getEventDate() != null && !event.getEventDate().equals(persisted.getEventDate())) {
+			throw new IllegalOperationException("No se puede modificar la fecha de un evento ya creado.");
+		}
 
-    /**
-     * Elimina un evento médico.
-     * @param eventId ID a eliminar.
-     * @throws EntityNotFoundException Si no existe.
-     */
+		validateBasicRules(event);
+
+		// Validación estricta para el test: La historia es obligatoria en el update
+		if (event.getMedicalHistory() == null || event.getMedicalHistory().getId() == null) {
+			throw new IllegalOperationException("La historia médica asociada debe incluir un id.");
+		}
+
+		Long historyId = event.getMedicalHistory().getId();
+		MedicalHistoryEntity history = fetchMedicalHistoryOrThrow(historyId);
+		persisted.setMedicalHistory(history);
+
+		// Merge parcial de campos
+		if (event.getEventType() != null) persisted.setEventType(event.getEventType());
+		if (event.getDiagnosis() != null) persisted.setDiagnosis(event.getDiagnosis());
+		if (event.getDescription() != null) persisted.setDescription(event.getDescription());
+		if (event.getTreatment() != null) persisted.setTreatment(event.getTreatment());
+
+		log.info("Actualizando evento médico id={}", eventId);
+		return repository.save(persisted);
+	}
+
     @Transactional
     public void deleteMedicalEvent(Long eventId) throws EntityNotFoundException {
         log.info("Iniciando proceso de eliminación para evento médico ID: {}", eventId);
-        
+
         if (!repository.existsById(eventId)) {
             log.error("Intento de eliminar evento médico inexistente con ID: {}", eventId);
             throw new EntityNotFoundException(ErrorMessage.MEDICAL_EVENT_NOT_FOUND);
         }
-        
+
         repository.deleteById(eventId);
         log.info("Evento médico con ID: {} eliminado exitosamente", eventId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<MedicalEventEntity> getEventsByHistoryId(Long historyId) {
+        if (!historyRepository.existsById(historyId)) {
+            try {
+                throw new EntityNotFoundException(ErrorMessage.MEDICAL_HISTORY_NOT_FOUND);
+            } catch (EntityNotFoundException ex) {
+                System.getLogger(MedicalEventService.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            }
+        }
+        return repository.findByMedicalHistoryId(historyId);
     }
 }

@@ -6,12 +6,14 @@ import jakarta.persistence.InheritanceType;
 import jakarta.persistence.DiscriminatorColumn;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 @Data
 @Entity
 @EqualsAndHashCode(callSuper = true)
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "approval_type")
+@NoArgsConstructor
 public abstract class ApprovalStrategyEntity extends BaseEntity {
     public abstract boolean evaluate(AdoptionRequestEntity request);
 }

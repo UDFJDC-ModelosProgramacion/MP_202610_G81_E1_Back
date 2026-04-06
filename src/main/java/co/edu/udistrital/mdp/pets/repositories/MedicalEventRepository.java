@@ -1,9 +1,10 @@
 package co.edu.udistrital.mdp.pets.repositories;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import java.util.List;
 
+import org.springframework.data.jpa.repository.JpaRepository;
 import co.edu.udistrital.mdp.pets.entities.MedicalEventEntity;
 
-@Repository 
-public interface MedicalEventRepository extends JpaRepository<MedicalEventEntity, Long> {}
+public interface MedicalEventRepository extends JpaRepository<MedicalEventEntity, Long> {
+    List<MedicalEventEntity> findByMedicalHistoryId(Long medicalHistoryId);
+}
