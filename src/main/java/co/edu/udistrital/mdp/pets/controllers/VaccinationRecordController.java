@@ -38,8 +38,9 @@ public class VaccinationRecordController {
     public ResponseEntity<List<VaccinationRecordDTO>> getAll() {
         List<VaccinationRecordDTO> list = service.getVaccinationRecords().stream()
                 .map(e -> modelMapper.map(e, VaccinationRecordDTO.class))
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(list);
+                .toList(); 
+
+        return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")

@@ -38,8 +38,8 @@ public class VaccineController {
         List<VaccineDTO> list = service.getVaccines().stream()
                 .map(e -> modelMapper.map(e, VaccineDTO.class))
                 .collect(Collectors.toList());
-        return ResponseEntity.ok(list);
-    }
+        return ResponseEntity.ok(list);    
+	}
 
     @GetMapping("/{id}")
     public ResponseEntity<VaccineDetailDTO> getById(@PathVariable Long id) throws EntityNotFoundException {
