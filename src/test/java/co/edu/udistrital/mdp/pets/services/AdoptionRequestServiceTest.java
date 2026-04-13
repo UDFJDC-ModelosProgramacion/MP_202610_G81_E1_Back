@@ -3,11 +3,12 @@ package co.edu.udistrital.mdp.pets.services;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
-
 import co.edu.udistrital.mdp.pets.entities.*;
 import co.edu.udistrital.mdp.pets.enums.PetStatus;
 import co.edu.udistrital.mdp.pets.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.pets.exceptions.IllegalOperationException;
+import jakarta.persistence.Entity;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -306,16 +307,31 @@ class AdoptionRequestServiceTest {
     }
 
 	@Test
-    void testEvaluateRequestRejected() throws EntityNotFoundException, IllegalOperationException {
-        AdoptionRequestEntity req = new AdoptionRequestEntity();
-        req.setPet(pet);
-        req.setAdopter(adopter);
-        req.setStatus("PENDING");
-        req = entityManager.persist(req);
+	void testEvaluateRequestRejected() throws EntityNotFoundException, IllegalOperationException {
+		AdoptionRequestEntity req = new AdoptionRequestEntity();
+		req.setPet(pet);
+		req.setAdopter(adopter);
+		req.setStatus("PENDING");
+		entityManager.persist(req);
 
-        ManualApprovalStrategyEntity realStrategy = new ManualApprovalStrategyEntity();
-        realStrategy = entityManager.persist(realStrategy);
-        entityManager.flush();    
+		FailingStrategy strategy = new FailingStrategy();
+		entityManager.persist(strategy);
+		entityManager.flush();
+
+		AdoptionRequestEntity result = service.evaluateRequest(req.getId(), strategy.getId());
+
+		assertNotNull(result);
+		assertEquals("REJECTED", result.getStatus());
+	}
+
+
+	@Entity
+	@jakarta.persistence.DiscriminatorValue("FAIL") // Esto evita que use el nombre largo de la clase
+	public static class FailingStrategy extends ManualApprovalStrategyEntity {
+		@Override
+		public boolean evaluate(AdoptionRequestEntity request) {
+			return false;
+		}
 	}
 
 	@Test
@@ -345,7 +361,7 @@ class AdoptionRequestServiceTest {
     }
 
 	@Test
-    void testValidateStatusUpdateToApprovedSuccess() throws IllegalOperationException {
+    void testValidateStatusUpdateToApprovedSuccess() {
         AdoptionRequestEntity request = new AdoptionRequestEntity();
         request.setPet(pet);
         request.setAdopter(adopter);
@@ -359,7 +375,7 @@ class AdoptionRequestServiceTest {
     }
 
     @Test
-    void testValidateStatusUpdateToRejectedSuccess() throws IllegalOperationException {
+    void testValidateStatusUpdateToRejectedSuccess() {
         AdoptionRequestEntity request = new AdoptionRequestEntity();
         request.setPet(pet);
         request.setAdopter(adopter);
