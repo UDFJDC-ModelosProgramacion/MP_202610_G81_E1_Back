@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,25 +24,27 @@ import co.edu.udistrital.mdp.pets.entities.VeterinarianEntity;
 import co.edu.udistrital.mdp.pets.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.pets.exceptions.ErrorMessage;
 import co.edu.udistrital.mdp.pets.exceptions.IllegalOperationException;
+import co.edu.udistrital.mdp.pets.repositories.AdoptionFollowUpRepository;
 import uk.co.jemos.podam.api.PodamFactory;
 import uk.co.jemos.podam.api.PodamFactoryImpl;
 
 @DataJpaTest
 @Transactional
 @Import(AdoptionFollowUpService.class)
-@SuppressWarnings("null")
 class AdoptionFollowUpServiceTest {
 
     @Autowired
     private AdoptionFollowUpService service;
 
-    @Autowired
+	@Autowired
+    private AdoptionFollowUpRepository repository;
+    
+	@Autowired
     private TestEntityManager entityManager;
 
     private final PodamFactory factory = new PodamFactoryImpl();
 
     @BeforeEach
-    @SuppressWarnings("unused")
     void setUp() {
         entityManager.getEntityManager().createQuery("delete from AdoptionFollowUpEntity").executeUpdate();
         entityManager.getEntityManager().createQuery("delete from AdoptionEntity").executeUpdate();
@@ -252,5 +255,198 @@ class AdoptionFollowUpServiceTest {
         assertNotNull(byFreq);
         assertEquals(1, byFreq.size());
         assertEquals("A", byFreq.get(0).getNotes());
+    }
+
+    @Test
+    void testCreateFollowUpNullFails() {
+        assertThrows(IllegalOperationException.class, () -> 
+            service.createFollowUp(null));
+    }
+
+    @Test
+    void testCreateFollowUpAdoptionStatusNullFails() {
+        AdoptionFollowUpEntity followUp = new AdoptionFollowUpEntity();
+        AdoptionEntity adoption = new AdoptionEntity();
+        adoption.setStatus(null); 
+        followUp.setAdoption(adoption);
+        
+        assertThrows(IllegalOperationException.class, () -> 
+            service.createFollowUp(followUp));
+    }
+
+    @Test
+    void testCreateFollowUpAdoptionStatusNotCompletedFails() {
+        AdoptionFollowUpEntity followUp = new AdoptionFollowUpEntity();
+        AdoptionEntity adoption = new AdoptionEntity();
+        adoption.setStatus(co.edu.udistrital.mdp.pets.enums.ProcessStatus.IN_PROGRESS); 
+        followUp.setAdoption(adoption);
+        
+        assertThrows(IllegalOperationException.class, () -> 
+            service.createFollowUp(followUp));
+    }
+
+    @Test
+    void testCreateFollowUpNotesNullFails() {
+        AdoptionFollowUpEntity followUp = new AdoptionFollowUpEntity();
+        AdoptionEntity adoption = new AdoptionEntity();
+        adoption.setStatus(co.edu.udistrital.mdp.pets.enums.ProcessStatus.COMPLETED);
+        
+        followUp.setAdoption(adoption);
+        followUp.setFollowUpDate(java.time.LocalDate.now());
+        followUp.setNotes(null); 
+        
+        assertThrows(IllegalOperationException.class, () -> 
+            service.createFollowUp(followUp));
+    }
+
+    @Test
+    void testCreateFollowUpNotesEmptyFails() {
+        AdoptionFollowUpEntity followUp = new AdoptionFollowUpEntity();
+        AdoptionEntity adoption = new AdoptionEntity();
+        adoption.setStatus(co.edu.udistrital.mdp.pets.enums.ProcessStatus.COMPLETED);
+        
+        followUp.setAdoption(adoption);
+        followUp.setFollowUpDate(java.time.LocalDate.now());
+        followUp.setNotes("   "); 
+        
+        assertThrows(IllegalOperationException.class, () -> 
+            service.createFollowUp(followUp));
+    }
+
+	@Test
+    void testGetFollowUps() {
+        AdoptionFollowUpEntity followUp = new AdoptionFollowUpEntity();
+        
+        AdoptionEntity adoption = new AdoptionEntity();
+        adoption.setStatus(co.edu.udistrital.mdp.pets.enums.ProcessStatus.COMPLETED);
+        
+        followUp.setAdoption(adoption);
+        followUp.setFollowUpDate(java.time.LocalDate.now());
+        followUp.setNotes("Seguimiento inicial de prueba");
+        
+        entityManager.persist(adoption);
+        entityManager.persist(followUp);
+        entityManager.flush();
+
+        List<AdoptionFollowUpEntity> list = service.getFollowUps();
+
+        assertNotNull(list);
+        assertTrue(list.size() >= 1);
+        boolean found = list.stream().anyMatch(f -> f.getNotes().equals("Seguimiento inicial de prueba"));
+        assertTrue(found);
+    }
+
+	@Test
+    void testGetFollowUpSuccess() throws EntityNotFoundException {
+        AdoptionEntity adoption = new AdoptionEntity();
+        adoption.setStatus(co.edu.udistrital.mdp.pets.enums.ProcessStatus.COMPLETED);
+        entityManager.persist(adoption);
+
+        AdoptionFollowUpEntity followUp = new AdoptionFollowUpEntity();
+        followUp.setAdoption(adoption);
+        followUp.setFollowUpDate(java.time.LocalDate.now());
+        followUp.setNotes("Existing follow-up");
+        
+        followUp = entityManager.persist(followUp);
+        entityManager.flush();
+
+        AdoptionFollowUpEntity result = service.getFollowUp(followUp.getId());
+
+        assertNotNull(result);
+        assertEquals(followUp.getId(), result.getId());
+        assertEquals("Existing follow-up", result.getNotes());
+    }
+
+    @Test
+    void testGetFollowUpNotFoundFails() {
+        EntityNotFoundException ex = assertThrows(EntityNotFoundException.class, () -> 
+            service.getFollowUp(999L));
+        
+        assertNotNull(ex.getMessage());
+    }
+
+	@Test
+    void testUpdateFollowUpDateNullFails() throws EntityNotFoundException, IllegalOperationException {
+        AdoptionEntity adoption = new AdoptionEntity();
+        adoption.setStatus(co.edu.udistrital.mdp.pets.enums.ProcessStatus.COMPLETED);
+        entityManager.persist(adoption);
+
+        AdoptionFollowUpEntity existing = new AdoptionFollowUpEntity();
+        existing.setAdoption(adoption);
+        existing.setFollowUpDate(java.time.LocalDate.now());
+        existing.setNotes("Nota original");
+        existing = entityManager.persist(existing);
+        entityManager.flush();
+
+        AdoptionFollowUpEntity updateInfo = new AdoptionFollowUpEntity();
+        updateInfo.setFollowUpDate(null); 
+        updateInfo.setNotes("Nueva nota");
+
+        final Long id = existing.getId();
+
+        assertThrows(IllegalOperationException.class, () -> 
+            service.updateFollowUp(id, updateInfo, true));
+    }
+
+    @Test
+    void testUpdateFollowUpNotesInvalidFails() throws EntityNotFoundException, IllegalOperationException {
+        AdoptionEntity adoption = new AdoptionEntity();
+        adoption.setStatus(co.edu.udistrital.mdp.pets.enums.ProcessStatus.COMPLETED);
+        entityManager.persist(adoption);
+
+        AdoptionFollowUpEntity existing = new AdoptionFollowUpEntity();
+        existing.setAdoption(adoption);
+        existing.setFollowUpDate(java.time.LocalDate.now());
+        existing.setNotes("Nota original");
+        existing = entityManager.persist(existing);
+        entityManager.flush();
+
+        final Long id = existing.getId();
+
+        AdoptionFollowUpEntity updateNullNotes = new AdoptionFollowUpEntity();
+        updateNullNotes.setFollowUpDate(java.time.LocalDate.now());
+        updateNullNotes.setNotes(null);
+
+        assertThrows(IllegalOperationException.class, () -> 
+            service.updateFollowUp(id, updateNullNotes, true));
+
+        AdoptionFollowUpEntity updateEmptyNotes = new AdoptionFollowUpEntity();
+        updateEmptyNotes.setFollowUpDate(java.time.LocalDate.now());
+        updateEmptyNotes.setNotes("    ");
+
+        assertThrows(IllegalOperationException.class, () -> 
+            service.updateFollowUp(id, updateEmptyNotes, true));
+    }
+
+	@Test
+    void testDeleteFollowUpPermissionDeniedFails() {
+        assertThrows(IllegalOperationException.class, () -> 
+            service.deleteFollowUp(1L, false));
+    }
+
+    @Test
+    void testDeleteFollowUpNotFoundFails() {
+        assertThrows(EntityNotFoundException.class, () -> 
+            service.deleteFollowUp(999L, true));
+    }
+
+    @Test
+    void testDeleteFollowUpSuccess() throws EntityNotFoundException, IllegalOperationException {
+        AdoptionEntity adoption = new AdoptionEntity();
+        adoption.setStatus(co.edu.udistrital.mdp.pets.enums.ProcessStatus.COMPLETED);
+        entityManager.persist(adoption);
+
+        AdoptionFollowUpEntity followUp = new AdoptionFollowUpEntity();
+        followUp.setAdoption(adoption);
+        followUp.setFollowUpDate(java.time.LocalDate.now());
+        followUp.setNotes("To be deleted");
+        followUp = entityManager.persist(followUp);
+        entityManager.flush();
+
+        Long id = followUp.getId();
+
+        service.deleteFollowUp(id, true);
+
+        assertFalse(repository.existsById(id));
     }
 }
