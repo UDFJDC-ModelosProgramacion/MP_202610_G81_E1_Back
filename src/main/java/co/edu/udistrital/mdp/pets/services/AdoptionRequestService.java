@@ -13,6 +13,7 @@ import co.edu.udistrital.mdp.pets.repositories.ApprovalStrategyRepository;
 import co.edu.udistrital.mdp.pets.repositories.PetRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,8 +36,12 @@ public class AdoptionRequestService {
 
     @Autowired
     private ApprovalStrategyRepository strategyRepository; // Para gestionar las estrategias
-
-    // --- MÉTODOS DE ESTRATEGIA ---
+	
+	@Autowired
+	@Lazy
+	private AdoptionRequestService self; // Referencia al proxy de Spring
+    
+	// --- MÉTODOS DE ESTRATEGIA ---
 
     @Transactional(readOnly = true)
     public List<ApprovalStrategyEntity> getStrategies() {
@@ -85,7 +90,7 @@ public class AdoptionRequestService {
 	public AdoptionRequestEntity evaluateRequest(Long requestId, Long strategyId) 
 			throws EntityNotFoundException, IllegalOperationException {
 		
-		AdoptionRequestEntity request = getRequest(requestId);
+		AdoptionRequestEntity request = self.getRequest(requestId);
 		ApprovalStrategyEntity strategy = strategyRepository.findById(strategyId)
 				.orElseThrow(() -> new EntityNotFoundException("Strategy not found"));
 
