@@ -366,7 +366,7 @@ class AdoptionFollowUpServiceTest {
     }
 
 	@Test
-    void testUpdateFollowUpDateNullFails() throws EntityNotFoundException, IllegalOperationException {
+    void testUpdateFollowUpDateNullFails() {
         AdoptionEntity adoption = new AdoptionEntity();
         adoption.setStatus(co.edu.udistrital.mdp.pets.enums.ProcessStatus.COMPLETED);
         entityManager.persist(adoption);
@@ -389,7 +389,7 @@ class AdoptionFollowUpServiceTest {
     }
 
     @Test
-    void testUpdateFollowUpNotesInvalidFails() throws EntityNotFoundException, IllegalOperationException {
+    void testUpdateFollowUpNotesInvalidFails() {
         AdoptionEntity adoption = new AdoptionEntity();
         adoption.setStatus(co.edu.udistrital.mdp.pets.enums.ProcessStatus.COMPLETED);
         entityManager.persist(adoption);
