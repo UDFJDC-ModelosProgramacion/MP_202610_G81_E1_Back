@@ -34,14 +34,10 @@ public class VeterinarianController {
 	@GetMapping
     @ResponseStatus(code = HttpStatus.OK)
     public List<VeterinarianDTO> findAll() {
-        List<UserEntity> allUsers = veterinarianService.getUsers(); 
-
-        List<VeterinarianDTO> onlyVets = allUsers.stream()
-            .filter(VeterinarianEntity.class::isInstance) 
-            .map(e -> modelMapper.map(e, VeterinarianDTO.class))
-            .toList(); 
-
-        return onlyVets;
+        return veterinarianService.getUsers().stream()
+                .filter(VeterinarianEntity.class::isInstance)
+                .map(e -> modelMapper.map(e, VeterinarianDTO.class))
+                .toList();
     }
 
     @GetMapping(value = "/{id}")
