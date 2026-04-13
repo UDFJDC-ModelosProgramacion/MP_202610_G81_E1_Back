@@ -2,7 +2,6 @@ package co.edu.udistrital.mdp.pets.dto;
 
 import java.time.LocalDate;
 
-import co.edu.udistrital.mdp.pets.entities.ReportEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -15,4 +14,5 @@ public class ReportDTO extends BaseDTO {
     private LocalDate generateDate;
     private Long shelterId;
     private Long strategyId;
-    private Long reportedUserId;}
+    private Long reportedUserId;
+}

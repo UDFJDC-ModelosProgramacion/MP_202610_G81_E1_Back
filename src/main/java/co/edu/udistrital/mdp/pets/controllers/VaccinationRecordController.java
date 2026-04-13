@@ -1,7 +1,6 @@
 package co.edu.udistrital.mdp.pets.controllers;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
@@ -38,8 +37,9 @@ public class VaccinationRecordController {
     public ResponseEntity<List<VaccinationRecordDTO>> getAll() {
         List<VaccinationRecordDTO> list = service.getVaccinationRecords().stream()
                 .map(e -> modelMapper.map(e, VaccinationRecordDTO.class))
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(list);
+                .toList(); 
+
+        return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")

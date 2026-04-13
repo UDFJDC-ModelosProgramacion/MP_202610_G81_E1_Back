@@ -1,11 +1,11 @@
 package co.edu.udistrital.mdp.pets.dto;
 
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
-@Getter
-@Setter
+@Data
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 public class AdoptionRequestDetailDTO extends AdoptionRequestDTO {
     

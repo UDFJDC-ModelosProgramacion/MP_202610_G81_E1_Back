@@ -77,10 +77,11 @@ public class NotificationService {
 
         // --- AQUÍ SE EJECUTA EL PATRÓN STRATEGY ---
         // Buscamos la estrategia real de la DB para que tenga el código del 'send'
-        NotificationStrategyEntity strategy = notificationStrategyRepository
-                .findById(notification.getNotificationStrategy().getId()).get();
-        
-        strategy.send(notification); 
+       NotificationStrategyEntity strategy = notificationStrategyRepository
+        .findById(notification.getNotificationStrategy().getId())
+        .orElseThrow(() -> new IllegalOperationException("The assigned notification strategy does not exist"));
+
+		strategy.send(notification); 
         // ------------------------------------------
 
         return notificationRepository.save(notification);

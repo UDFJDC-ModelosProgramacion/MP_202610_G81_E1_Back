@@ -7,8 +7,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import co.edu.udistrital.mdp.pets.entities.ManualApprovalStrategyEntity;
 import co.edu.udistrital.mdp.pets.entities.MedicalClearanceStrategyEntity;
 import co.edu.udistrital.mdp.pets.entities.ScoreBasedApprovalStrategyEntity;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
  * llenar :) 

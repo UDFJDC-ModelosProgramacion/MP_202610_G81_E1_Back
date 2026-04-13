@@ -22,7 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
-@SuppressWarnings("null")
 public class VaccinationRecordService {
 
     @Autowired
@@ -83,31 +82,31 @@ public class VaccinationRecordService {
     }
 
     @Transactional
-    public VaccinationRecordEntity createVaccinationRecord(VaccinationRecordEntity record) throws IllegalOperationException {
+    public VaccinationRecordEntity createVaccinationRecord(VaccinationRecordEntity vaccinationRecord) throws IllegalOperationException {
         log.info("Iniciando el proceso de creación del registro de vacunación");
-        if (record == null) throw new IllegalOperationException("El registro de vacunación no puede ser nulo.");
+        if (vaccinationRecord == null) throw new IllegalOperationException("El registro de vacunación no puede ser nulo.");
 
-        validateDates(record);
+        validateDates(vaccinationRecord);
 
-        if (record.getPet() == null || record.getPet().getId() == null) {
+        if (vaccinationRecord.getPet() == null || vaccinationRecord.getPet().getId() == null) {
             throw new IllegalOperationException("La mascota es obligatoria para el registro.");
         }
-        PetEntity pet = fetchPetOrThrow(record.getPet().getId());
-        record.setPet(pet);
+        PetEntity pet = fetchPetOrThrow(vaccinationRecord.getPet().getId());
+        vaccinationRecord.setPet(pet);
 
-        if (record.getVaccine() == null || record.getVaccine().getId() == null) {
+        if (vaccinationRecord.getVaccine() == null || vaccinationRecord.getVaccine().getId() == null) {
             throw new IllegalOperationException("La vacuna es obligatoria para el registro.");
         }
-        VaccineEntity vaccine = fetchVaccineOrThrow(record.getVaccine().getId());
-        record.setVaccine(vaccine);
+        VaccineEntity vaccine = fetchVaccineOrThrow(vaccinationRecord.getVaccine().getId());
+        vaccinationRecord.setVaccine(vaccine);
 
         // opcional: asociar medicalHistory si viene
-        if (record.getMedicalHistory() != null && record.getMedicalHistory().getId() != null) {
-            MedicalHistoryEntity history = fetchHistoryOrThrow(record.getMedicalHistory().getId());
-            record.setMedicalHistory(history);
+        if (vaccinationRecord.getMedicalHistory() != null && vaccinationRecord.getMedicalHistory().getId() != null) {
+            MedicalHistoryEntity history = fetchHistoryOrThrow(vaccinationRecord.getMedicalHistory().getId());
+            vaccinationRecord.setMedicalHistory(history);
         }
 
-        VaccinationRecordEntity saved = repository.save(record);
+        VaccinationRecordEntity saved = repository.save(vaccinationRecord);
         log.info("Registro de vacunación creado id={}", saved.getId());
         return saved;
     }
@@ -124,38 +123,38 @@ public class VaccinationRecordService {
     }
 
     @Transactional
-    public VaccinationRecordEntity updateVaccinationRecord(Long recordId, VaccinationRecordEntity record)
+    public VaccinationRecordEntity updateVaccinationRecord(Long recordId, VaccinationRecordEntity vaccinationRecord)
             throws EntityNotFoundException, IllegalOperationException {
 
         VaccinationRecordEntity persisted = repository.findById(recordId)
                 .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.VACCINATION_NOT_FOUND));
 
         // Validaciones de fechas (si vienen)
-        if (record.getApplicationDate() != null && record.getApplicationDate().isAfter(LocalDate.now())) {
+        if (vaccinationRecord.getApplicationDate() != null && vaccinationRecord.getApplicationDate().isAfter(LocalDate.now())) {
             throw new IllegalOperationException("La fecha de aplicación no puede ser una fecha futura.");
         }
-        if (record.getApplicationDate() != null && record.getNextDueDate() != null
-                && !record.getNextDueDate().isAfter(record.getApplicationDate())) {
+        if (vaccinationRecord.getApplicationDate() != null && vaccinationRecord.getNextDueDate() != null
+                && !vaccinationRecord.getNextDueDate().isAfter(vaccinationRecord.getApplicationDate())) {
             throw new IllegalOperationException("La fecha de vencimiento debe ser posterior a la fecha de aplicación.");
         }
 
         // Merge parcial
-        if (record.getApplicationDate() != null) persisted.setApplicationDate(record.getApplicationDate());
-        if (record.getNextDueDate() != null) persisted.setNextDueDate(record.getNextDueDate());
-        if (record.getVaccinationDate() != null) persisted.setVaccinationDate(record.getVaccinationDate());
+        if (vaccinationRecord.getApplicationDate() != null) persisted.setApplicationDate(vaccinationRecord.getApplicationDate());
+        if (vaccinationRecord.getNextDueDate() != null) persisted.setNextDueDate(vaccinationRecord.getNextDueDate());
+        if (vaccinationRecord.getVaccinationDate() != null) persisted.setVaccinationDate(vaccinationRecord.getVaccinationDate());
 
-        if (record.getPet() != null && record.getPet().getId() != null) {
-            PetEntity pet = fetchPetOrThrow(record.getPet().getId());
+        if (vaccinationRecord.getPet() != null && vaccinationRecord.getPet().getId() != null) {
+            PetEntity pet = fetchPetOrThrow(vaccinationRecord.getPet().getId());
             persisted.setPet(pet);
         }
 
-        if (record.getVaccine() != null && record.getVaccine().getId() != null) {
-            VaccineEntity vaccine = fetchVaccineOrThrow(record.getVaccine().getId());
+        if (vaccinationRecord.getVaccine() != null && vaccinationRecord.getVaccine().getId() != null) {
+            VaccineEntity vaccine = fetchVaccineOrThrow(vaccinationRecord.getVaccine().getId());
             persisted.setVaccine(vaccine);
         }
 
-        if (record.getMedicalHistory() != null && record.getMedicalHistory().getId() != null) {
-            MedicalHistoryEntity history = fetchHistoryOrThrow(record.getMedicalHistory().getId());
+        if (vaccinationRecord.getMedicalHistory() != null && vaccinationRecord.getMedicalHistory().getId() != null) {
+            MedicalHistoryEntity history = fetchHistoryOrThrow(vaccinationRecord.getMedicalHistory().getId());
             persisted.setMedicalHistory(history);
         }
 
