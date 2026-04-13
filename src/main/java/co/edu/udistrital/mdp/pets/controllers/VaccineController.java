@@ -1,7 +1,6 @@
 package co.edu.udistrital.mdp.pets.controllers;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
@@ -37,9 +36,11 @@ public class VaccineController {
     public ResponseEntity<List<VaccineDTO>> getAll() {
         List<VaccineDTO> list = service.getVaccines().stream()
                 .map(e -> modelMapper.map(e, VaccineDTO.class))
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(list);
-    }
+                .toList(); 
+
+        return new ResponseEntity<>(list, HttpStatus.OK);
+    
+	}
 
     @GetMapping("/{id}")
     public ResponseEntity<VaccineDetailDTO> getById(@PathVariable Long id) throws EntityNotFoundException {

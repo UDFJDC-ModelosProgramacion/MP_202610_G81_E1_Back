@@ -1,7 +1,6 @@
 package co.edu.udistrital.mdp.pets.controllers;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
@@ -34,12 +33,13 @@ public class MedicalEventController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @GetMapping
+	@GetMapping
     public ResponseEntity<List<MedicalEventDTO>> getAll() {
         List<MedicalEventDTO> list = service.getMedicalEvents().stream()
                 .map(e -> modelMapper.map(e, MedicalEventDTO.class))
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(list);
+                .toList(); // Reemplaza .collect(Collectors.toList())
+
+        return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
@@ -66,11 +66,11 @@ public class MedicalEventController {
     }
 
     @GetMapping("/by-history/{historyId}")
-    public ResponseEntity<List<MedicalEventDTO>> getByHistory(@PathVariable Long historyId)
-            throws EntityNotFoundException {
+    public ResponseEntity<List<MedicalEventDTO>> getByHistory(@PathVariable Long historyId){
         List<MedicalEventDTO> list = service.getEventsByHistoryId(historyId).stream()
                 .map(e -> modelMapper.map(e, MedicalEventDTO.class))
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(list);
+                .toList(); // Reemplaza .collect(Collectors.toList())
+
+        return new ResponseEntity<>(list, HttpStatus.OK);
     }
 }

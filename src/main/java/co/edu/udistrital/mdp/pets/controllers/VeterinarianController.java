@@ -31,14 +31,17 @@ public class VeterinarianController {
     @Autowired
     private ModelMapper modelMapper;
 
-    @GetMapping
+	@GetMapping
     @ResponseStatus(code = HttpStatus.OK)
     public List<VeterinarianDTO> findAll() {
         List<UserEntity> allUsers = veterinarianService.getUsers(); 
-        List<UserEntity> onlyVets = allUsers.stream()
-            .filter(user -> user instanceof VeterinarianEntity)
-            .toList();
-        return modelMapper.map(onlyVets, new TypeToken<List<VeterinarianDTO>>() {}.getType());
+
+        List<VeterinarianDTO> onlyVets = allUsers.stream()
+            .filter(VeterinarianEntity.class::isInstance) 
+            .map(e -> modelMapper.map(e, VeterinarianDTO.class))
+            .toList(); 
+
+        return onlyVets;
     }
 
     @GetMapping(value = "/{id}")
@@ -53,7 +56,8 @@ public class VeterinarianController {
 
 	@PostMapping
 	@ResponseStatus(code = HttpStatus.CREATED)
-	public VeterinarianDTO create(@RequestBody VeterinarianDTO vetDTO) throws IllegalOperationException, EntityNotFoundException {
+	public VeterinarianDTO create(@RequestBody VeterinarianDTO vetDTO) 
+			throws IllegalOperationException{
 		VeterinarianEntity entity = modelMapper.map(vetDTO, VeterinarianEntity.class);
 		UserEntity newEntity = veterinarianService.createUser(entity);
 		return modelMapper.map(newEntity, VeterinarianDTO.class);

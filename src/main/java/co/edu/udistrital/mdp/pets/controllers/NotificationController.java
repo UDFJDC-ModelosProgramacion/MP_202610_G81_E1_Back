@@ -39,7 +39,7 @@ public class NotificationController {
         NotificationEntity entity = new NotificationEntity();
         entity.setMessage(dto.getMessage());
         entity.setDate(dto.getDate());
-        entity.setIsRead(dto.getIsRead() != null ? dto.getIsRead() : false);
+        entity.setIsRead(Boolean.TRUE.equals(dto.getIsRead()));
 
         // 1. Hidratar Estrategia
         if (dto.getNotificationStrategy() != null) {

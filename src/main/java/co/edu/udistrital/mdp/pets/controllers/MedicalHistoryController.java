@@ -1,7 +1,6 @@
 package co.edu.udistrital.mdp.pets.controllers;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
@@ -39,8 +38,9 @@ public class MedicalHistoryController {
     public ResponseEntity<List<MedicalHistoryDTO>> getAll() {
         List<MedicalHistoryDTO> list = service.getMedicalHistories().stream()
                 .map(e -> modelMapper.map(e, MedicalHistoryDTO.class))
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(list);
+                .toList(); 
+
+        return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
@@ -70,7 +70,8 @@ public class MedicalHistoryController {
     public ResponseEntity<List<MedicalEventDTO>> getEvents(@PathVariable Long id) throws EntityNotFoundException {
         List<MedicalEventDTO> events = service.getMedicalHistory(id).getMedicalEvents().stream()
                 .map(e -> modelMapper.map(e, MedicalEventDTO.class))
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(events);
-    }
+                .toList(); 
+
+        return new ResponseEntity<>(events, HttpStatus.OK);    
+	}
 }
