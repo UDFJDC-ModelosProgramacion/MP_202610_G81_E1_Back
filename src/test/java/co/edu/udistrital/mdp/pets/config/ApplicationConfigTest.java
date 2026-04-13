@@ -9,7 +9,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.test.context.ContextConfiguration;
-
+import co.edu.udistrital.mdp.pets.config.ApplicationConfig;
 // Importante: Solo cargamos la clase de configuración, no toda la App
 @SpringBootTest
 @ContextConfiguration(classes = ApplicationConfig.class)
