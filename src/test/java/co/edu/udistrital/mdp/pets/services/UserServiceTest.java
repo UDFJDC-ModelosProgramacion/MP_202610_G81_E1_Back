@@ -19,6 +19,7 @@ import co.edu.udistrital.mdp.pets.entities.UserEntity;
 import co.edu.udistrital.mdp.pets.entities.AdopterEntity;
 import co.edu.udistrital.mdp.pets.entities.AdoptionEntity;
 import co.edu.udistrital.mdp.pets.entities.NotificationEntity;
+import co.edu.udistrital.mdp.pets.entities.NotificationStrategyEntity;
 import co.edu.udistrital.mdp.pets.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.pets.exceptions.IllegalOperationException;
 import uk.co.jemos.podam.api.PodamFactory;
@@ -492,6 +493,41 @@ class UserServiceTest {
             userService.markNotificationAsRead(userB.getId(), noteA.getId());
         });
     }
+
+	@Test
+	void testUpdateWithNullNotification() {
+		UserEntity user = new MockUser();
+		int initialSize = user.getNotifications().size();
+
+		user.update(null);
+
+		assertEquals(initialSize, user.getNotifications().size());
+	}
+
+	@Test
+	void testUpdateWithNotificationButNoStrategy() {
+		UserEntity user = new MockUser();
+		NotificationEntity notification = new NotificationEntity();
+
+		user.update(notification);
+
+		assertEquals(1, user.getNotifications().size());
+		assertEquals(user, notification.getUser());
+	}
+
+	@Test
+	void testUpdateWithNotificationAndStrategy() {
+		UserEntity user = new MockUser();
+		NotificationEntity notification = new NotificationEntity();
+		
+		NotificationStrategyEntity mockStrategy = org.mockito.Mockito.mock(NotificationStrategyEntity.class);
+		notification.setNotificationStrategy(mockStrategy);
+
+		user.update(notification);
+
+		org.mockito.Mockito.verify(mockStrategy).send(notification);
+		assertEquals(1, user.getNotifications().size());
+	}
 }
 @Service
 class MockUserService extends UserService {
