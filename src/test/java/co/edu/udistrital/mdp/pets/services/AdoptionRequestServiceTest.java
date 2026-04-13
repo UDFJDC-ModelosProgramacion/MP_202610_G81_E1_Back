@@ -257,18 +257,15 @@ class AdoptionRequestServiceTest {
         request.setAdopter(adopter);
         request.setStatus("APPROVED");
         
-        // Usamos el entityManager para saltarnos la validación de creación y tener el estado deseado
         request = entityManager.persist(request);
         entityManager.flush();
 
         final Long id = request.getId();
 
-        // 2. Intentar actualizarla debe lanzar IllegalOperationException
         assertThrows(IllegalOperationException.class, () -> 
             service.updateRequestStatus(id, "REJECTED"),
             "Should fail when request is already APPROVED");
             
-        // 3. Caso para REJECTED (para asegurar cobertura completa del OR)
         request.setStatus("REJECTED");
         entityManager.merge(request);
         entityManager.flush();
@@ -288,5 +285,121 @@ class AdoptionRequestServiceTest {
         final Long id = request.getId();
         assertThrows(IllegalOperationException.class, () -> 
             service.updateRequestStatus(id, "WAITING"));
+    }
+
+	@Test
+    void testCreateRequestWithAutoApprovalStrategyFalse() throws IllegalOperationException {
+        AdoptionRequestEntity request = new AdoptionRequestEntity();
+        request.setPet(pet);
+        request.setAdopter(adopter);
+
+        ManualApprovalStrategyEntity mockStrategy = org.mockito.Mockito.mock(ManualApprovalStrategyEntity.class);
+        org.mockito.Mockito.when(mockStrategy.evaluate(org.mockito.ArgumentMatchers.any())).thenReturn(false);
+        
+        request.setApprovalStrategy(mockStrategy);
+
+        AdoptionRequestEntity saved = service.createRequest(request);
+
+        assertNotNull(saved);
+        assertEquals("PENDING", saved.getStatus()); // Se mantiene en PENDING
+        org.mockito.Mockito.verify(mockStrategy).evaluate(request);
+    }
+
+	@Test
+    void testEvaluateRequestRejected() throws EntityNotFoundException, IllegalOperationException {
+        AdoptionRequestEntity req = new AdoptionRequestEntity();
+        req.setPet(pet);
+        req.setAdopter(adopter);
+        req.setStatus("PENDING");
+        req = entityManager.persist(req);
+
+        ManualApprovalStrategyEntity realStrategy = new ManualApprovalStrategyEntity();
+        realStrategy = entityManager.persist(realStrategy);
+        entityManager.flush();    
+	}
+
+	@Test
+    void testValidateNewRequestWithNullAdopterDoesNotCheckDuplicates() throws IllegalOperationException {
+        AdoptionRequestEntity request = new AdoptionRequestEntity();
+        request.setPet(pet);
+        request.setAdopter(null); 
+
+        AdoptionRequestEntity result = service.createRequest(request);
+        
+        assertNotNull(result);
+        assertNull(result.getAdopter());
+    }
+
+    @Test
+    void testValidateNewRequestWithAdopterButNoIdDoesNotCheckDuplicates() throws IllegalOperationException {
+        AdoptionRequestEntity request = new AdoptionRequestEntity();
+        request.setPet(pet);
+        
+        AdopterEntity transientAdopter = new AdopterEntity();
+        request.setAdopter(transientAdopter);
+
+        AdoptionRequestEntity result = service.createRequest(request);
+        
+        assertNotNull(result);
+        assertNull(result.getAdopter().getId());
+    }
+
+	@Test
+    void testValidateStatusUpdateToApprovedSuccess() throws IllegalOperationException {
+        AdoptionRequestEntity request = new AdoptionRequestEntity();
+        request.setPet(pet);
+        request.setAdopter(adopter);
+        request.setStatus("PENDING");
+        request = entityManager.persist(request);
+        entityManager.flush();
+
+        final Long id = request.getId();
+        assertDoesNotThrow(() -> 
+            service.updateRequestStatus(id, "APPROVED"));
+    }
+
+    @Test
+    void testValidateStatusUpdateToRejectedSuccess() throws IllegalOperationException {
+        AdoptionRequestEntity request = new AdoptionRequestEntity();
+        request.setPet(pet);
+        request.setAdopter(adopter);
+        request.setStatus("PENDING");
+        request = entityManager.persist(request);
+        entityManager.flush();
+
+        final Long id = request.getId();
+        assertDoesNotThrow(() -> 
+            service.updateRequestStatus(id, "REJECTED"));
+    }
+
+    @Test
+    void testValidateStatusUpdateInvalidTransitionFails() {
+        AdoptionRequestEntity request = new AdoptionRequestEntity();
+        request.setPet(pet);
+        request.setAdopter(adopter);
+        request.setStatus("PENDING");
+        request = entityManager.persist(request);
+        entityManager.flush();
+
+        final Long id = request.getId();
+        assertThrows(IllegalOperationException.class, () -> 
+            service.updateRequestStatus(id, "CANCELLED"));
+    }
+
+	@Test
+    void testGetRequests() {
+        AdoptionRequestEntity request = new AdoptionRequestEntity();
+        request.setPet(pet);
+        request.setAdopter(adopter);
+        request.setStatus("PENDING");
+        
+        entityManager.persist(request);
+        entityManager.flush();
+
+        List<AdoptionRequestEntity> list = service.getRequests();
+
+        assertNotNull(list);
+        assertFalse(list.isEmpty());
+        assertTrue(list.size() >= 1);
     }
 }
