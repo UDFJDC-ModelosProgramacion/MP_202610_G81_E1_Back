@@ -83,7 +83,7 @@ class VaccinationRecordServiceTest {
     // ==========================================
 
     @Test
-    void testCreateRecordSuccess() throws IllegalOperationException {
+    void testCreateRecordSuccess() throws IllegalOperationException, EntityNotFoundException { 
         VaccinationRecordEntity newRecord = factory.manufacturePojo(VaccinationRecordEntity.class);
         newRecord.setApplicationDate(LocalDate.now());
 
@@ -205,7 +205,7 @@ class VaccinationRecordServiceTest {
         fakeVaccine.setId(999999L);
         newRecord.setVaccine(fakeVaccine);
 
-        IllegalOperationException ex = assertThrows(IllegalOperationException.class,
+        EntityNotFoundException ex = assertThrows(EntityNotFoundException.class,
                 () -> vaccinationRecordService.createVaccinationRecord(newRecord));
         assertNotNull(ex);
     }

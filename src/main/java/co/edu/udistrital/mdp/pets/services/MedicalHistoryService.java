@@ -45,9 +45,9 @@ public class MedicalHistoryService {
         return null;
     }
 
-    @SuppressWarnings("CallToPrintStackTrace")
-    private void extracted(EntityNotFoundException e) {
-        e.printStackTrace();
+	private void extracted(EntityNotFoundException e) {
+        // Sonar amará esto: es seguro, profesional y configurable
+        log.error("Entity not found during process: {}", e.getMessage(), e);
     }
 
     @Transactional

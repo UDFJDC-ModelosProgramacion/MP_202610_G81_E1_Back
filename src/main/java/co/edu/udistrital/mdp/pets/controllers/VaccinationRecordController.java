@@ -26,10 +26,12 @@ public class VaccinationRecordController {
 
     @PostMapping
     public ResponseEntity<VaccinationRecordDetailDTO> create(@RequestBody VaccinationRecordDTO dto)
-            throws IllegalOperationException {
+            throws IllegalOperationException, EntityNotFoundException { // Added EntityNotFoundException
+        
         VaccinationRecordEntity toSave = modelMapper.map(dto, VaccinationRecordEntity.class);
         VaccinationRecordEntity created = service.createVaccinationRecord(toSave);
         VaccinationRecordDetailDTO response = modelMapper.map(created, VaccinationRecordDetailDTO.class);
+        
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
