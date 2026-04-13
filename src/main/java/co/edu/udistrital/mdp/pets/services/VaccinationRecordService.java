@@ -48,37 +48,19 @@ public class VaccinationRecordService {
         }
     }
 
-    @SuppressWarnings("CallToPrintStackTrace")
-    private PetEntity fetchPetOrThrow(Long petId) {
-        try {
-            return petRepository.findById(petId)
-                    .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.PET_NOT_FOUND));
-        } catch (EntityNotFoundException e) {
-            e.printStackTrace();
-        }
-        return null;
+	private PetEntity fetchPetOrThrow(Long petId) throws EntityNotFoundException {
+        return petRepository.findById(petId)
+                .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.PET_NOT_FOUND));
     }
 
-    @SuppressWarnings("CallToPrintStackTrace")
-    private VaccineEntity fetchVaccineOrThrow(Long vaccineId) {
-        try {
-            return vaccineRepository.findById(vaccineId)
-                    .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.VACCINE_NOT_FOUND));
-        } catch (EntityNotFoundException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
+    private VaccineEntity fetchVaccineOrThrow(Long vaccineId) throws EntityNotFoundException {
+        return vaccineRepository.findById(vaccineId)
+                .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.VACCINE_NOT_FOUND));
+    }    
     
-    @SuppressWarnings("CallToPrintStackTrace")
-    private MedicalHistoryEntity fetchHistoryOrThrow(Long historyId) {
-        try {
-            return historyRepository.findById(historyId)
-                    .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.MEDICAL_HISTORY_NOT_FOUND));
-        } catch (EntityNotFoundException e) {
-            e.printStackTrace();
-        }
-        return null;
+	private MedicalHistoryEntity fetchHistoryOrThrow(Long historyId) throws EntityNotFoundException {
+        return historyRepository.findById(historyId)
+                .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.MEDICAL_HISTORY_NOT_FOUND));
     }
 
     @Transactional
