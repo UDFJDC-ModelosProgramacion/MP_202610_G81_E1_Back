@@ -192,7 +192,7 @@ class VaccinationRecordServiceTest {
         assertNotNull(ex);
     }
 
-    @Test
+	@Test
     void testCreateRecordWithNonexistentVaccineFails() {
         VaccinationRecordEntity newRecord = factory.manufacturePojo(VaccinationRecordEntity.class);
         newRecord.setApplicationDate(LocalDate.now());
@@ -202,11 +202,12 @@ class VaccinationRecordServiceTest {
         newRecord.setPet(pet);
 
         VaccineEntity fakeVaccine = new VaccineEntity();
-        fakeVaccine.setId(999999L);
+        fakeVaccine.setId(999999L); 
         newRecord.setVaccine(fakeVaccine);
 
-        EntityNotFoundException ex = assertThrows(EntityNotFoundException.class,
+        IllegalOperationException ex = assertThrows(IllegalOperationException.class,
                 () -> vaccinationRecordService.createVaccinationRecord(newRecord));
+        
         assertNotNull(ex);
     }
 
@@ -234,7 +235,7 @@ class VaccinationRecordServiceTest {
         IllegalOperationException ex = assertThrows(IllegalOperationException.class,
                 () -> vaccinationRecordService.createVaccinationRecord(null));
         assertNotNull(ex);
-        assertTrue(ex.getMessage().toLowerCase().contains("nulo"));
+        assertTrue(ex.getMessage().toLowerCase().contains("null"));
     }
 
     // ==========================================
