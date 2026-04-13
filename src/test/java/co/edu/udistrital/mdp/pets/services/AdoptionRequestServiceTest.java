@@ -250,7 +250,7 @@ class AdoptionRequestServiceTest {
     }
 	
 	@Test
-    void testValidateStatusUpdateFromFinalizedFails() throws IllegalOperationException {
+    void testValidateStatusUpdateFromFinalizedFails() {
         // 1. Crear y persistir una solicitud directamente en estado APPROVED
         AdoptionRequestEntity request = new AdoptionRequestEntity();
         request.setPet(pet);
@@ -279,7 +279,7 @@ class AdoptionRequestServiceTest {
     }
 
     @Test
-    void testValidateStatusUpdateToInvalidStatusFails() throws EntityNotFoundException, IllegalOperationException {
+    void testValidateStatusUpdateToInvalidStatusFails() throws IllegalOperationException {
         AdoptionRequestEntity request = new AdoptionRequestEntity();
         request.setPet(pet);
         request.setAdopter(adopter);
