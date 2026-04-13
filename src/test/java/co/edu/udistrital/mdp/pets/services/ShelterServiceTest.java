@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import co.edu.udistrital.mdp.pets.entities.AdopterEntity;
 import co.edu.udistrital.mdp.pets.entities.EmailNotificationStrategyEntity;
+import co.edu.udistrital.mdp.pets.entities.Observer;
 import co.edu.udistrital.mdp.pets.entities.PetEntity;
 import co.edu.udistrital.mdp.pets.entities.ShelterEntity;
 import co.edu.udistrital.mdp.pets.entities.ShelterEventEntity;
@@ -546,4 +547,51 @@ class ShelterServiceTest {
         // El inactivo NO debe tener la notificación
         assertTrue(observer2.getNotifications().isEmpty(), "El usuario inactivo NO debe recibir la notificación");
     }
+
+	@Test
+	void testAttachNewObserver() {
+		ShelterEntity shelter = new ShelterEntity();
+		Observer observer = org.mockito.Mockito.mock(Observer.class);
+
+		shelter.attach(observer);
+
+		assertTrue(shelter.getObservers().contains(observer));
+		assertEquals(1, shelter.getObservers().size());
+	}
+
+	@Test
+	void testAttachDuplicateObserver() {
+		ShelterEntity shelter = new ShelterEntity();
+		Observer observer = org.mockito.Mockito.mock(Observer.class);
+
+		shelter.attach(observer);
+		shelter.attach(observer);
+
+		assertEquals(1, shelter.getObservers().size());
+	}
+
+	@Test
+	void testDetachExistingObserver() {
+		ShelterEntity shelter = new ShelterEntity();
+		Observer observer = org.mockito.Mockito.mock(Observer.class);
+		
+		shelter.attach(observer);
+		assertEquals(1, shelter.getObservers().size());
+
+		shelter.detach(observer);
+
+		assertFalse(shelter.getObservers().contains(observer));
+		assertEquals(0, shelter.getObservers().size());
+	}
+
+	@Test
+	void testDetachNonExistingObserver() {
+		ShelterEntity shelter = new ShelterEntity();
+		Observer observer = org.mockito.Mockito.mock(Observer.class);
+		
+		// Intentar remover sin haberlo agregado antes
+		shelter.detach(observer);
+
+		assertEquals(0, shelter.getObservers().size());
+	}
 }
