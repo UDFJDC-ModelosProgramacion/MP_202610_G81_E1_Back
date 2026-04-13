@@ -23,6 +23,10 @@ import java.util.List;
 @Service
 public class AdoptionRequestService {
 
+	public static final String STATUS_APPROVED = "APPROVED";
+	public static final String STATUS_PENDING = "PENDING";
+	public static final String STATUS_REJECTED = "REJECTED";
+
     @Autowired
     private AdoptionRequestRepository requestRepository;
 
@@ -57,7 +61,7 @@ public class AdoptionRequestService {
         log.info("Processing new adoption request");
         
         request.setRequestDate(LocalDate.now());
-        request.setStatus("PENDING"); 
+        request.setStatus(STATUS_PENDING); 
         
         validateNewRequest(request);
 
@@ -66,7 +70,7 @@ public class AdoptionRequestService {
         if (request.getApprovalStrategy() != null) {
             boolean autoApproved = request.getApprovalStrategy().evaluate(request);
             if (autoApproved) {
-                request.setStatus("APPROVED");
+                request.setStatus(STATUS_APPROVED);
                 log.info("Request auto-approved by strategy: {}", request.getApprovalStrategy().getClass().getSimpleName());
             }
         }
@@ -85,22 +89,20 @@ public class AdoptionRequestService {
 		ApprovalStrategyEntity strategy = strategyRepository.findById(strategyId)
 				.orElseThrow(() -> new EntityNotFoundException("Strategy not found"));
 
-		validateStatusUpdate(request, "APPROVED");
+		validateStatusUpdate(request, STATUS_APPROVED);
 
 		request.setApprovalStrategy(strategy);
 		boolean result = strategy.evaluate(request);
 		
-		String finalStatus = result ? "APPROVED" : "REJECTED";
+		String finalStatus = result ? STATUS_APPROVED : STATUS_REJECTED;
 		request.setStatus(finalStatus);
 		
-		// --- AQUÍ ESTÁ EL TRUCO ---
 		if (result) {
 			var pet = request.getPet();
 			pet.setStatus(PetStatus.RESERVED); // Cambiamos a RESERVED porque ya fue aprobada
 			petRepository.save(pet); // Persistimos el cambio en la mascota
 			log.info("Pet ID {} status updated to RESERVED", pet.getId());
 		}
-		// --------------------------
 		
 		log.info("Request {} evaluated with result: {}", requestId, request.getStatus());
 		return requestRepository.save(request);
@@ -130,7 +132,7 @@ public class AdoptionRequestService {
             );
             
             boolean hasActiveRequest = existingRequests.stream()
-                    .anyMatch(r -> r.getStatus().equalsIgnoreCase("PENDING"));
+                    .anyMatch(r -> r.getStatus().equalsIgnoreCase(STATUS_PENDING));
 
             if (hasActiveRequest) {
                 throw new IllegalOperationException("You already have a pending request for this pet.");
@@ -145,12 +147,12 @@ public class AdoptionRequestService {
         String current = existing.getStatus();
         
         // Si ya está finalizada (APPROVED/REJECTED), no se puede mover
-        if (current.equalsIgnoreCase("APPROVED") || current.equalsIgnoreCase("REJECTED")) {
+        if (current.equalsIgnoreCase(STATUS_APPROVED) || current.equalsIgnoreCase(STATUS_REJECTED)) {
             throw new IllegalOperationException("Cannot modify a request that is already " + current);
         }
 
         // Solo permitir cambios lógicos a APPROVED o REJECTED
-        if (!nextStatus.equalsIgnoreCase("APPROVED") && !nextStatus.equalsIgnoreCase("REJECTED")) {
+        if (!nextStatus.equalsIgnoreCase(STATUS_APPROVED) && !nextStatus.equalsIgnoreCase(STATUS_REJECTED)) {
             throw new IllegalOperationException("Invalid status transition. Can only change to APPROVED or REJECTED.");
         }
     }
