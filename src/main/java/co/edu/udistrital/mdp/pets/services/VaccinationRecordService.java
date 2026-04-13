@@ -63,33 +63,37 @@ public class VaccinationRecordService {
                 .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.MEDICAL_HISTORY_NOT_FOUND));
     }
 
-    @Transactional
-    public VaccinationRecordEntity createVaccinationRecord(VaccinationRecordEntity vaccinationRecord) throws IllegalOperationException {
-        log.info("Iniciando el proceso de creación del registro de vacunación");
-        if (vaccinationRecord == null) throw new IllegalOperationException("El registro de vacunación no puede ser nulo.");
+	@Transactional
+    public VaccinationRecordEntity createVaccinationRecord(VaccinationRecordEntity vaccinationRecord) 
+            throws IllegalOperationException, EntityNotFoundException { 
+        
+        log.info("Starting vaccination record creation process"); 
+        
+        if (vaccinationRecord == null) {
+            throw new IllegalOperationException("Vaccination record cannot be null.");
+        }
 
         validateDates(vaccinationRecord);
 
         if (vaccinationRecord.getPet() == null || vaccinationRecord.getPet().getId() == null) {
-            throw new IllegalOperationException("La mascota es obligatoria para el registro.");
+            throw new IllegalOperationException("Pet is mandatory for the record.");
         }
         PetEntity pet = fetchPetOrThrow(vaccinationRecord.getPet().getId());
         vaccinationRecord.setPet(pet);
 
         if (vaccinationRecord.getVaccine() == null || vaccinationRecord.getVaccine().getId() == null) {
-            throw new IllegalOperationException("La vacuna es obligatoria para el registro.");
+            throw new IllegalOperationException("Vaccine is mandatory for the record.");
         }
         VaccineEntity vaccine = fetchVaccineOrThrow(vaccinationRecord.getVaccine().getId());
         vaccinationRecord.setVaccine(vaccine);
 
-        // opcional: asociar medicalHistory si viene
         if (vaccinationRecord.getMedicalHistory() != null && vaccinationRecord.getMedicalHistory().getId() != null) {
             MedicalHistoryEntity history = fetchHistoryOrThrow(vaccinationRecord.getMedicalHistory().getId());
             vaccinationRecord.setMedicalHistory(history);
         }
 
         VaccinationRecordEntity saved = repository.save(vaccinationRecord);
-        log.info("Registro de vacunación creado id={}", saved.getId());
+        log.info("Vaccination record created with id={}", saved.getId());
         return saved;
     }
 
