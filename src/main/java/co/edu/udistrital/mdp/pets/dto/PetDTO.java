@@ -18,7 +18,7 @@ public class PetDTO extends BaseDTO {
     private String sex;
     private String size;
     private String photos;
-    private PetStatus status;	
+    private String status;	
     private String temperament;
     private String specialNeeds;
     private String description;
