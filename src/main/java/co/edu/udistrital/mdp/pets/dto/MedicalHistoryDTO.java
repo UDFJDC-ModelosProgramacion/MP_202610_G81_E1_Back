@@ -15,5 +15,8 @@ import lombok.NoArgsConstructor;
 public class MedicalHistoryDTO {
     private Long id;
     private LocalDate lastCheckup;
+    private PetDTO pet;
+    private String description;
     private String notes;
 }
+

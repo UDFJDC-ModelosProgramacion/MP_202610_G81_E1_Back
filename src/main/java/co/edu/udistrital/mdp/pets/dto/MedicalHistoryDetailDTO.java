@@ -14,10 +14,4 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class MedicalHistoryDetailDTO extends MedicalHistoryDTO {
-    private String bloodType;
-    private Boolean isSterilized;
-    private String arrivalCondition;
-    private PetDTO pet;
-    private List<MedicalEventDTO> medicalEvents = new ArrayList<>();
-    private List<VaccinationRecordDTO> vaccinations = new ArrayList<>();
 }
