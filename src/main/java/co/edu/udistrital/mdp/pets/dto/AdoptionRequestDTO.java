@@ -9,7 +9,6 @@ import java.time.LocalDate;
 public class AdoptionRequestDTO extends BaseDTO{
     private LocalDate requestDate;
     private String status;
-
 	private Long petId; 
     private Long adopterId;
     private Long strategyId;

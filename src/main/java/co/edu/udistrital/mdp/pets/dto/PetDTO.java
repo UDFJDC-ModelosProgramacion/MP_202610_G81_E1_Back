@@ -1,6 +1,5 @@
 package co.edu.udistrital.mdp.pets.dto;
 
-import co.edu.udistrital.mdp.pets.enums.PetStatus;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

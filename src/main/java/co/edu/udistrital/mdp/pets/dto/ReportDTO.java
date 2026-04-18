@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class ReportDTO extends BaseDTO {
-   private Long id;
+    private Long id;
     private String reason;
     private String status;
     private LocalDate generateDate;
