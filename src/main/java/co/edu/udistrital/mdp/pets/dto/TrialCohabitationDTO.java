@@ -1,6 +1,5 @@
 package co.edu.udistrital.mdp.pets.dto;
 
-import co.edu.udistrital.mdp.pets.enums.ProcessStatus;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
