@@ -21,7 +21,7 @@ public class AdoptionDTO extends BaseDTO {
     private LocalDate adoptionDate;
 
     /** Current status of the adoption process. */
-    private ProcessStatus status;
+    private String status;
 
     /** ID of the adopter involved in this adoption. */
     private Long adopterId;
