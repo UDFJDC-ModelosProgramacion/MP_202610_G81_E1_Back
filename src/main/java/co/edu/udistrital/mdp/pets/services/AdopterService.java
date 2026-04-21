@@ -95,7 +95,7 @@ public class AdopterService extends UserService {
 	@Transactional
     public AdopterDTO createFromDTO(AdopterDTO dto) throws IllegalOperationException {
         AdopterEntity entity = modelMapper.map(dto, AdopterEntity.class);
-        UserEntity created = this.createUser(entity); 
+        UserEntity created = super.createUser(entity); 
         return modelMapper.map(created, AdopterDTO.class);
     }
 
@@ -103,7 +103,7 @@ public class AdopterService extends UserService {
     public AdopterDTO updateFromDTO(Long id, AdopterDTO dto) 
             throws EntityNotFoundException, IllegalOperationException {
         AdopterEntity entity = modelMapper.map(dto, AdopterEntity.class);
-        UserEntity updated = this.updateUser(id, entity);
+        UserEntity updated = super.updateUser(id, entity);
         return modelMapper.map(updated, AdopterDTO.class);
     }
 }
