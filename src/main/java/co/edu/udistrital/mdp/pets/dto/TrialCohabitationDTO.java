@@ -32,7 +32,7 @@ public class TrialCohabitationDTO extends BaseDTO {
     private String result;
 
     /** Current status of the trial cohabitation process. */
-    private ProcessStatus status;
+    private String status;
 
     /** ID of the pet involved in this trial. */
     private Long petId;

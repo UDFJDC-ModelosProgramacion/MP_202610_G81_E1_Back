@@ -14,6 +14,11 @@ import lombok.NoArgsConstructor;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class MedicalEventDTO extends BaseDTO{
     private LocalDate eventDate;
-    private String description;
     private MedicalHistoryDTO medicalHistory;
+    private VeterinarianDTO veterinarian;
+	private String eventType; // Consulta, Cirugía, etc.
+    private String diagnosis;
+    private String treatment;
+	
 }
+

@@ -3,7 +3,9 @@ package co.edu.udistrital.mdp.pets.controllers;
 import co.edu.udistrital.mdp.pets.dto.AdopterDTO;
 import co.edu.udistrital.mdp.pets.dto.AdopterDetailDTO;
 import co.edu.udistrital.mdp.pets.dto.AdoptionDTO;
+import co.edu.udistrital.mdp.pets.dto.AdoptionDetailDTO;
 import co.edu.udistrital.mdp.pets.dto.AdoptionRequestDTO;
+import co.edu.udistrital.mdp.pets.dto.AdoptionRequestDetailDTO;
 import co.edu.udistrital.mdp.pets.entities.AdopterEntity;
 import co.edu.udistrital.mdp.pets.entities.UserEntity;
 import co.edu.udistrital.mdp.pets.exceptions.EntityNotFoundException;
@@ -14,6 +16,7 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -49,10 +52,10 @@ public class AdopterController {
      * @return List of AdopterDTO with basic adopter information.
      */
     @GetMapping
-    @ResponseStatus(HttpStatus.OK)
-    public List<AdopterDTO> findAll() {
+	public ResponseEntity<List<AdopterDetailDTO>> findAll() {
         List<UserEntity> adopters = adopterService.getUsers();
-        return modelMapper.map(adopters, new TypeToken<List<AdopterDTO>>() {}.getType());
+        List<AdopterDetailDTO> dtos = modelMapper.map(adopters, new TypeToken<List<AdopterDetailDTO>>() {}.getType());
+        return ResponseEntity.ok(dtos);
     }
 
     /**
@@ -121,33 +124,43 @@ public class AdopterController {
         adopterService.deleteUser(id);
     }
 
-    /**
+	/**
      * GET /adopters/{id}/adoptions
      * Retrieves all adoptions associated with a specific adopter.
-     *
-     * @param id The ID of the adopter.
-     * @return List of AdoptionDTO linked to the adopter.
+     * * @param id The ID of the adopter.
+     * @return ResponseEntity with List of AdoptionDetailDTO linked to the adopter.
      * @throws EntityNotFoundException if no adopter with the given ID exists.
      */
     @GetMapping("/{id}/adoptions")
-    @ResponseStatus(HttpStatus.OK)
-    public List<AdoptionDTO> getAdoptions(@PathVariable Long id) throws EntityNotFoundException {
+    public ResponseEntity<List<AdoptionDetailDTO>> getAdoptions(@PathVariable Long id) throws EntityNotFoundException {
         AdopterEntity adopter = (AdopterEntity) adopterService.getUser(id);
-        return modelMapper.map(adopter.getAdoptions(), new TypeToken<List<AdoptionDTO>>() {}.getType());
+        
+        List<AdoptionDetailDTO> details = modelMapper.map(
+            adopter.getAdoptions(), 
+            new TypeToken<List<AdoptionDetailDTO>>() {}.getType()
+        );
+        
+        return ResponseEntity.ok(details);
     }
 
-    /**
+	/**
      * GET /adopters/{id}/requests
      * Retrieves all adoption requests submitted by a specific adopter.
-     *
-     * @param id The ID of the adopter.
-     * @return List of AdoptionRequestDTO linked to the adopter.
+     * * @param id The ID of the adopter.
+     * @return ResponseEntity with List of AdoptionRequestDetailDTO to satisfy Rule 17.
      * @throws EntityNotFoundException if no adopter with the given ID exists.
      */
     @GetMapping("/{id}/requests")
-    @ResponseStatus(HttpStatus.OK)
-    public List<AdoptionRequestDTO> getAdoptionRequests(@PathVariable Long id) throws EntityNotFoundException {
+    public ResponseEntity<List<AdoptionRequestDetailDTO>> getAdoptionRequests(@PathVariable Long id) 
+            throws EntityNotFoundException {
+        
         AdopterEntity adopter = (AdopterEntity) adopterService.getUser(id);
-        return modelMapper.map(adopter.getAdoptionRequests(), new TypeToken<List<AdoptionRequestDTO>>() {}.getType());
+        
+        List<AdoptionRequestDetailDTO> details = modelMapper.map(
+            adopter.getAdoptionRequests(), 
+            new TypeToken<List<AdoptionRequestDetailDTO>>() {}.getType()
+        );
+        
+        return ResponseEntity.ok(details);
     }
 }
