@@ -27,12 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.lang.reflect.Type;
 import java.time.LocalDate;
 
-import co.edu.udistrital.mdp.pets.dto.AdoptionFollowUpDTO;
-import co.edu.udistrital.mdp.pets.dto.MedicalEventDTO;
-import co.edu.udistrital.mdp.pets.dto.NotificationDTO;
-import co.edu.udistrital.mdp.pets.dto.VaccinationRecordDTO;
 import co.edu.udistrital.mdp.pets.dto.VeterinarianDTO;
-import co.edu.udistrital.mdp.pets.dto.VeterinarianDetailDTO;
 import co.edu.udistrital.mdp.pets.entities.AdoptionFollowUpEntity;
 import co.edu.udistrital.mdp.pets.entities.MedicalEventEntity;
 import co.edu.udistrital.mdp.pets.entities.NotificationEntity;
@@ -362,13 +357,13 @@ class VeterinarianServiceTest {
 	@Test
     void testGetVaccinationsEntities() throws EntityNotFoundException {
         VeterinarianEntity vet = data.get(0);
-        VaccinationRecordEntity record = factory.manufacturePojo(VaccinationRecordEntity.class);
+        VaccinationRecordEntity vaccinationRecord = factory.manufacturePojo(VaccinationRecordEntity.class);
         
         LocalDate testDate = LocalDate.of(2026, 4, 21);
-        record.setVaccinationDate(testDate);
-        record.setVeterinarian(vet);
+    	vaccinationRecord.setVaccinationDate(testDate);
+        vaccinationRecord.setVeterinarian(vet);
         
-        entityManager.persist(record);
+        entityManager.persist(vaccinationRecord);
         entityManager.flush();
         entityManager.refresh(vet);
 
