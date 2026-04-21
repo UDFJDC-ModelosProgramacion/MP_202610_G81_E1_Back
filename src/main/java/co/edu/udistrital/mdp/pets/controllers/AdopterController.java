@@ -27,9 +27,6 @@ import java.util.List;
  *   GET    /adopters/{id}/adoptions  -> Returns adoptions of a specific adopter
  *   GET    /adopters/{id}/requests   -> Returns adoption requests of a specific adopter
  */
-/**
- * REST controller for managing Adopter resources.
- */
 @RestController
 @RequestMapping("/adopters")
 public class AdopterController {
@@ -70,7 +67,6 @@ public class AdopterController {
      */
 	@PostMapping
     public ResponseEntity<AdopterDTO> create(@RequestBody AdopterDTO adopterDTO) throws IllegalOperationException {
-        // Cero entidades. El Service se encarga de todo.
         return ResponseEntity.status(HttpStatus.CREATED).body(adopterService.createFromDTO(adopterDTO));
     }
 
