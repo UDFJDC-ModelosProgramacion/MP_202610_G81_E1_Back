@@ -1,8 +1,20 @@
 package co.edu.udistrital.mdp.pets.services;
 
+import java.util.List;
+
+import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import co.edu.udistrital.mdp.pets.dto.AdoptionFollowUpDTO;
+import co.edu.udistrital.mdp.pets.dto.MedicalEventDTO;
+import co.edu.udistrital.mdp.pets.dto.NotificationDTO;
+import co.edu.udistrital.mdp.pets.dto.VaccinationRecordDTO;
+import co.edu.udistrital.mdp.pets.dto.VeterinarianDTO;
+import co.edu.udistrital.mdp.pets.dto.VeterinarianDetailDTO;
+import co.edu.udistrital.mdp.pets.entities.NotificationEntity;
 import co.edu.udistrital.mdp.pets.entities.UserEntity;
 import co.edu.udistrital.mdp.pets.entities.VeterinarianEntity;
 import co.edu.udistrital.mdp.pets.exceptions.EntityNotFoundException;
@@ -13,6 +25,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class VeterinarianService extends UserService {
+
+    @Autowired
+    private ModelMapper modelMapper;
 
     /**
      * Valida datos específicos de la especialidad y disponibilidad del veterinario.
@@ -29,11 +44,8 @@ public class VeterinarianService extends UserService {
     @Override
     @Transactional
     public UserEntity createUser(UserEntity userEntity) throws IllegalOperationException {
-        log.info("Starting creation process for veterinarian: {}", userEntity.getEmail());
-        
         VeterinarianEntity vet = (VeterinarianEntity) userEntity;
         validateVeterinarianData(vet);
-        
         return super.createUser(vet);
     }
 
@@ -41,11 +53,8 @@ public class VeterinarianService extends UserService {
     @Transactional
     public UserEntity updateUser(Long userId, UserEntity user) 
             throws EntityNotFoundException, IllegalOperationException {
-        log.info("Updating veterinarian with id = {}", userId);
-        
         VeterinarianEntity vet = (VeterinarianEntity) user;
         validateVeterinarianData(vet);
-        
         return super.updateUser(userId, vet);
     }
 
@@ -70,6 +79,62 @@ public class VeterinarianService extends UserService {
             log.warn("Attempted to delete veterinarian {} with medical history records", userId);
             throw new IllegalOperationException("Cannot delete veterinarian: They have recorded medical events or vaccinations.");
         }
+    }
+
+    @Transactional(readOnly = true)
+    public List<VeterinarianDTO> findAllVets() {
+        return getUsers().stream()
+                .filter(VeterinarianEntity.class::isInstance)
+                .map(e -> modelMapper.map(e, VeterinarianDTO.class))
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public VeterinarianDetailDTO getVetDetail(Long id) throws EntityNotFoundException {
+        UserEntity user = getUser(id);
+        if (!(user instanceof VeterinarianEntity)) {
+            throw new EntityNotFoundException("User with ID " + id + " is not a veterinarian.");
+        }
+        return modelMapper.map(user, VeterinarianDetailDTO.class);
+    }
+
+    @Transactional
+    public VeterinarianDTO createFromDTO(VeterinarianDTO dto) throws IllegalOperationException {
+        VeterinarianEntity entity = modelMapper.map(dto, VeterinarianEntity.class);
+        UserEntity created = this.createUser(entity);
+        return modelMapper.map(created, VeterinarianDTO.class);
+    }
+
+    @Transactional
+    public VeterinarianDTO updateFromDTO(Long id, VeterinarianDTO dto) 
+            throws EntityNotFoundException, IllegalOperationException {
+        VeterinarianEntity entity = modelMapper.map(dto, VeterinarianEntity.class);
+        UserEntity updated = this.updateUser(id, entity);
+        return modelMapper.map(updated, VeterinarianDTO.class);
+    }
+
+    @Transactional(readOnly = true)
+    public List<NotificationDTO> getNotificationsDTO(Long id) throws EntityNotFoundException {
+        List<NotificationEntity> entities = getNotifications(id);
+        return modelMapper.map(entities, new TypeToken<List<NotificationDTO>>() {}.getType());
+    }
+
+    @Transactional(readOnly = true)
+    public List<VaccinationRecordDTO> getVaccinationsByVet(Long id) throws EntityNotFoundException {
+        VeterinarianEntity vet = (VeterinarianEntity) getUser(id);
+        return modelMapper.map(vet.getVaccinationRecords(), new TypeToken<List<VaccinationRecordDTO>>() {}.getType());
+    }
+
+    @Transactional(readOnly = true)
+    public List<MedicalEventDTO> getMedicalEventsByVet(Long id) throws EntityNotFoundException {
+        VeterinarianEntity vet = (VeterinarianEntity) getUser(id);
+        return modelMapper.map(vet.getMedicalEvents(), new TypeToken<List<MedicalEventDTO>>() {}.getType());
+    }
+
+    @Transactional(readOnly = true)
+    public List<AdoptionFollowUpDTO> getFollowUpsByVet(Long id) throws EntityNotFoundException {
+        VeterinarianEntity vet = (VeterinarianEntity) getUser(id);
+        return modelMapper.map(vet.getAdoptionFollowUps(), new TypeToken<List<AdoptionFollowUpDTO>>() {}.getType());
     }
 }
 
