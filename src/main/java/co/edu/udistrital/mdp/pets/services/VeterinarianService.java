@@ -66,35 +66,16 @@ public class VeterinarianService extends UserService {
         VeterinarianEntity vet = (VeterinarianEntity) userRepository.findById(userId)
 			.orElseThrow(() -> new EntityNotFoundException(ErrorMessage.USER_NOT_FOUND));
 
-        //  seguimientos post-adopcion (AdoptionFollowUp)
         if (vet.getAdoptionFollowUps() != null && !vet.getAdoptionFollowUps().isEmpty()) {
             log.warn("Attempted to delete veterinarian {} with active adoption follow-ups", userId);
             throw new IllegalOperationException("Cannot delete veterinarian: They are assigned to active adoption follow-ups.");
         }
 
-        // registros medicos o de vacunacion
         if ((vet.getMedicalEvents() != null && !vet.getMedicalEvents().isEmpty()) || 
             (vet.getVaccinationRecords() != null && !vet.getVaccinationRecords().isEmpty())) {
             log.warn("Attempted to delete veterinarian {} with medical history records", userId);
             throw new IllegalOperationException("Cannot delete veterinarian: They have recorded medical events or vaccinations.");
         }
-    }
-
-    @Transactional(readOnly = true)
-    public List<VeterinarianDTO> findAllVets() {
-        return getUsers().stream()
-                .filter(VeterinarianEntity.class::isInstance)
-                .map(e -> modelMapper.map(e, VeterinarianDTO.class))
-                .toList();
-    }
-
-    @Transactional(readOnly = true)
-    public VeterinarianDetailDTO getVetDetail(Long id) throws EntityNotFoundException {
-        UserEntity user = getUser(id);
-        if (!(user instanceof VeterinarianEntity)) {
-            throw new EntityNotFoundException("User with ID " + id + " is not a veterinarian.");
-        }
-        return modelMapper.map(user, VeterinarianDetailDTO.class);
     }
 
     @Transactional

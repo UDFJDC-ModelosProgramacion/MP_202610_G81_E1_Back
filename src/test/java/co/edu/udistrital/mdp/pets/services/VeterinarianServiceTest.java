@@ -302,38 +302,6 @@ class VeterinarianServiceTest {
     }
 
     @Test
-    void testFindAllVets() {
-        VeterinarianDTO dto = new VeterinarianDTO();
-        Mockito.when(modelMapper.map(Mockito.any(VeterinarianEntity.class), Mockito.eq(VeterinarianDTO.class)))
-               .thenReturn(dto);
-
-        List<VeterinarianDTO> result = veterinarianService.findAllVets();
-
-        assertNotNull(result);
-        assertFalse(result.isEmpty());
-        assertEquals(data.size(), result.size());
-    }
-
-    @Test
-    void testGetVetDetailSuccess() throws EntityNotFoundException {
-        VeterinarianEntity entity = data.get(0);
-        VeterinarianDetailDTO detailDTO = new VeterinarianDetailDTO();
-        
-        Mockito.when(modelMapper.map(entity, VeterinarianDetailDTO.class)).thenReturn(detailDTO);
-
-        VeterinarianDetailDTO result = veterinarianService.getVetDetail(entity.getId());
-
-        assertNotNull(result);
-    }
-
-    @Test
-    void testGetVetDetailInvalidType() {
-        assertThrows(EntityNotFoundException.class, () -> {
-            veterinarianService.getVetDetail(999L); 
-        });
-    }
-
-    @Test
     void testCreateFromDTOSuccess() throws IllegalOperationException {
         VeterinarianDTO dto = new VeterinarianDTO();
         dto.setName("Dr. Smith");

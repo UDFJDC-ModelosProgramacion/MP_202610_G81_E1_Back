@@ -22,15 +22,22 @@ public class VeterinarianController {
     private VeterinarianService veterinarianService;
 
     @Autowired
-	private ModelMapper modelMapper;
+    private ModelMapper modelMapper;
+
     @GetMapping
-    public ResponseEntity<List<VeterinarianDTO>> findAll() {
-        return ResponseEntity.ok(veterinarianService.findAllVets());
+    public ResponseEntity<List<VeterinarianDetailDTO>> findAll() {
+        return ResponseEntity.ok(modelMapper.map(
+            veterinarianService.getUsers(), 
+            new TypeToken<List<VeterinarianDetailDTO>>() {}.getType()
+        ));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<VeterinarianDetailDTO> findOne(@PathVariable Long id) throws EntityNotFoundException {
-        return ResponseEntity.ok(veterinarianService.getVetDetail(id));
+        return ResponseEntity.ok(modelMapper.map(
+            veterinarianService.getUser(id), 
+            VeterinarianDetailDTO.class
+        ));
     }
 
     @PostMapping
@@ -46,40 +53,40 @@ public class VeterinarianController {
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(code = HttpStatus.NO_CONTENT)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) throws EntityNotFoundException, IllegalOperationException {
         veterinarianService.deleteUser(id);
     }
 
     @GetMapping("/{id}/notifications")
-	public ResponseEntity<List<NotificationDTO>> getNotifications(@PathVariable Long id) throws EntityNotFoundException {
-		return ResponseEntity.ok(modelMapper.map(
-			veterinarianService.getNotifications(id),
-			new TypeToken<List<NotificationDTO>>() {}.getType()
-		));
-	}
+    public ResponseEntity<List<NotificationDTO>> getNotifications(@PathVariable Long id) throws EntityNotFoundException {
+        return ResponseEntity.ok(modelMapper.map(
+            veterinarianService.getNotifications(id),
+            new TypeToken<List<NotificationDTO>>() {}.getType()
+        ));
+    }
 
-	@GetMapping("/{id}/vaccinations")
-	public ResponseEntity<List<VaccinationRecordDTO>> getVaccinations(@PathVariable Long id) throws EntityNotFoundException {
-		return ResponseEntity.ok(modelMapper.map(
-			veterinarianService.getVaccinationsEntities(id),
-			new TypeToken<List<VaccinationRecordDTO>>() {}.getType()
-		));
-	}
+    @GetMapping("/{id}/vaccinations")
+    public ResponseEntity<List<VaccinationRecordDetailDTO>> getVaccinations(@PathVariable Long id) throws EntityNotFoundException {
+        return ResponseEntity.ok(modelMapper.map(
+            veterinarianService.getVaccinationsEntities(id),
+            new TypeToken<List<VaccinationRecordDetailDTO>>() {}.getType()
+        ));
+    }
 
-	@GetMapping("/{id}/medical-events")
-	public ResponseEntity<List<MedicalEventDTO>> getMedicalEvents(@PathVariable Long id) throws EntityNotFoundException {
-		return ResponseEntity.ok(modelMapper.map(
-			veterinarianService.getMedicalEventsEntities(id),
-			new TypeToken<List<MedicalEventDTO>>() {}.getType()
-		));
-	}
+    @GetMapping("/{id}/medical-events")
+    public ResponseEntity<List<MedicalEventDetailDTO>> getMedicalEvents(@PathVariable Long id) throws EntityNotFoundException {
+        return ResponseEntity.ok(modelMapper.map(
+            veterinarianService.getMedicalEventsEntities(id),
+            new TypeToken<List<MedicalEventDetailDTO>>() {}.getType()
+        ));
+    }
 
-	@GetMapping("/{id}/follow-ups")
-	public ResponseEntity<List<AdoptionFollowUpDTO>> getFollowUps(@PathVariable Long id) throws EntityNotFoundException {
-		return ResponseEntity.ok(modelMapper.map(
-			veterinarianService.getFollowUpsEntities(id), 
-			new TypeToken<List<AdoptionFollowUpDTO>>() {}.getType()
-		));
-	}
+    @GetMapping("/{id}/follow-ups")
+    public ResponseEntity<List<AdoptionFollowUpDetailDTO>> getFollowUps(@PathVariable Long id) throws EntityNotFoundException {
+        return ResponseEntity.ok(modelMapper.map(
+            veterinarianService.getFollowUpsEntities(id), 
+            new TypeToken<List<AdoptionFollowUpDetailDTO>>() {}.getType()
+        ));
+    }
 }
