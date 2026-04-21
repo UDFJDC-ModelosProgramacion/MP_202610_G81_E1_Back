@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -14,15 +15,28 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mockito;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
+import java.lang.reflect.Type;
+import java.time.LocalDate;
 
+import co.edu.udistrital.mdp.pets.dto.AdoptionFollowUpDTO;
+import co.edu.udistrital.mdp.pets.dto.MedicalEventDTO;
+import co.edu.udistrital.mdp.pets.dto.NotificationDTO;
+import co.edu.udistrital.mdp.pets.dto.VaccinationRecordDTO;
+import co.edu.udistrital.mdp.pets.dto.VeterinarianDTO;
+import co.edu.udistrital.mdp.pets.dto.VeterinarianDetailDTO;
 import co.edu.udistrital.mdp.pets.entities.AdoptionFollowUpEntity;
 import co.edu.udistrital.mdp.pets.entities.MedicalEventEntity;
+import co.edu.udistrital.mdp.pets.entities.NotificationEntity;
+import co.edu.udistrital.mdp.pets.entities.VaccinationRecordEntity;
 import co.edu.udistrital.mdp.pets.entities.VeterinarianEntity;
 import co.edu.udistrital.mdp.pets.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.pets.exceptions.IllegalOperationException;
@@ -40,6 +54,9 @@ class VeterinarianServiceTest {
 
     @Autowired
     private VeterinarianService veterinarianService;
+
+	@MockitoBean
+    private ModelMapper modelMapper;
 
     @Autowired
     private TestEntityManager entityManager;
@@ -76,7 +93,6 @@ class VeterinarianServiceTest {
 	void testCreateVeterinarianSuccess() throws IllegalOperationException {
 		VeterinarianEntity newEntity = factory.manufacturePojo(VeterinarianEntity.class);
 		
-		// Forzamos datos validos para saltar los validadores de UserService
 		newEntity.setEmail("nuevo_vet@test.com");
 		newEntity.setPhone("3101234567"); 
 		newEntity.setSpecialty("Cirujano");
@@ -92,7 +108,6 @@ class VeterinarianServiceTest {
 
     @Test
     void testCreateVeterinarianInvalidData() {
-        // Test sin especialidad
         assertThrows(IllegalOperationException.class, () -> {
             VeterinarianEntity newEntity = factory.manufacturePojo(VeterinarianEntity.class);
             newEntity.setSpecialty(""); 
@@ -113,7 +128,6 @@ class VeterinarianServiceTest {
     void testDeleteVeterinarianWithMedicalEvents() {
         VeterinarianEntity vet = data.get(0);
 
-        // simulamos un evento medico vinculado
         MedicalEventEntity event = factory.manufacturePojo(MedicalEventEntity.class);
         event.setVeterinarian(vet);
         
@@ -131,7 +145,6 @@ class VeterinarianServiceTest {
     void testDeleteVeterinarianWithFollowUps() {
         VeterinarianEntity vet = data.get(1);
 
-        // simulamos un seguimiento de adopcion vinculado
         AdoptionFollowUpEntity followUp = factory.manufacturePojo(AdoptionFollowUpEntity.class);
 
         followUp.setVeterinarian(vet); 
@@ -166,8 +179,8 @@ class VeterinarianServiceTest {
         pojoEntity.setPhone("3209876543");
         pojoEntity.setName("Updated Vet Name");
         pojoEntity.setPassword("newpassword");
-        pojoEntity.setSpecialty("General"); // Default valid value
-        pojoEntity.setAvailability("Part-time"); // Default valid value
+        pojoEntity.setSpecialty("General"); 
+        pojoEntity.setAvailability("Part-time"); 
 
         if ("specialty".equals(field)) {
             pojoEntity.setSpecialty(invalidValue);
@@ -207,24 +220,23 @@ class VeterinarianServiceTest {
         pojoEntity.setAvailability("Any");
         
         assertThrows(EntityNotFoundException.class, () -> {
-            veterinarianService.updateUser(999L, pojoEntity); // ID que no existe
+            veterinarianService.updateUser(999L, pojoEntity); 
         });
     }
 
-    // --- Additional Tests for validateDeletion (via deleteUser) ---
     @Test
     void testDeleteVeterinarianNotFound() {
         assertThrows(EntityNotFoundException.class, () -> {
-            veterinarianService.deleteUser(999L); // ID que no existe
+            veterinarianService.deleteUser(999L); 
         });
     }
 
     @Test
     void testDeleteVeterinarianWithNullAdoptionFollowUpsSuccess() throws EntityNotFoundException, IllegalOperationException {
         VeterinarianEntity vet = data.get(0);
-        vet.setAdoptionFollowUps(null); // Set to null
-        vet.setMedicalEvents(null); // Also set to null to isolate test
-        vet.setVaccinationRecords(null); // Also set to null to isolate test
+        vet.setAdoptionFollowUps(null); 
+        vet.setMedicalEvents(null); 
+        vet.setVaccinationRecords(null); 
         entityManager.persist(vet);
         entityManager.flush();
 
@@ -236,9 +248,9 @@ class VeterinarianServiceTest {
     @Test
     void testDeleteVeterinarianWithEmptyAdoptionFollowUpsSuccess() throws EntityNotFoundException, IllegalOperationException {
         VeterinarianEntity vet = data.get(0);
-        vet.setAdoptionFollowUps(new ArrayList<>()); // Set to empty list
-        vet.setMedicalEvents(null); // Also set to null to isolate test
-        vet.setVaccinationRecords(null); // Also set to null to isolate test
+        vet.setAdoptionFollowUps(new ArrayList<>()); 
+        vet.setMedicalEvents(null); 
+        vet.setVaccinationRecords(null); 
         entityManager.persist(vet);
         entityManager.flush();
 
@@ -250,9 +262,9 @@ class VeterinarianServiceTest {
     @Test
     void testDeleteVeterinarianWithNullMedicalEventsAndVaccinationRecordsSuccess() throws EntityNotFoundException, IllegalOperationException {
         VeterinarianEntity vet = data.get(0);
-        vet.setMedicalEvents(null); // Set to null
-        vet.setVaccinationRecords(null); // Set to null
-        vet.setAdoptionFollowUps(null); // Also set to null to isolate test
+        vet.setMedicalEvents(null); 
+        vet.setVaccinationRecords(null);
+        vet.setAdoptionFollowUps(null);
         entityManager.persist(vet);
         entityManager.flush();
 
@@ -264,9 +276,9 @@ class VeterinarianServiceTest {
     @Test
     void testDeleteVeterinarianWithEmptyMedicalEventsAndVaccinationRecordsSuccess() throws EntityNotFoundException, IllegalOperationException {
         VeterinarianEntity vet = data.get(0);
-        vet.setMedicalEvents(new ArrayList<>()); // Set to empty list
-        vet.setVaccinationRecords(new ArrayList<>()); // Set to empty list
-        vet.setAdoptionFollowUps(null); // Also set to null to isolate test
+        vet.setMedicalEvents(new ArrayList<>());
+        vet.setVaccinationRecords(new ArrayList<>());
+        vet.setAdoptionFollowUps(null);
         entityManager.persist(vet);
         entityManager.flush();
 
@@ -279,18 +291,139 @@ class VeterinarianServiceTest {
     void testDeleteVeterinarianWithVaccinationRecords() {
         VeterinarianEntity vet = data.get(0);
 
-        // simulamos un registro de vacunacion vinculado
-        // Assuming VaccinationRecordEntity and other necessary entities are defined and can be manufactured
-        // For simplicity, directly add to list without full mock setup if not strictly needed by current test setup
-        // But for a full test, you'd persist these too.
         vet.getVaccinationRecords().add(factory.manufacturePojo(co.edu.udistrital.mdp.pets.entities.VaccinationRecordEntity.class));
 
-        entityManager.persist(vet); // Persist vet after modifying its collections
+        entityManager.persist(vet); 
         entityManager.flush();
 
         assertThrows(IllegalOperationException.class, () -> {
             veterinarianService.deleteUser(vet.getId());
         });
     }
+
+    @Test
+    void testCreateFromDTOSuccess() throws IllegalOperationException {
+        VeterinarianDTO dto = new VeterinarianDTO();
+        dto.setName("Dr. Smith");
+        dto.setEmail("vet_dto@test.com");
+        dto.setPhone("3001112222");
+        dto.setPassword("pass123");
+        dto.setSpecialty("Cirujano");
+        dto.setAvailability("Mañana");
+
+        VeterinarianEntity entity = new VeterinarianEntity();
+        entity.setName("Dr. Smith");
+        entity.setEmail("vet_dto@test.com");
+        entity.setPhone("3001112222");
+        entity.setPassword("pass123");
+        entity.setSpecialty("Cirujano");
+        entity.setAvailability("Mañana");
+
+        Mockito.when(modelMapper.map(dto, VeterinarianEntity.class)).thenReturn(entity);
+        Mockito.when(modelMapper.map(entity, VeterinarianDTO.class)).thenReturn(dto);
+
+        VeterinarianDTO result = veterinarianService.createFromDTO(dto);
+
+        assertNotNull(result);
+        assertEquals("Dr. Smith", result.getName());
+    }
+
+    @Test
+    void testUpdateFromDTOSuccess() throws EntityNotFoundException, IllegalOperationException {
+        VeterinarianEntity existing = data.get(0);
+        
+        VeterinarianDTO dto = new VeterinarianDTO();
+        dto.setName("Updated Name");
+        dto.setEmail("update@vet.com");
+        dto.setPhone("3221234567");
+        dto.setPassword("newpass123");
+        dto.setSpecialty("Neurología");
+        dto.setAvailability("Noche");
+
+        VeterinarianEntity updated = new VeterinarianEntity();
+        updated.setId(existing.getId());
+        updated.setName("Updated Name");
+        updated.setEmail("update@vet.com");
+        updated.setPhone("3221234567");
+        updated.setPassword("newpass123");
+        updated.setSpecialty("Neurología");
+        updated.setAvailability("Noche");
+
+        Mockito.when(modelMapper.map(dto, VeterinarianEntity.class)).thenReturn(updated);
+        Mockito.when(modelMapper.map(updated, VeterinarianDTO.class)).thenReturn(dto);
+
+        VeterinarianDTO result = veterinarianService.updateFromDTO(existing.getId(), dto);
+
+        assertNotNull(result);
+        assertEquals("Updated Name", result.getName());
+        assertEquals("3221234567", result.getPhone());
+    }
+
+	@Test
+    void testGetVaccinationsEntities() throws EntityNotFoundException {
+        VeterinarianEntity vet = data.get(0);
+        VaccinationRecordEntity record = factory.manufacturePojo(VaccinationRecordEntity.class);
+        
+        LocalDate testDate = LocalDate.of(2026, 4, 21);
+        record.setVaccinationDate(testDate);
+        record.setVeterinarian(vet);
+        
+        entityManager.persist(record);
+        entityManager.flush();
+        entityManager.refresh(vet);
+
+        List<VaccinationRecordEntity> result = veterinarianService.getVaccinationsEntities(vet.getId());
+
+        assertNotNull(result);
+        assertFalse(result.isEmpty());
+        assertEquals(testDate, result.get(0).getVaccinationDate());
+    }
+
+    @Test
+    void testGetMedicalEventsEntities() throws EntityNotFoundException {
+        VeterinarianEntity vet = data.get(1);
+        MedicalEventEntity event = factory.manufacturePojo(MedicalEventEntity.class);
+        event.setVeterinarian(vet);
+        
+        entityManager.persist(event);
+        entityManager.flush();
+        entityManager.refresh(vet);
+
+        List<MedicalEventEntity> result = veterinarianService.getMedicalEventsEntities(vet.getId());
+
+        assertNotNull(result);
+        assertFalse(result.isEmpty());
+        assertEquals(event.getDescription(), result.get(0).getDescription());
+    }
+
+	@Test
+    void testGetFollowUpsEntities() throws EntityNotFoundException {
+        VeterinarianEntity vet = data.get(2);
+        AdoptionFollowUpEntity followUp = factory.manufacturePojo(AdoptionFollowUpEntity.class);
+        
+        followUp.setNotes("Todo en orden con la mascota");
+        followUp.setFrequency("Mensual");
+        followUp.setVeterinarian(vet);
+        
+        entityManager.persist(followUp);
+        entityManager.flush();
+        entityManager.refresh(vet);
+
+        List<AdoptionFollowUpEntity> result = veterinarianService.getFollowUpsEntities(vet.getId());
+
+        assertNotNull(result);
+        assertFalse(result.isEmpty());
+        assertEquals("Todo en orden con la mascota", result.get(0).getNotes());
+        assertEquals("Mensual", result.get(0).getFrequency());
+    }
+
+    @Test
+    void testGetNotifications() throws EntityNotFoundException {
+        VeterinarianEntity vet = data.get(0);
+        List<NotificationEntity> result = veterinarianService.getNotifications(vet.getId());
+
+        assertNotNull(result);
+    }
+
 
 }
