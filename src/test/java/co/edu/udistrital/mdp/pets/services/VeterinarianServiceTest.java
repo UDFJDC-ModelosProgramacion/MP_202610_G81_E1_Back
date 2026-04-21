@@ -25,6 +25,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 import java.lang.reflect.Type;
+import java.time.LocalDate;
 
 import co.edu.udistrital.mdp.pets.dto.AdoptionFollowUpDTO;
 import co.edu.udistrital.mdp.pets.dto.MedicalEventDTO;
@@ -34,6 +35,7 @@ import co.edu.udistrital.mdp.pets.dto.VeterinarianDTO;
 import co.edu.udistrital.mdp.pets.dto.VeterinarianDetailDTO;
 import co.edu.udistrital.mdp.pets.entities.AdoptionFollowUpEntity;
 import co.edu.udistrital.mdp.pets.entities.MedicalEventEntity;
+import co.edu.udistrital.mdp.pets.entities.NotificationEntity;
 import co.edu.udistrital.mdp.pets.entities.VaccinationRecordEntity;
 import co.edu.udistrital.mdp.pets.entities.VeterinarianEntity;
 import co.edu.udistrital.mdp.pets.exceptions.EntityNotFoundException;
@@ -389,69 +391,71 @@ class VeterinarianServiceTest {
         assertEquals("3221234567", result.getPhone());
     }
 
-    @Test
-    void testGetVaccinationsByVet() throws EntityNotFoundException {
+	@Test
+    void testGetVaccinationsEntities() throws EntityNotFoundException {
         VeterinarianEntity vet = data.get(0);
         VaccinationRecordEntity record = factory.manufacturePojo(VaccinationRecordEntity.class);
+        
+        LocalDate testDate = LocalDate.of(2026, 4, 21);
+        record.setVaccinationDate(testDate);
         record.setVeterinarian(vet);
+        
         entityManager.persist(record);
         entityManager.flush();
         entityManager.refresh(vet);
 
-        List<VaccinationRecordDTO> mockList = List.of(new VaccinationRecordDTO());
-        Mockito.when(modelMapper.map(Mockito.any(), Mockito.any(Type.class))).thenReturn(mockList);
-
-        List<VaccinationRecordDTO> result = veterinarianService.getVaccinationsByVet(vet.getId());
+        List<VaccinationRecordEntity> result = veterinarianService.getVaccinationsEntities(vet.getId());
 
         assertNotNull(result);
         assertFalse(result.isEmpty());
+        assertEquals(testDate, result.get(0).getVaccinationDate());
     }
 
     @Test
-    void testGetMedicalEventsByVet() throws EntityNotFoundException {
+    void testGetMedicalEventsEntities() throws EntityNotFoundException {
         VeterinarianEntity vet = data.get(1);
         MedicalEventEntity event = factory.manufacturePojo(MedicalEventEntity.class);
         event.setVeterinarian(vet);
+        
         entityManager.persist(event);
         entityManager.flush();
         entityManager.refresh(vet);
 
-        List<MedicalEventDTO> mockList = List.of(new MedicalEventDTO());
-        Mockito.when(modelMapper.map(Mockito.any(), Mockito.any(Type.class))).thenReturn(mockList);
-
-        List<MedicalEventDTO> result = veterinarianService.getMedicalEventsByVet(vet.getId());
+        List<MedicalEventEntity> result = veterinarianService.getMedicalEventsEntities(vet.getId());
 
         assertNotNull(result);
         assertFalse(result.isEmpty());
+        assertEquals(event.getDescription(), result.get(0).getDescription());
     }
 
-    @Test
-    void testGetFollowUpsByVet() throws EntityNotFoundException {
+	@Test
+    void testGetFollowUpsEntities() throws EntityNotFoundException {
         VeterinarianEntity vet = data.get(2);
         AdoptionFollowUpEntity followUp = factory.manufacturePojo(AdoptionFollowUpEntity.class);
+        
+        followUp.setNotes("Todo en orden con la mascota");
+        followUp.setFrequency("Mensual");
         followUp.setVeterinarian(vet);
+        
         entityManager.persist(followUp);
         entityManager.flush();
         entityManager.refresh(vet);
 
-        List<AdoptionFollowUpDTO> mockList = List.of(new AdoptionFollowUpDTO());
-        Mockito.when(modelMapper.map(Mockito.any(), Mockito.any(Type.class))).thenReturn(mockList);
-
-        List<AdoptionFollowUpDTO> result = veterinarianService.getFollowUpsByVet(vet.getId());
+        List<AdoptionFollowUpEntity> result = veterinarianService.getFollowUpsEntities(vet.getId());
 
         assertNotNull(result);
         assertFalse(result.isEmpty());
+        assertEquals("Todo en orden con la mascota", result.get(0).getNotes());
+        assertEquals("Mensual", result.get(0).getFrequency());
     }
 
     @Test
-    void testGetNotificationsDTO() throws EntityNotFoundException {
+    void testGetNotifications() throws EntityNotFoundException {
         VeterinarianEntity vet = data.get(0);
-        List<NotificationDTO> mockList = List.of(new NotificationDTO());
-        Mockito.when(modelMapper.map(Mockito.any(), Mockito.any(Type.class))).thenReturn(mockList);
-
-        List<NotificationDTO> result = veterinarianService.getNotificationsDTO(vet.getId());
+        List<NotificationEntity> result = veterinarianService.getNotifications(vet.getId());
 
         assertNotNull(result);
     }
+
 
 }

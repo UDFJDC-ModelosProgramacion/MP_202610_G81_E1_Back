@@ -37,10 +37,6 @@ public class AdopterController {
     @Autowired
     private ModelMapper modelMapper;
 
-    /**
-     * GET /adopters
-     * Retorna todos los adoptantes registrados usando DetailDTO para cumplir la Rule 17.
-     */
     @GetMapping
     public ResponseEntity<List<AdopterDetailDTO>> findAll() {
         return ResponseEntity.ok(modelMapper.map(
@@ -49,10 +45,6 @@ public class AdopterController {
         ));
     }
 
-    /**
-     * GET /adopters/{id}
-     * Retorna el detalle de un adoptante específico por su ID.
-     */
     @GetMapping("/{id}")
     public ResponseEntity<AdopterDetailDTO> findOne(@PathVariable Long id) throws EntityNotFoundException {
         return ResponseEntity.ok(modelMapper.map(
@@ -61,29 +53,17 @@ public class AdopterController {
         ));
     }
 
-    /**
-     * POST /adopters
-     * Crea un adoptante delegando el mapeo de la entidad al service para evitar imports prohibidos.
-     */
 	@PostMapping
     public ResponseEntity<AdopterDTO> create(@RequestBody AdopterDTO adopterDTO) throws IllegalOperationException {
         return ResponseEntity.status(HttpStatus.CREATED).body(adopterService.createFromDTO(adopterDTO));
     }
 
-    /**
-     * PUT /adopters/{id}
-     * Actualiza los datos de un adoptante.
-     */
     @PutMapping("/{id}")
     public ResponseEntity<AdopterDTO> update(@PathVariable Long id, @RequestBody AdopterDTO adopterDTO)
             throws EntityNotFoundException, IllegalOperationException {
         return ResponseEntity.ok(adopterService.updateFromDTO(id, adopterDTO));
     }
 
-    /**
-     * DELETE /adopters/{id}
-     * Elimina un adoptante si no tiene restricciones de integridad.
-     */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id)
@@ -91,10 +71,6 @@ public class AdopterController {
         adopterService.deleteUser(id);
     }
 
-    /**
-     * GET /adopters/{id}/adoptions
-     * Retorna las adopciones de un adoptante usando el método especializado del service.
-     */
     @GetMapping("/{id}/adoptions")
     public ResponseEntity<List<AdoptionDetailDTO>> getAdoptions(@PathVariable Long id) throws EntityNotFoundException {
         return ResponseEntity.ok(modelMapper.map(
@@ -103,10 +79,6 @@ public class AdopterController {
         ));
     }
 
-    /**
-     * GET /adopters/{id}/requests
-     * Retorna las solicitudes de un adoptante usando el método especializado del service.
-     */
     @GetMapping("/{id}/requests")
     public ResponseEntity<List<AdoptionRequestDetailDTO>> getAdoptionRequests(@PathVariable Long id) 
             throws EntityNotFoundException {

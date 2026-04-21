@@ -8,14 +8,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import co.edu.udistrital.mdp.pets.dto.AdoptionFollowUpDTO;
-import co.edu.udistrital.mdp.pets.dto.MedicalEventDTO;
-import co.edu.udistrital.mdp.pets.dto.NotificationDTO;
-import co.edu.udistrital.mdp.pets.dto.VaccinationRecordDTO;
 import co.edu.udistrital.mdp.pets.dto.VeterinarianDTO;
 import co.edu.udistrital.mdp.pets.dto.VeterinarianDetailDTO;
+import co.edu.udistrital.mdp.pets.entities.AdoptionFollowUpEntity;
+import co.edu.udistrital.mdp.pets.entities.MedicalEventEntity;
 import co.edu.udistrital.mdp.pets.entities.NotificationEntity;
 import co.edu.udistrital.mdp.pets.entities.UserEntity;
+import co.edu.udistrital.mdp.pets.entities.VaccinationRecordEntity;
 import co.edu.udistrital.mdp.pets.entities.VeterinarianEntity;
 import co.edu.udistrital.mdp.pets.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.pets.exceptions.IllegalOperationException;
@@ -114,27 +113,27 @@ public class VeterinarianService extends UserService {
     }
 
     @Transactional(readOnly = true)
-    public List<NotificationDTO> getNotificationsDTO(Long id) throws EntityNotFoundException {
-        List<NotificationEntity> entities = getNotifications(id);
-        return modelMapper.map(entities, new TypeToken<List<NotificationDTO>>() {}.getType());
-    }
+	public List<NotificationEntity> getNotifications(Long id) throws EntityNotFoundException {
+		UserEntity user = getUser(id);
+		return user.getNotifications();
+	}
 
-    @Transactional(readOnly = true)
-    public List<VaccinationRecordDTO> getVaccinationsByVet(Long id) throws EntityNotFoundException {
-        VeterinarianEntity vet = (VeterinarianEntity) getUser(id);
-        return modelMapper.map(vet.getVaccinationRecords(), new TypeToken<List<VaccinationRecordDTO>>() {}.getType());
-    }
+	@Transactional(readOnly = true)
+	public List<VaccinationRecordEntity> getVaccinationsEntities(Long id) throws EntityNotFoundException {
+		VeterinarianEntity vet = (VeterinarianEntity) getUser(id);
+		return vet.getVaccinationRecords();
+	}
 
-    @Transactional(readOnly = true)
-    public List<MedicalEventDTO> getMedicalEventsByVet(Long id) throws EntityNotFoundException {
-        VeterinarianEntity vet = (VeterinarianEntity) getUser(id);
-        return modelMapper.map(vet.getMedicalEvents(), new TypeToken<List<MedicalEventDTO>>() {}.getType());
-    }
+	@Transactional(readOnly = true)
+	public List<MedicalEventEntity> getMedicalEventsEntities(Long id) throws EntityNotFoundException {
+		VeterinarianEntity vet = (VeterinarianEntity) getUser(id);
+		return vet.getMedicalEvents();
+	}
 
-    @Transactional(readOnly = true)
-    public List<AdoptionFollowUpDTO> getFollowUpsByVet(Long id) throws EntityNotFoundException {
-        VeterinarianEntity vet = (VeterinarianEntity) getUser(id);
-        return modelMapper.map(vet.getAdoptionFollowUps(), new TypeToken<List<AdoptionFollowUpDTO>>() {}.getType());
-    }
+	@Transactional(readOnly = true)
+	public List<AdoptionFollowUpEntity> getFollowUpsEntities(Long id) throws EntityNotFoundException {
+		VeterinarianEntity vet = (VeterinarianEntity) getUser(id);
+		return vet.getAdoptionFollowUps();
+	}
 }
 

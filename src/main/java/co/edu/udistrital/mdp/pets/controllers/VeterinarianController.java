@@ -5,6 +5,8 @@ import co.edu.udistrital.mdp.pets.services.VeterinarianService;
 import co.edu.udistrital.mdp.pets.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.pets.exceptions.IllegalOperationException;
 
+import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +21,8 @@ public class VeterinarianController {
     @Autowired
     private VeterinarianService veterinarianService;
 
+    @Autowired
+	private ModelMapper modelMapper;
     @GetMapping
     public ResponseEntity<List<VeterinarianDTO>> findAll() {
         return ResponseEntity.ok(veterinarianService.findAllVets());
@@ -48,28 +52,34 @@ public class VeterinarianController {
     }
 
     @GetMapping("/{id}/notifications")
-    public ResponseEntity<List<NotificationDTO>> getNotifications(@PathVariable Long id) throws EntityNotFoundException {
-        return ResponseEntity.ok(veterinarianService.getNotificationsDTO(id));
-    }
+	public ResponseEntity<List<NotificationDTO>> getNotifications(@PathVariable Long id) throws EntityNotFoundException {
+		return ResponseEntity.ok(modelMapper.map(
+			veterinarianService.getNotifications(id),
+			new TypeToken<List<NotificationDTO>>() {}.getType()
+		));
+	}
 
-    @PatchMapping("/{id}/notifications/{notificationId}")
-    @ResponseStatus(code = HttpStatus.NO_CONTENT)
-    public void markAsRead(@PathVariable Long id, @PathVariable Long notificationId) throws EntityNotFoundException {
-        veterinarianService.markNotificationAsRead(id, notificationId);
-    }
+	@GetMapping("/{id}/vaccinations")
+	public ResponseEntity<List<VaccinationRecordDTO>> getVaccinations(@PathVariable Long id) throws EntityNotFoundException {
+		return ResponseEntity.ok(modelMapper.map(
+			veterinarianService.getVaccinationsEntities(id),
+			new TypeToken<List<VaccinationRecordDTO>>() {}.getType()
+		));
+	}
 
-    @GetMapping("/{id}/vaccinations")
-    public ResponseEntity<List<VaccinationRecordDTO>> getVaccinations(@PathVariable Long id) throws EntityNotFoundException {
-        return ResponseEntity.ok(veterinarianService.getVaccinationsByVet(id));
-    }
+	@GetMapping("/{id}/medical-events")
+	public ResponseEntity<List<MedicalEventDTO>> getMedicalEvents(@PathVariable Long id) throws EntityNotFoundException {
+		return ResponseEntity.ok(modelMapper.map(
+			veterinarianService.getMedicalEventsEntities(id),
+			new TypeToken<List<MedicalEventDTO>>() {}.getType()
+		));
+	}
 
-    @GetMapping("/{id}/medical-events")
-    public ResponseEntity<List<MedicalEventDTO>> getMedicalEvents(@PathVariable Long id) throws EntityNotFoundException {
-        return ResponseEntity.ok(veterinarianService.getMedicalEventsByVet(id));
-    }
-
-    @GetMapping("/{id}/follow-ups")
-    public ResponseEntity<List<AdoptionFollowUpDTO>> getFollowUps(@PathVariable Long id) throws EntityNotFoundException {
-        return ResponseEntity.ok(veterinarianService.getFollowUpsByVet(id));
-    }
+	@GetMapping("/{id}/follow-ups")
+	public ResponseEntity<List<AdoptionFollowUpDTO>> getFollowUps(@PathVariable Long id) throws EntityNotFoundException {
+		return ResponseEntity.ok(modelMapper.map(
+			veterinarianService.getFollowUpsEntities(id), 
+			new TypeToken<List<AdoptionFollowUpDTO>>() {}.getType()
+		));
+	}
 }
