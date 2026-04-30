@@ -1,9 +1,20 @@
 package co.edu.udistrital.mdp.pets.services;
 
+import java.util.List;
+
+import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import co.edu.udistrital.mdp.pets.dto.VeterinarianDTO;
+import co.edu.udistrital.mdp.pets.dto.VeterinarianDetailDTO;
+import co.edu.udistrital.mdp.pets.entities.AdoptionFollowUpEntity;
+import co.edu.udistrital.mdp.pets.entities.MedicalEventEntity;
+import co.edu.udistrital.mdp.pets.entities.NotificationEntity;
 import co.edu.udistrital.mdp.pets.entities.UserEntity;
+import co.edu.udistrital.mdp.pets.entities.VaccinationRecordEntity;
 import co.edu.udistrital.mdp.pets.entities.VeterinarianEntity;
 import co.edu.udistrital.mdp.pets.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.pets.exceptions.IllegalOperationException;
@@ -13,6 +24,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class VeterinarianService extends UserService {
+
+    @Autowired
+    private ModelMapper modelMapper;
 
     /**
      * Valida datos específicos de la especialidad y disponibilidad del veterinario.
@@ -29,11 +43,8 @@ public class VeterinarianService extends UserService {
     @Override
     @Transactional
     public UserEntity createUser(UserEntity userEntity) throws IllegalOperationException {
-        log.info("Starting creation process for veterinarian: {}", userEntity.getEmail());
-        
         VeterinarianEntity vet = (VeterinarianEntity) userEntity;
         validateVeterinarianData(vet);
-        
         return super.createUser(vet);
     }
 
@@ -41,11 +52,8 @@ public class VeterinarianService extends UserService {
     @Transactional
     public UserEntity updateUser(Long userId, UserEntity user) 
             throws EntityNotFoundException, IllegalOperationException {
-        log.info("Updating veterinarian with id = {}", userId);
-        
         VeterinarianEntity vet = (VeterinarianEntity) user;
         validateVeterinarianData(vet);
-        
         return super.updateUser(userId, vet);
     }
 
@@ -58,18 +66,75 @@ public class VeterinarianService extends UserService {
         VeterinarianEntity vet = (VeterinarianEntity) userRepository.findById(userId)
 			.orElseThrow(() -> new EntityNotFoundException(ErrorMessage.USER_NOT_FOUND));
 
-        //  seguimientos post-adopcion (AdoptionFollowUp)
         if (vet.getAdoptionFollowUps() != null && !vet.getAdoptionFollowUps().isEmpty()) {
             log.warn("Attempted to delete veterinarian {} with active adoption follow-ups", userId);
             throw new IllegalOperationException("Cannot delete veterinarian: They are assigned to active adoption follow-ups.");
         }
 
-        // registros medicos o de vacunacion
         if ((vet.getMedicalEvents() != null && !vet.getMedicalEvents().isEmpty()) || 
             (vet.getVaccinationRecords() != null && !vet.getVaccinationRecords().isEmpty())) {
             log.warn("Attempted to delete veterinarian {} with medical history records", userId);
             throw new IllegalOperationException("Cannot delete veterinarian: They have recorded medical events or vaccinations.");
         }
+    }
+
+    @Transactional
+    public VeterinarianDTO createFromDTO(VeterinarianDTO dto) throws IllegalOperationException {
+        VeterinarianEntity entity = modelMapper.map(dto, VeterinarianEntity.class);
+        UserEntity created = super.createUser(entity);
+        return modelMapper.map(created, VeterinarianDTO.class);
+    }
+
+    @Transactional
+    public VeterinarianDTO updateFromDTO(Long id, VeterinarianDTO dto) 
+            throws EntityNotFoundException, IllegalOperationException {
+        VeterinarianEntity entity = modelMapper.map(dto, VeterinarianEntity.class);
+        UserEntity updated = super.updateUser(id, entity);
+        return modelMapper.map(updated, VeterinarianDTO.class);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<NotificationEntity> getNotifications(Long id) throws EntityNotFoundException {
+        UserEntity user = userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.USER_NOT_FOUND));
+        return user.getNotifications();
+    }
+
+    @Transactional(readOnly = true)
+    public List<VaccinationRecordEntity> getVaccinationsEntities(Long id) throws EntityNotFoundException {
+        UserEntity user = userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.USER_NOT_FOUND));
+
+        if (!(user instanceof VeterinarianEntity vet)) {
+            throw new EntityNotFoundException("User with ID " + id + " is not a veterinarian.");
+        }
+
+        return vet.getVaccinationRecords();
+    }
+
+    @Transactional(readOnly = true)
+    public List<MedicalEventEntity> getMedicalEventsEntities(Long id) throws EntityNotFoundException {
+        UserEntity user = userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.USER_NOT_FOUND));
+
+        if (!(user instanceof VeterinarianEntity vet)) {
+            throw new EntityNotFoundException("User with ID " + id + " is not a veterinarian.");
+        }
+
+        return vet.getMedicalEvents();
+    }
+
+    @Transactional(readOnly = true)
+    public List<AdoptionFollowUpEntity> getFollowUpsEntities(Long id) throws EntityNotFoundException {
+        UserEntity user = userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.USER_NOT_FOUND));
+
+        if (!(user instanceof VeterinarianEntity vet)) {
+            throw new EntityNotFoundException("User with ID " + id + " is not a veterinarian.");
+        }
+
+        return vet.getAdoptionFollowUps();
     }
 }
 

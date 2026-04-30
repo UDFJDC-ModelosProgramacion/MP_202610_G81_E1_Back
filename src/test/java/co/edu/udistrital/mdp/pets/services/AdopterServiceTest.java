@@ -3,19 +3,24 @@ package co.edu.udistrital.mdp.pets.services;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 
+import co.edu.udistrital.mdp.pets.dto.AdopterDTO;
 import co.edu.udistrital.mdp.pets.entities.AdopterEntity;
 import co.edu.udistrital.mdp.pets.entities.AdoptionEntity;
 import co.edu.udistrital.mdp.pets.entities.AdoptionRequestEntity;
@@ -33,6 +38,8 @@ class AdopterServiceTest {
     @Autowired
     private AdopterService adopterService;
 
+	@MockitoBean 
+    private ModelMapper modelMapper;
     @Autowired
     private TestEntityManager entityManager;
 
@@ -309,4 +316,117 @@ class AdopterServiceTest {
         AdopterEntity deleted = entityManager.find(AdopterEntity.class, adopter.getId());
         assertNull(deleted);
     }
+
+	@Test
+	void testCreateFromDTOSuccess() throws IllegalOperationException {
+		AdopterDTO dto = factory.manufacturePojo(AdopterDTO.class);
+		dto.setEmail("test@domain.com");
+		dto.setPhone("3001234567");
+		
+		AdopterEntity entity = factory.manufacturePojo(AdopterEntity.class);
+		entity.setEmail("test@domain.com");
+		entity.setPhone("3001234567");
+
+		Mockito.when(modelMapper.map(dto, AdopterEntity.class)).thenReturn(entity);
+		Mockito.when(modelMapper.map(entity, AdopterDTO.class)).thenReturn(dto);
+
+		AdopterDTO result = adopterService.createFromDTO(dto);
+
+		assertNotNull(result);
+		assertEquals("3001234567", result.getPhone());
+	}
+
+	@Test
+	void testUpdateFromDTOSuccess() throws EntityNotFoundException, IllegalOperationException {
+		AdopterEntity existing = data.get(0);
+		Long id = existing.getId();
+		
+		AdopterDTO dto = new AdopterDTO();
+		dto.setEmail("update@domain.com");
+		dto.setPhone("3109876543");
+		dto.setName("Updated Name");
+		dto.setPassword("newpassword");
+		dto.setHousingType("Updated House");
+		dto.setHasChildren(false);
+		dto.setHasOtherPets(true);
+		
+		AdopterEntity updatedEntity = new AdopterEntity();
+		updatedEntity.setId(id);
+		updatedEntity.setEmail("update@domain.com");
+		updatedEntity.setPhone("3109876543");
+		updatedEntity.setName("Updated Name");
+		updatedEntity.setPassword("newpassword");
+		updatedEntity.setHousingType("Updated House");
+		updatedEntity.setHasChildren(false);
+		updatedEntity.setHasOtherPets(true);
+
+		Mockito.when(modelMapper.map(Mockito.any(AdopterDTO.class), Mockito.eq(AdopterEntity.class)))
+			   .thenReturn(updatedEntity);
+			   
+		Mockito.when(modelMapper.map(Mockito.any(), Mockito.eq(AdopterDTO.class)))
+			   .thenReturn(dto);
+
+		AdopterDTO result = adopterService.updateFromDTO(id, dto);
+
+		assertNotNull(result);
+		assertEquals("3109876543", result.getPhone());
+	}
+
+	// --- Adoptions Coverage ---
+	@Test
+	void testGetAdoptionsByAdopterSuccess() throws EntityNotFoundException {
+		AdopterEntity adopter = data.get(0);
+		AdoptionEntity adoption = factory.manufacturePojo(AdoptionEntity.class);
+		
+		adoption.setAdopter(adopter);
+		if (adopter.getAdoptions() == null) {
+			adopter.setAdoptions(new ArrayList<>());
+		}
+		adopter.getAdoptions().add(adoption); 
+
+		entityManager.persist(adoption);
+		entityManager.flush();
+		entityManager.refresh(adopter);
+
+		List<AdoptionEntity> adoptions = adopterService.getAdoptionsByAdopter(adopter.getId());
+
+		assertNotNull(adoptions);
+		assertFalse(adoptions.isEmpty());
+	}
+
+	@Test
+	void testGetAdoptionsByAdopterNotFound() {
+		assertThrows(EntityNotFoundException.class, () -> {
+			adopterService.getAdoptionsByAdopter(999L);
+		});
+	}
+
+	// --- Requests Coverage ---
+	@Test
+	void testGetRequestsByAdopterSuccess() throws EntityNotFoundException {
+		AdopterEntity adopter = data.get(1);
+		AdoptionRequestEntity request = factory.manufacturePojo(AdoptionRequestEntity.class);
+		
+		request.setAdopter(adopter);
+		if (adopter.getAdoptionRequests() == null) {
+			adopter.setAdoptionRequests(new ArrayList<>());
+		}
+		adopter.getAdoptionRequests().add(request);
+
+		entityManager.persist(request);
+		entityManager.flush();
+		entityManager.refresh(adopter);
+
+		List<AdoptionRequestEntity> requests = adopterService.getRequestsByAdopter(adopter.getId());
+
+		assertNotNull(requests);
+		assertFalse(requests.isEmpty());
+	}
+
+	@Test
+	void testGetRequestsByAdopterNotFound() {
+		assertThrows(EntityNotFoundException.class, () -> {
+			adopterService.getRequestsByAdopter(999L);
+		});
+	}
 }

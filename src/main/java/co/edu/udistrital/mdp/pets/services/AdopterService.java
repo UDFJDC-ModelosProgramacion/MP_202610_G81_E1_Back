@@ -1,106 +1,109 @@
 package co.edu.udistrital.mdp.pets.services;
 
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import co.edu.udistrital.mdp.pets.entities.UserEntity;
+import co.edu.udistrital.mdp.pets.dto.AdopterDTO;
 import co.edu.udistrital.mdp.pets.entities.AdopterEntity;
 import co.edu.udistrital.mdp.pets.entities.AdoptionEntity;
 import co.edu.udistrital.mdp.pets.entities.AdoptionRequestEntity;
+import co.edu.udistrital.mdp.pets.entities.UserEntity;
 import co.edu.udistrital.mdp.pets.exceptions.EntityNotFoundException;
-import co.edu.udistrital.mdp.pets.exceptions.IllegalOperationException;
 import co.edu.udistrital.mdp.pets.exceptions.ErrorMessage;
+import co.edu.udistrital.mdp.pets.exceptions.IllegalOperationException;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Slf4j
 @Service
 public class AdopterService extends UserService {
 
-    /**
-     * Valida datos especificos del adoptante.
-     * @param adopter Entidad del adoptante a validar.
-     * @throws IllegalOperationException Si los datos no cumplen las reglas de negocio.
-     */
-    private void validateAdopterData(AdopterEntity adopter) throws IllegalOperationException {
-        // Regla: El campo hasOtherPets debe ser un valor booleano, no puede quedar indefinido
+    @Autowired
+    private ModelMapper modelMapper;
+
+	private void validateAdopterData(AdopterEntity adopter) throws IllegalOperationException {
         if (adopter.getHasOtherPets() == null) {
-            throw new IllegalOperationException("The field 'hasOtherPets' is mandatory and cannot be undefined");
+            throw new IllegalOperationException("The field 'hasOtherPets' is mandatory");
         }
-        
-        // Regla: El campo hasChildren debe ser un valor booleano, no puede quedar indefinido
         if (adopter.getHasChildren() == null) {
-            throw new IllegalOperationException("The field 'hasChildren' is mandatory and cannot be undefined");
+            throw new IllegalOperationException("The field 'hasChildren' is mandatory");
         }
-        
-        // Regla: El campo tipo de vivienda no puede estar vacio o nulo
         if (adopter.getHousingType() == null || adopter.getHousingType().isBlank()) {
-            throw new IllegalOperationException("Housing type is mandatory and cannot be empty");
+            throw new IllegalOperationException("Housing type is mandatory");
         }
     }
-
-    @Override
-    @Transactional
-    public UserEntity createUser(UserEntity userEntity) throws IllegalOperationException {
-        log.info("Starting creation process for adopter: {}", userEntity.getEmail());
-        
-        AdopterEntity adopter = (AdopterEntity) userEntity;
-        validateAdopterData(adopter);
-        
-        return super.createUser(adopter);
-    }
-
-    @Override
-    @Transactional
-    public UserEntity updateUser(Long userId, UserEntity user) 
-            throws EntityNotFoundException, IllegalOperationException {
-        log.info("Updating adopter with id = {}", userId);
-        
-        AdopterEntity adopter = (AdopterEntity) user;
-        validateAdopterData(adopter);
-        
-        return super.updateUser(userId, adopter);
-    }
+    /**
+     * Crea un adoptante a partir de un DTO. 
+     * Centraliza la conversión para limpiar el Controller.
+     */
+	@Override
+	@Transactional
+	public UserEntity createUser(UserEntity userEntity) throws IllegalOperationException {
+		log.info("Starting creation process for adopter: {}", userEntity.getEmail());
+		AdopterEntity adopter = (AdopterEntity) userEntity;
+		
+		validateAdopterData(adopter); 
+		
+		return super.createUser(adopter);
+	}
 
     /**
-     * Implementacion del metodo abstracto para proteger la integridad de adopciones.
-     * No permite borrar al adoptante si tiene solicitudes de adopcion pendientes o en proceso.
+     * Actualiza un adoptante a partir de un DTO.
      */
     @Override
-    protected void validateDeletion(Long userId) throws EntityNotFoundException, IllegalOperationException {
-        AdopterEntity adopter = (AdopterEntity) userRepository.findById(userId)
-            .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.USER_NOT_FOUND));
-        // Regla: No se puede eliminar un adoptante si tiene solicitudes de adopcion pendientes o en proceso
-        if (adopter.getAdoptionRequests() != null && !adopter.getAdoptionRequests().isEmpty()) {
-            log.warn("Attempted to delete adopter {} with active adoption requests", userId);
-            throw new IllegalOperationException("Cannot delete adopter: They have pending or in-process adoption requests.");
-        }
+	@Transactional
+	public UserEntity updateUser(Long userId, UserEntity user) 
+			throws EntityNotFoundException, IllegalOperationException {
+		log.info("Updating adopter with id = {}", userId);
+		AdopterEntity adopter = (AdopterEntity) user;
+		
+		// LLAMAR A LA VALIDACIÓN AQUÍ TAMBIÉN
+		validateAdopterData(adopter);
+		
+		return super.updateUser(userId, adopter);
+	}
 
-        // Regla adicional: No se puede eliminar si tiene adopciones registradas
-        if (adopter.getAdoptions() != null && !adopter.getAdoptions().isEmpty()) {
-            log.warn("Attempted to delete adopter {} with adoption records", userId);
-            throw new IllegalOperationException("Cannot delete adopter: They have adoption records.");
-        }
-    }
-
-	@Transactional(readOnly = true)
+    @Transactional(readOnly = true)
     public List<AdoptionEntity> getAdoptionsByAdopter(Long userId) throws EntityNotFoundException {
-        log.info("Retrieving adoptions for adopter id = {}", userId);
         AdopterEntity adopter = (AdopterEntity) userRepository.findById(userId)
             .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.USER_NOT_FOUND));
         return adopter.getAdoptions();
     }
 
-    /**
-     * Obtiene la lista de solicitudes de un adoptante específico.
-     * Ayuda a cumplir la Rule 106 al evitar el casting en el Controller.
-     */
     @Transactional(readOnly = true)
     public List<AdoptionRequestEntity> getRequestsByAdopter(Long userId) throws EntityNotFoundException {
-        log.info("Retrieving requests for adopter id = {}", userId);
         AdopterEntity adopter = (AdopterEntity) userRepository.findById(userId)
             .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.USER_NOT_FOUND));
         return adopter.getAdoptionRequests();
+    }
+
+    @Override
+    protected void validateDeletion(Long userId) throws EntityNotFoundException, IllegalOperationException {
+        AdopterEntity adopter = (AdopterEntity) userRepository.findById(userId)
+            .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.USER_NOT_FOUND));
+        
+        if (adopter.getAdoptionRequests() != null && !adopter.getAdoptionRequests().isEmpty()) {
+            throw new IllegalOperationException("Cannot delete adopter with active requests.");
+        }
+        if (adopter.getAdoptions() != null && !adopter.getAdoptions().isEmpty()) {
+            throw new IllegalOperationException("Cannot delete adopter with adoption records.");
+        }
+    }
+
+	@Transactional
+    public AdopterDTO createFromDTO(AdopterDTO dto) throws IllegalOperationException {
+        AdopterEntity entity = modelMapper.map(dto, AdopterEntity.class);
+        UserEntity created = super.createUser(entity); 
+        return modelMapper.map(created, AdopterDTO.class);
+    }
+
+    @Transactional
+    public AdopterDTO updateFromDTO(Long id, AdopterDTO dto) 
+            throws EntityNotFoundException, IllegalOperationException {
+        AdopterEntity entity = modelMapper.map(dto, AdopterEntity.class);
+        UserEntity updated = super.updateUser(id, entity);
+        return modelMapper.map(updated, AdopterDTO.class);
     }
 }
