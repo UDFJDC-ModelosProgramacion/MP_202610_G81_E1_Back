@@ -1,10 +1,14 @@
 package co.edu.udistrital.mdp.pets.services;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import co.edu.udistrital.mdp.pets.entities.UserEntity;
 import co.edu.udistrital.mdp.pets.entities.AdopterEntity;
+import co.edu.udistrital.mdp.pets.entities.AdoptionEntity;
+import co.edu.udistrital.mdp.pets.entities.AdoptionRequestEntity;
 import co.edu.udistrital.mdp.pets.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.pets.exceptions.IllegalOperationException;
 import co.edu.udistrital.mdp.pets.exceptions.ErrorMessage;
@@ -78,5 +82,25 @@ public class AdopterService extends UserService {
             log.warn("Attempted to delete adopter {} with adoption records", userId);
             throw new IllegalOperationException("Cannot delete adopter: They have adoption records.");
         }
+    }
+
+	@Transactional(readOnly = true)
+    public List<AdoptionEntity> getAdoptionsByAdopter(Long userId) throws EntityNotFoundException {
+        log.info("Retrieving adoptions for adopter id = {}", userId);
+        AdopterEntity adopter = (AdopterEntity) userRepository.findById(userId)
+            .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.USER_NOT_FOUND));
+        return adopter.getAdoptions();
+    }
+
+    /**
+     * Obtiene la lista de solicitudes de un adoptante específico.
+     * Ayuda a cumplir la Rule 106 al evitar el casting en el Controller.
+     */
+    @Transactional(readOnly = true)
+    public List<AdoptionRequestEntity> getRequestsByAdopter(Long userId) throws EntityNotFoundException {
+        log.info("Retrieving requests for adopter id = {}", userId);
+        AdopterEntity adopter = (AdopterEntity) userRepository.findById(userId)
+            .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.USER_NOT_FOUND));
+        return adopter.getAdoptionRequests();
     }
 }
