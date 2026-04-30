@@ -41,6 +41,7 @@ public class VeterinarianController {
     }
 
     @PostMapping
+    @ResponseStatus(code = HttpStatus.CREATED)
     public ResponseEntity<VeterinarianDTO> create(@RequestBody VeterinarianDTO vetDTO) 
             throws IllegalOperationException {
         return ResponseEntity.status(HttpStatus.CREATED).body(veterinarianService.createFromDTO(vetDTO));
