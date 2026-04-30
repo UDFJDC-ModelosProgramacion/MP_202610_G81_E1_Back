@@ -1,6 +1,8 @@
 package co.edu.udistrital.mdp.pets.dto;
 
 import java.time.LocalDate;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,7 +13,9 @@ import lombok.NoArgsConstructor;
 public class MedicalHistoryDTO {
     private Long id;
     private LocalDate lastCheckup;
-    private PetDTO pet;
+    @JsonIgnoreProperties("medicalHistory")
+	private PetDTO pet;
+
     private String description;
     private String notes;
 }

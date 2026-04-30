@@ -3,6 +3,8 @@ package co.edu.udistrital.mdp.pets.entities;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -27,6 +29,7 @@ public class MedicalHistoryEntity extends BaseEntity {
 
 	@PodamExclude
     @OneToOne
+	@JsonIgnoreProperties("medicalHistory")
     @JoinColumn(name = "pet_id", unique = true)
     private PetEntity pet;
 
