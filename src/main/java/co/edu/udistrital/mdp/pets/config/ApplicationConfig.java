@@ -29,7 +29,7 @@ public class ApplicationConfig {
 			public void addCorsMappings(CorsRegistry registry) {
 				registry.addMapping("/**")
 						// Cambia "*" por los dominios específicos de tu desarrollo
-						.allowedOrigins("http://localhost:3000", "http://localhost:4200", "http://localhost:8999", "http://localhost:8080", "http://127.0.0.1")
+						.allowedOrigins("http://localhost:3000", "http://localhost:4200", "http://localhost:8999", "http://localhost:8080", "http://localhost:5173","http://127.0.0.1")
 						.allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
 						.allowedHeaders("*")
 						.allowCredentials(false); // Mantener en false si usas "*"
