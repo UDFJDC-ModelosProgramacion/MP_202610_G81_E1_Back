@@ -107,7 +107,7 @@ public class VeterinarianService extends UserService {
                 .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.USER_NOT_FOUND));
 
         if (!(user instanceof VeterinarianEntity vet)) {
-            throw new EntityNotFoundException("User ID " + id + " is not a veterinarian.");
+            throw new EntityNotFoundException("User ID " + id + " is  veterinarian.");
         }
 
         return vet.getVaccinationRecords();
@@ -131,7 +131,7 @@ public class VeterinarianService extends UserService {
                 .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.USER_NOT_FOUND));
 
         if (!(user instanceof VeterinarianEntity vet)) {
-            throw new EntityNotFoundException("ID " + id + " is not a veterinarian.");
+            throw new EntityNotFoundException("the ID " + id + "  not veterinarian.");
         }
 
         return vet.getAdoptionFollowUps();
