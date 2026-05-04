@@ -7,18 +7,26 @@ import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.transaction.annotation.Transactional;
 
+import co.edu.udistrital.mdp.pets.config.ApplicationConfig;
+import co.edu.udistrital.mdp.pets.dto.AdoptionDTO;
+import co.edu.udistrital.mdp.pets.dto.AdoptionFollowUpDTO;
+import co.edu.udistrital.mdp.pets.dto.AdoptionRequestDTO;
 import co.edu.udistrital.mdp.pets.dto.PetDTO;
+import co.edu.udistrital.mdp.pets.dto.PetDetailDTO;
+import co.edu.udistrital.mdp.pets.dto.ReviewDTO;
+import co.edu.udistrital.mdp.pets.dto.TrialCohabitationDTO;
+import co.edu.udistrital.mdp.pets.entities.AdoptionEntity;
+import co.edu.udistrital.mdp.pets.entities.AdoptionFollowUpEntity;
+import co.edu.udistrital.mdp.pets.entities.AdoptionRequestEntity;
 import co.edu.udistrital.mdp.pets.entities.MedicalHistoryEntity;
 import co.edu.udistrital.mdp.pets.entities.PetEntity;
+import co.edu.udistrital.mdp.pets.entities.ReviewEntity;
 import co.edu.udistrital.mdp.pets.entities.TrialCohabitationEntity;
 import co.edu.udistrital.mdp.pets.enums.PetStatus;
 import co.edu.udistrital.mdp.pets.enums.ProcessStatus;
@@ -29,14 +37,11 @@ import uk.co.jemos.podam.api.PodamFactoryImpl;
 
 @DataJpaTest
 @Transactional
-@Import(PetService.class)
+@Import({PetService.class, ApplicationConfig.class})
 class PetServiceTest {
 
     @Autowired
     private PetService petService;
-
-    @SpyBean
-    private ModelMapper modelMapper;
 
     @Autowired
     private TestEntityManager entityManager;
@@ -66,6 +71,15 @@ class PetServiceTest {
             PetEntity entity = factory.manufacturePojo(PetEntity.class);
             entity.setStatus(PetStatus.AVAILABLE);
             entity.setAge(i + 1);
+            entity.setName("Pet" + i);
+            entity.setSpecies("Canino");
+            entity.setBreed("Criollo");
+            entity.setSex("Macho");
+            entity.setSize("Mediano");
+            entity.setOrigin("Rescate");
+            entity.setSpaceRequired("Casa");
+            entity.setGoodWithKids(true);
+            entity.setGoodWithPets(true);
             entityManager.persist(entity);
             data.add(entity);
         }
@@ -359,7 +373,7 @@ class PetServiceTest {
     @Test
     void testDeletePetWithAdoptionsFails() {
         PetEntity pet = data.get(0);
-        co.edu.udistrital.mdp.pets.entities.AdoptionEntity adoption = new co.edu.udistrital.mdp.pets.entities.AdoptionEntity();
+        AdoptionEntity adoption = new AdoptionEntity();
         adoption.setPet(pet);
         pet.getAdoptions().add(adoption);
 
@@ -388,11 +402,6 @@ class PetServiceTest {
         pet.setStatus(PetStatus.ADOPTED);
         entityManager.persist(pet);
         entityManager.flush();
-
-        PetDTO returnedDto = new PetDTO();
-        returnedDto.setId(pet.getId());
-        returnedDto.setStatus(PetStatus.AVAILABLE.name());
-        Mockito.doReturn(returnedDto).when(modelMapper).map(Mockito.any(PetEntity.class), Mockito.eq(PetDTO.class));
 
         PetDTO result = petService.processReturnDTO(pet.getId());
 
@@ -691,26 +700,19 @@ class PetServiceTest {
     @Test
     void testCreateFromDTOSuccess() throws IllegalOperationException {
         PetDTO inputDto = createValidPetDTO();
-        PetEntity mappedEntity = createValidPetEntity();
-
-        Mockito.doReturn(mappedEntity).when(modelMapper).map(inputDto, PetEntity.class);
-        Mockito.doReturn(inputDto).when(modelMapper).map(Mockito.any(PetEntity.class), Mockito.eq(PetDTO.class));
 
         PetDTO result = petService.createFromDTO(inputDto);
 
         assertNotNull(result);
+        assertNotNull(result.getId());
         assertEquals("Firulais", result.getName());
+        assertEquals(PetStatus.AVAILABLE.name(), result.getStatus());
     }
 
     @Test
     void testCreateFromDTOWithNullName() {
         PetDTO petDTO = createValidPetDTO();
         petDTO.setName(null);
-        PetEntity mappedEntity = createValidPetEntity();
-        mappedEntity.setName(null);
-
-        Mockito.doReturn(mappedEntity).when(modelMapper).map(petDTO, PetEntity.class);
-
         assertThrows(IllegalOperationException.class, () -> petService.createFromDTO(petDTO));
     }
 
@@ -718,20 +720,6 @@ class PetServiceTest {
     void testCreateFromDTOWithNullStatusDefaultsToAvailable() throws IllegalOperationException {
         PetDTO inputDto = createValidPetDTO();
         inputDto.setStatus(null);
-        PetEntity mappedEntity = createValidPetEntity();
-        mappedEntity.setStatus(null);
-
-        PetEntity savedEntity = createValidPetEntity();
-        savedEntity.setId(100L);
-        savedEntity.setStatus(PetStatus.AVAILABLE);
-
-        PetDTO resultDto = new PetDTO();
-        resultDto.setId(100L);
-        resultDto.setName("Firulais");
-        resultDto.setStatus(PetStatus.AVAILABLE.name());
-
-        Mockito.doReturn(mappedEntity).when(modelMapper).map(inputDto, PetEntity.class);
-        Mockito.doReturn(resultDto).when(modelMapper).map(Mockito.any(PetEntity.class), Mockito.eq(PetDTO.class));
 
         PetDTO result = petService.createFromDTO(inputDto);
 
@@ -756,27 +744,6 @@ class PetServiceTest {
         updateDTO.setGoodWithKids(existingPet.getGoodWithKids());
         updateDTO.setGoodWithPets(existingPet.getGoodWithPets());
         updateDTO.setStatus(PetStatus.AVAILABLE.name());
-
-        PetEntity mappedEntity = factory.manufacturePojo(PetEntity.class);
-        mappedEntity.setName("Rex Updated DTO");
-        mappedEntity.setSpecies(existingPet.getSpecies());
-        mappedEntity.setBreed(existingPet.getBreed());
-        mappedEntity.setSex(existingPet.getSex());
-        mappedEntity.setSize(existingPet.getSize());
-        mappedEntity.setAge(existingPet.getAge());
-        mappedEntity.setOrigin(existingPet.getOrigin());
-        mappedEntity.setSpaceRequired(existingPet.getSpaceRequired());
-        mappedEntity.setGoodWithKids(existingPet.getGoodWithKids());
-        mappedEntity.setGoodWithPets(existingPet.getGoodWithPets());
-        mappedEntity.setStatus(PetStatus.AVAILABLE);
-
-        PetDTO resultDto = new PetDTO();
-        resultDto.setId(id);
-        resultDto.setName("Rex Updated DTO");
-        resultDto.setStatus(PetStatus.AVAILABLE.name());
-
-        Mockito.doReturn(mappedEntity).when(modelMapper).map(updateDTO, PetEntity.class);
-        Mockito.doReturn(resultDto).when(modelMapper).map(Mockito.any(PetEntity.class), Mockito.eq(PetDTO.class));
 
         PetDTO result = petService.updateFromDTO(id, updateDTO);
 
@@ -804,21 +771,6 @@ class PetServiceTest {
         updateDTO.setGoodWithPets(pet.getGoodWithPets());
         updateDTO.setStatus(PetStatus.AVAILABLE.name());
 
-        PetEntity mappedEntity = factory.manufacturePojo(PetEntity.class);
-        mappedEntity.setName(pet.getName());
-        mappedEntity.setSpecies(pet.getSpecies());
-        mappedEntity.setBreed(pet.getBreed());
-        mappedEntity.setSex(pet.getSex());
-        mappedEntity.setSize(pet.getSize());
-        mappedEntity.setAge(pet.getAge());
-        mappedEntity.setOrigin(pet.getOrigin());
-        mappedEntity.setSpaceRequired(pet.getSpaceRequired());
-        mappedEntity.setGoodWithKids(pet.getGoodWithKids());
-        mappedEntity.setGoodWithPets(pet.getGoodWithPets());
-        mappedEntity.setStatus(PetStatus.AVAILABLE);
-
-        Mockito.doReturn(mappedEntity).when(modelMapper).map(updateDTO, PetEntity.class);
-
         assertThrows(IllegalOperationException.class, () -> petService.updateFromDTO(pet.getId(), updateDTO));
     }
 
@@ -837,11 +789,6 @@ class PetServiceTest {
         petDTO.setGoodWithPets(true);
         petDTO.setStatus(PetStatus.AVAILABLE.name());
 
-        PetEntity mappedEntity = factory.manufacturePojo(PetEntity.class);
-        mappedEntity.setName(null);
-
-        Mockito.doReturn(mappedEntity).when(modelMapper).map(petDTO, PetEntity.class);
-
         PetEntity pet = data.get(0);
         assertThrows(IllegalOperationException.class, () -> petService.updateFromDTO(pet.getId(), petDTO));
     }
@@ -850,11 +797,6 @@ class PetServiceTest {
     void testUpdateFromDTOWithNullAge() {
         PetDTO petDTO = createValidPetDTO();
         petDTO.setAge(null);
-
-        PetEntity mappedEntity = factory.manufacturePojo(PetEntity.class);
-        mappedEntity.setAge(null);
-
-        Mockito.doReturn(mappedEntity).when(modelMapper).map(petDTO, PetEntity.class);
 
         PetEntity pet = data.get(0);
         assertThrows(IllegalOperationException.class, () -> petService.updateFromDTO(pet.getId(), petDTO));
@@ -865,11 +807,6 @@ class PetServiceTest {
         PetDTO petDTO = createValidPetDTO();
         petDTO.setAge(0);
 
-        PetEntity mappedEntity = factory.manufacturePojo(PetEntity.class);
-        mappedEntity.setAge(0);
-
-        Mockito.doReturn(mappedEntity).when(modelMapper).map(petDTO, PetEntity.class);
-
         PetEntity pet = data.get(0);
         assertThrows(IllegalOperationException.class, () -> petService.updateFromDTO(pet.getId(), petDTO));
     }
@@ -878,11 +815,6 @@ class PetServiceTest {
     void testUpdateFromDTOWithNegativeAge() {
         PetDTO petDTO = createValidPetDTO();
         petDTO.setAge(-1);
-
-        PetEntity mappedEntity = factory.manufacturePojo(PetEntity.class);
-        mappedEntity.setAge(-1);
-
-        Mockito.doReturn(mappedEntity).when(modelMapper).map(petDTO, PetEntity.class);
 
         PetEntity pet = data.get(0);
         assertThrows(IllegalOperationException.class, () -> petService.updateFromDTO(pet.getId(), petDTO));
@@ -893,11 +825,6 @@ class PetServiceTest {
         PetDTO petDTO = createValidPetDTO();
         petDTO.setGoodWithKids(null);
 
-        PetEntity mappedEntity = factory.manufacturePojo(PetEntity.class);
-        mappedEntity.setGoodWithKids(null);
-
-        Mockito.doReturn(mappedEntity).when(modelMapper).map(petDTO, PetEntity.class);
-
         PetEntity pet = data.get(0);
         assertThrows(IllegalOperationException.class, () -> petService.updateFromDTO(pet.getId(), petDTO));
     }
@@ -906,11 +833,6 @@ class PetServiceTest {
     void testUpdateFromDTOWithNullGoodWithPets() {
         PetDTO petDTO = createValidPetDTO();
         petDTO.setGoodWithPets(null);
-
-        PetEntity mappedEntity = factory.manufacturePojo(PetEntity.class);
-        mappedEntity.setGoodWithPets(null);
-
-        Mockito.doReturn(mappedEntity).when(modelMapper).map(petDTO, PetEntity.class);
 
         PetEntity pet = data.get(0);
         assertThrows(IllegalOperationException.class, () -> petService.updateFromDTO(pet.getId(), petDTO));
@@ -921,11 +843,6 @@ class PetServiceTest {
         PetDTO petDTO = createValidPetDTO();
         petDTO.setSpecies("   ");
 
-        PetEntity mappedEntity = factory.manufacturePojo(PetEntity.class);
-        mappedEntity.setSpecies("   ");
-
-        Mockito.doReturn(mappedEntity).when(modelMapper).map(petDTO, PetEntity.class);
-
         PetEntity pet = data.get(0);
         assertThrows(IllegalOperationException.class, () -> petService.updateFromDTO(pet.getId(), petDTO));
     }
@@ -934,11 +851,6 @@ class PetServiceTest {
     void testUpdateFromDTOWithEmptyBreed() {
         PetDTO petDTO = createValidPetDTO();
         petDTO.setBreed("");
-
-        PetEntity mappedEntity = factory.manufacturePojo(PetEntity.class);
-        mappedEntity.setBreed("");
-
-        Mockito.doReturn(mappedEntity).when(modelMapper).map(petDTO, PetEntity.class);
 
         PetEntity pet = data.get(0);
         assertThrows(IllegalOperationException.class, () -> petService.updateFromDTO(pet.getId(), petDTO));
@@ -949,11 +861,6 @@ class PetServiceTest {
         PetDTO petDTO = createValidPetDTO();
         petDTO.setSex("  ");
 
-        PetEntity mappedEntity = factory.manufacturePojo(PetEntity.class);
-        mappedEntity.setSex("  ");
-
-        Mockito.doReturn(mappedEntity).when(modelMapper).map(petDTO, PetEntity.class);
-
         PetEntity pet = data.get(0);
         assertThrows(IllegalOperationException.class, () -> petService.updateFromDTO(pet.getId(), petDTO));
     }
@@ -962,11 +869,6 @@ class PetServiceTest {
     void testUpdateFromDTOWithEmptySize() {
         PetDTO petDTO = createValidPetDTO();
         petDTO.setSize("   ");
-
-        PetEntity mappedEntity = factory.manufacturePojo(PetEntity.class);
-        mappedEntity.setSize("   ");
-
-        Mockito.doReturn(mappedEntity).when(modelMapper).map(petDTO, PetEntity.class);
 
         PetEntity pet = data.get(0);
         assertThrows(IllegalOperationException.class, () -> petService.updateFromDTO(pet.getId(), petDTO));
@@ -977,11 +879,6 @@ class PetServiceTest {
         PetDTO petDTO = createValidPetDTO();
         petDTO.setOrigin(null);
 
-        PetEntity mappedEntity = factory.manufacturePojo(PetEntity.class);
-        mappedEntity.setOrigin(null);
-
-        Mockito.doReturn(mappedEntity).when(modelMapper).map(petDTO, PetEntity.class);
-
         PetEntity pet = data.get(0);
         assertThrows(IllegalOperationException.class, () -> petService.updateFromDTO(pet.getId(), petDTO));
     }
@@ -990,11 +887,6 @@ class PetServiceTest {
     void testUpdateFromDTOWithEmptyOrigin() {
         PetDTO petDTO = createValidPetDTO();
         petDTO.setOrigin(" ");
-
-        PetEntity mappedEntity = factory.manufacturePojo(PetEntity.class);
-        mappedEntity.setOrigin(" ");
-
-        Mockito.doReturn(mappedEntity).when(modelMapper).map(petDTO, PetEntity.class);
 
         PetEntity pet = data.get(0);
         assertThrows(IllegalOperationException.class, () -> petService.updateFromDTO(pet.getId(), petDTO));
@@ -1005,11 +897,6 @@ class PetServiceTest {
         PetDTO petDTO = createValidPetDTO();
         petDTO.setSpaceRequired(null);
 
-        PetEntity mappedEntity = factory.manufacturePojo(PetEntity.class);
-        mappedEntity.setSpaceRequired(null);
-
-        Mockito.doReturn(mappedEntity).when(modelMapper).map(petDTO, PetEntity.class);
-
         PetEntity pet = data.get(0);
         assertThrows(IllegalOperationException.class, () -> petService.updateFromDTO(pet.getId(), petDTO));
     }
@@ -1018,11 +905,6 @@ class PetServiceTest {
     void testUpdateFromDTOWithEmptySpaceRequired() {
         PetDTO petDTO = createValidPetDTO();
         petDTO.setSpaceRequired("");
-
-        PetEntity mappedEntity = factory.manufacturePojo(PetEntity.class);
-        mappedEntity.setSpaceRequired("");
-
-        Mockito.doReturn(mappedEntity).when(modelMapper).map(petDTO, PetEntity.class);
 
         PetEntity pet = data.get(0);
         assertThrows(IllegalOperationException.class, () -> petService.updateFromDTO(pet.getId(), petDTO));
@@ -1048,12 +930,13 @@ class PetServiceTest {
         List<PetDTO> result = petService.findAllDTOs(speciesFilter, null, null);
 
         assertNotNull(result);
+        assertTrue(result.stream().allMatch(p -> p.getSpecies().equals(speciesFilter)));
     }
 
     @Test
     void testFindDetailDTOSuccess() throws EntityNotFoundException {
         PetEntity pet = data.get(0);
-        co.edu.udistrital.mdp.pets.dto.PetDetailDTO result = petService.findDetailDTO(pet.getId());
+        PetDetailDTO result = petService.findDetailDTO(pet.getId());
 
         assertNotNull(result);
         assertEquals(pet.getName(), result.getName());
@@ -1068,13 +951,13 @@ class PetServiceTest {
     @Test
     void testFindAdoptionsByPetIdSuccess() throws EntityNotFoundException {
         PetEntity pet = data.get(0);
-        co.edu.udistrital.mdp.pets.entities.AdoptionEntity adoption = new co.edu.udistrital.mdp.pets.entities.AdoptionEntity();
+        AdoptionEntity adoption = new AdoptionEntity();
         adoption.setPet(pet);
         pet.getAdoptions().add(adoption);
         entityManager.persist(adoption);
         entityManager.flush();
 
-        List<co.edu.udistrital.mdp.pets.dto.AdoptionDTO> result = petService.findAdoptionsByPetId(pet.getId());
+        List<AdoptionDTO> result = petService.findAdoptionsByPetId(pet.getId());
 
         assertNotNull(result);
     }
@@ -1087,13 +970,13 @@ class PetServiceTest {
     @Test
     void testFindRequestsByPetIdSuccess() throws EntityNotFoundException {
         PetEntity pet = data.get(0);
-        co.edu.udistrital.mdp.pets.entities.AdoptionRequestEntity request = new co.edu.udistrital.mdp.pets.entities.AdoptionRequestEntity();
+        AdoptionRequestEntity request = new AdoptionRequestEntity();
         request.setPet(pet);
         pet.getAdoptionRequests().add(request);
         entityManager.persist(request);
         entityManager.flush();
 
-        List<co.edu.udistrital.mdp.pets.dto.AdoptionRequestDTO> result = petService.findRequestsByPetId(pet.getId());
+        List<AdoptionRequestDTO> result = petService.findRequestsByPetId(pet.getId());
 
         assertNotNull(result);
     }
@@ -1106,13 +989,13 @@ class PetServiceTest {
     @Test
     void testFindFollowUpsByPetIdSuccess() throws EntityNotFoundException {
         PetEntity pet = data.get(0);
-        co.edu.udistrital.mdp.pets.entities.AdoptionFollowUpEntity followUp = new co.edu.udistrital.mdp.pets.entities.AdoptionFollowUpEntity();
+        AdoptionFollowUpEntity followUp = new AdoptionFollowUpEntity();
         followUp.setPet(pet);
         pet.getFollowUps().add(followUp);
         entityManager.persist(followUp);
         entityManager.flush();
 
-        List<co.edu.udistrital.mdp.pets.dto.AdoptionFollowUpDTO> result = petService.findFollowUpsByPetId(pet.getId());
+        List<AdoptionFollowUpDTO> result = petService.findFollowUpsByPetId(pet.getId());
 
         assertNotNull(result);
     }
@@ -1125,13 +1008,13 @@ class PetServiceTest {
     @Test
     void testFindReviewsByPetIdSuccess() throws EntityNotFoundException {
         PetEntity pet = data.get(0);
-        co.edu.udistrital.mdp.pets.entities.ReviewEntity review = new co.edu.udistrital.mdp.pets.entities.ReviewEntity();
+        ReviewEntity review = new ReviewEntity();
         review.setPet(pet);
         pet.getReviews().add(review);
         entityManager.persist(review);
         entityManager.flush();
 
-        List<co.edu.udistrital.mdp.pets.dto.ReviewDTO> result = petService.findReviewsByPetId(pet.getId());
+        List<ReviewDTO> result = petService.findReviewsByPetId(pet.getId());
 
         assertNotNull(result);
     }
@@ -1150,7 +1033,7 @@ class PetServiceTest {
         entityManager.persist(trial);
         entityManager.flush();
 
-        List<co.edu.udistrital.mdp.pets.dto.TrialCohabitationDTO> result = petService.findTrialsByPetId(pet.getId());
+        List<TrialCohabitationDTO> result = petService.findTrialsByPetId(pet.getId());
 
         assertNotNull(result);
     }
