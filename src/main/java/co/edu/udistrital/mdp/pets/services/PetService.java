@@ -53,16 +53,19 @@ public class PetService {
     @Autowired
     private TrialCohabitationRepository trialCohabitationRepository;
 
+    @Autowired
+    private PetService self;
+
     @Transactional
     public PetDTO createFromDTO(PetDTO petDTO) throws IllegalOperationException {
         PetEntity petEntity = modelMapper.map(petDTO, PetEntity.class);
-        return modelMapper.map(createPet(petEntity), PetDTO.class);
+        return modelMapper.map(self.createPet(petEntity), PetDTO.class);
     }
 
     @Transactional
     public PetDTO updateFromDTO(Long id, PetDTO petDTO) throws EntityNotFoundException, IllegalOperationException {
         PetEntity petEntity = modelMapper.map(petDTO, PetEntity.class);
-        return modelMapper.map(updatePet(id, petEntity), PetDTO.class);
+        return modelMapper.map(self.updatePet(id, petEntity), PetDTO.class);
     }
 
     @Transactional
@@ -239,7 +242,7 @@ public class PetService {
     @Transactional
     public void deletePet(Long petId) throws EntityNotFoundException, IllegalOperationException {
         log.info("Deleting pet with id = {}", petId);
-        PetEntity pet = getPetEntity(petId);
+        PetEntity pet = self.getPetEntity(petId);
         if (pet.getAdoptions() != null && !pet.getAdoptions().isEmpty()) {
             throw new IllegalOperationException("Cannot delete pet: It has existing adoption records.");
         }
