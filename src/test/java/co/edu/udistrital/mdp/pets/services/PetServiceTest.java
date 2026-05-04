@@ -452,6 +452,7 @@ class PetServiceTest {
             case "size" -> pet.setSize(nullValue);
             case "origin" -> pet.setOrigin(nullValue);
             case "spaceRequired" -> pet.setSpaceRequired(nullValue);
+            default -> fail("Unexpected field: " + fieldName);
         }
         assertThrows(IllegalOperationException.class, () -> petService.createPet(pet));
     }
