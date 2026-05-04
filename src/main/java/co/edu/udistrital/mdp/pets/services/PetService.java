@@ -3,17 +3,29 @@ package co.edu.udistrital.mdp.pets.services;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import co.edu.udistrital.mdp.pets.dto.AdoptionDTO;
+import co.edu.udistrital.mdp.pets.dto.AdoptionFollowUpDTO;
+import co.edu.udistrital.mdp.pets.dto.AdoptionRequestDTO;
 import co.edu.udistrital.mdp.pets.dto.PetDTO;
+import co.edu.udistrital.mdp.pets.dto.PetDetailDTO;
+import co.edu.udistrital.mdp.pets.dto.ReviewDTO;
+import co.edu.udistrital.mdp.pets.dto.TrialCohabitationDTO;
 import co.edu.udistrital.mdp.pets.entities.PetEntity;
-import co.edu.udistrital.mdp.pets.repositories.PetRepository;
 import co.edu.udistrital.mdp.pets.enums.PetStatus;
 import co.edu.udistrital.mdp.pets.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.pets.exceptions.IllegalOperationException;
 import co.edu.udistrital.mdp.pets.exceptions.ErrorMessage;
+import co.edu.udistrital.mdp.pets.repositories.AdoptionFollowUpRepository;
+import co.edu.udistrital.mdp.pets.repositories.AdoptionRepository;
+import co.edu.udistrital.mdp.pets.repositories.AdoptionRequestRepository;
+import co.edu.udistrital.mdp.pets.repositories.PetRepository;
+import co.edu.udistrital.mdp.pets.repositories.ReviewRepository;
+import co.edu.udistrital.mdp.pets.repositories.TrialCohabitationRepository;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -26,41 +38,117 @@ public class PetService {
     @Autowired
     private ModelMapper modelMapper;
 
-    /**
-     * Logic for conversion and business rules for creation.
-     */
+    @Autowired
+    private AdoptionRepository adoptionRepository;
+
+    @Autowired
+    private AdoptionRequestRepository adoptionRequestRepository;
+
+    @Autowired
+    private AdoptionFollowUpRepository adoptionFollowUpRepository;
+
+    @Autowired
+    private ReviewRepository reviewRepository;
+
+    @Autowired
+    private TrialCohabitationRepository trialCohabitationRepository;
+
     @Transactional
     public PetDTO createFromDTO(PetDTO petDTO) throws IllegalOperationException {
         PetEntity petEntity = modelMapper.map(petDTO, PetEntity.class);
         return modelMapper.map(createPet(petEntity), PetDTO.class);
     }
 
-    /**
-     * Logic for conversion and business rules for update.
-     */
     @Transactional
     public PetDTO updateFromDTO(Long id, PetDTO petDTO) throws EntityNotFoundException, IllegalOperationException {
         PetEntity petEntity = modelMapper.map(petDTO, PetEntity.class);
         return modelMapper.map(updatePet(id, petEntity), PetDTO.class);
     }
 
-	@Transactional
-	public PetDTO processReturnDTO(Long petId) throws EntityNotFoundException, IllegalOperationException {
-		log.info("Processing return for pet with id = {}", petId);
+    @Transactional
+    public PetDetailDTO findDetailDTO(Long petId) throws EntityNotFoundException {
+        PetEntity entity = petRepository.findById(petId)
+                .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.PET_NOT_FOUND));
+        return modelMapper.map(entity, PetDetailDTO.class);
+    }
 
-		PetEntity pet = petRepository.findById(petId)
-				.orElseThrow(() -> new EntityNotFoundException(ErrorMessage.PET_NOT_FOUND));
+    @Transactional(readOnly = true)
+    public List<PetDTO> findAllDTOs(String species, String size, PetStatus status) {
+        log.info("Filtering pets by Species: {}, Size: {}, Status: {}", species, size, status);
+        List<PetEntity> pets;
+        if (species == null && size == null && status == null) {
+            pets = petRepository.findAll();
+        } else {
+            pets = petRepository.findByFilters(species, size, status);
+        }
+        return modelMapper.map(pets, new TypeToken<List<PetDTO>>() {}.getType());
+    }
 
-		if (pet.getStatus() == PetStatus.AVAILABLE) {
-			throw new IllegalOperationException("Pet is already marked as AVAILABLE.");
-		}
+    @Transactional
+    public PetDTO processReturnDTO(Long petId) throws EntityNotFoundException, IllegalOperationException {
+        log.info("Processing return for pet with id = {}", petId);
 
-		pet.setStatus(PetStatus.AVAILABLE);
-		return modelMapper.map(petRepository.save(pet), PetDTO.class);
-	}
-    /**
-     * Internal business rules for pet data.
-     */
+        PetEntity pet = petRepository.findById(petId)
+                .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.PET_NOT_FOUND));
+
+        if (pet.getStatus() == PetStatus.AVAILABLE) {
+            throw new IllegalOperationException("Pet is already marked as AVAILABLE.");
+        }
+
+        pet.setStatus(PetStatus.AVAILABLE);
+        return modelMapper.map(petRepository.save(pet), PetDTO.class);
+    }
+
+    @Transactional(readOnly = true)
+    public List<AdoptionDTO> findAdoptionsByPetId(Long petId) throws EntityNotFoundException {
+        petRepository.findById(petId)
+                .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.PET_NOT_FOUND));
+        return modelMapper.map(
+                adoptionRepository.findByPetId(petId),
+                new TypeToken<List<AdoptionDTO>>() {}.getType()
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public List<AdoptionRequestDTO> findRequestsByPetId(Long petId) throws EntityNotFoundException {
+        petRepository.findById(petId)
+                .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.PET_NOT_FOUND));
+        return modelMapper.map(
+                adoptionRequestRepository.findByPetId(petId),
+                new TypeToken<List<AdoptionRequestDTO>>() {}.getType()
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public List<AdoptionFollowUpDTO> findFollowUpsByPetId(Long petId) throws EntityNotFoundException {
+        petRepository.findById(petId)
+                .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.PET_NOT_FOUND));
+        return modelMapper.map(
+                adoptionFollowUpRepository.findByPetId(petId),
+                new TypeToken<List<AdoptionFollowUpDTO>>() {}.getType()
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public List<ReviewDTO> findReviewsByPetId(Long petId) throws EntityNotFoundException {
+        petRepository.findById(petId)
+                .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.PET_NOT_FOUND));
+        return modelMapper.map(
+                reviewRepository.findByPetId(petId),
+                new TypeToken<List<ReviewDTO>>() {}.getType()
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public List<TrialCohabitationDTO> findTrialsByPetId(Long petId) throws EntityNotFoundException {
+        petRepository.findById(petId)
+                .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.PET_NOT_FOUND));
+        return modelMapper.map(
+                trialCohabitationRepository.findByPetId(petId),
+                new TypeToken<List<TrialCohabitationDTO>>() {}.getType()
+        );
+    }
+
     private void validatePetData(PetEntity pet) throws IllegalOperationException {
         if (isBlank(pet.getName())) throw new IllegalOperationException("Pet name is mandatory");
         if (isBlank(pet.getSpecies())) throw new IllegalOperationException("Species is mandatory");
@@ -117,7 +205,6 @@ public class PetService {
         validatePetData(pet);
         validateStatusChange(existing, pet.getStatus());
 
-        // Update editable fields
         existing.setName(pet.getName());
         existing.setTemperament(pet.getTemperament());
         existing.setStatus(pet.getStatus());

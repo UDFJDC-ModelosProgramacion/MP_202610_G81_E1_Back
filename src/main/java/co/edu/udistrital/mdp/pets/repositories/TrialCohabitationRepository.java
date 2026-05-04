@@ -13,4 +13,6 @@ public interface TrialCohabitationRepository extends JpaRepository<TrialCohabita
     List<TrialCohabitationEntity> findByResult(String result);
 
     TrialCohabitationEntity findByAdoptionId(Long adoptionId);
+
+    List<TrialCohabitationEntity> findByPetId(Long petId);
 }

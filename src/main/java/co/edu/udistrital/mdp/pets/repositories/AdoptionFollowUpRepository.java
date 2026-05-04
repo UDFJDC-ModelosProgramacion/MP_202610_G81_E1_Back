@@ -23,4 +23,6 @@ public interface AdoptionFollowUpRepository extends JpaRepository<AdoptionFollow
      */
     List<AdoptionFollowUpEntity> findByFrequency(String frequency);
 
+    List<AdoptionFollowUpEntity> findByPetId(Long petId);
+
 }
