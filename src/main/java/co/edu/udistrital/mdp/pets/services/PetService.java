@@ -113,14 +113,23 @@ public class PetService {
 		existing.setPhotos(pet.getPhotos());
 		// ... y así con los demás campos simples
 
-		// 4. Guardamos el 'existing' (que conserva sus listas originales)
 		return petRepository.save(existing);
 	}
 
-    @Transactional(readOnly = true)
-    public List<PetEntity> getPets() {
-        return petRepository.findAll();
-    }
+    /**
+	 * Obtiene la lista de mascotas filtradas. 
+	 * Si todos los parámetros son nulos, retorna la lista completa.
+	 */
+	@Transactional(readOnly = true)
+	public List<PetEntity> getPets(String species, String size, PetStatus status) {
+		log.info("Filtering pets by Species: {}, Size: {}, Status: {}", species, size, status);
+
+		if (species == null && size == null && status == null) {
+			return petRepository.findAll();
+		}
+
+		return petRepository.findByFilters(species, size, status);
+	}
 
     @Transactional(readOnly = true)
     public PetEntity getPet(Long petId) throws EntityNotFoundException {

@@ -331,40 +331,42 @@ class PetServiceTest {
 	}
 
 	@Test
-	void testGetPetsSuccess() {
-		// ejecutamos el metodo que queremos cubrir
-		List<PetEntity> result = petService.getPets();
+    void testGetPetsSuccess() {
+        List<PetEntity> result = petService.getPets(null, null, null);
 
-		// verificamos contra la data que inserte en el @BeforeEach (insertData)
-		assertNotNull(result);
-		// Como inserte 3 mascotas en el setUp, la lista debe tener 3
-		assertEquals(data.size(), result.size());
-		
-		// Opcional: Verificar que el primer elemento sea el mismo
-		assertEquals(data.get(0).getName(), result.get(0).getName());
-	}    
+        assertNotNull(result);
+        assertEquals(data.size(), result.size());
+        
+        assertEquals(data.get(0).getName(), result.get(0).getName());
+    }
 
-	@Test
-	void testGetPetSuccess() throws EntityNotFoundException {
-		// se obtiene un elemento de la lista cargada en el setup
-		PetEntity pet = data.get(0);
-		
-		// se consulta a traves del servicio usando el id real
-		PetEntity result = petService.getPet(pet.getId());
+    @Test
+    void testGetPetsWithFiltersSuccess() {
+        String speciesFilter = data.get(0).getSpecies();
+        
+        List<PetEntity> result = petService.getPets(speciesFilter, null, null);
+        
+        assertNotNull(result);
+        assertTrue(result.stream().allMatch(p -> p.getSpecies().equals(speciesFilter)));
+    }
 
-		// se verifica que el objeto no sea nulo y coincida el nombre
-		assertNotNull(result);
-		assertEquals(pet.getName(), result.getName());
-		assertEquals(pet.getId(), result.getId());
-	}
+    @Test
+    void testGetPetSuccess() throws EntityNotFoundException {
+        PetEntity pet = data.get(0);
+        
+        PetEntity result = petService.getPet(pet.getId());
 
-	@Test
-	void testGetPetNotFound() {
-		// se busca un id que no existe para disparar la excepcion
-		assertThrows(EntityNotFoundException.class, () -> {
-			petService.getPet(999L);
-		});
-	}
+        assertNotNull(result);
+        assertEquals(pet.getName(), result.getName());
+        assertEquals(pet.getId(), result.getId());
+    }
+
+    @Test
+    void testGetPetNotFound() {
+        assertThrows(EntityNotFoundException.class, () -> {
+            petService.getPet(999L);
+        });
+    }
 
 	@Test
 	void testDeletePetSuccess() throws EntityNotFoundException, IllegalOperationException {

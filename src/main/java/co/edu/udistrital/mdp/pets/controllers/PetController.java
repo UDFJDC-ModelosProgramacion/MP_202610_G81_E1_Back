@@ -8,6 +8,7 @@ import co.edu.udistrital.mdp.pets.dto.AdoptionFollowUpDTO;
 import co.edu.udistrital.mdp.pets.dto.ReviewDTO;
 import co.edu.udistrital.mdp.pets.dto.TrialCohabitationDTO;
 import co.edu.udistrital.mdp.pets.entities.PetEntity;
+import co.edu.udistrital.mdp.pets.enums.PetStatus;
 import co.edu.udistrital.mdp.pets.services.PetService;
 import co.edu.udistrital.mdp.pets.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.pets.exceptions.IllegalOperationException;
@@ -31,11 +32,15 @@ public class PetController {
     private ModelMapper modelMapper;
 
     @GetMapping
-    @ResponseStatus(code = HttpStatus.OK)
-    public List<PetDTO> findAll() {
-        List<PetEntity> pets = petService.getPets();
-        return modelMapper.map(pets, new TypeToken<List<PetDTO>>() {}.getType());
-    }
+	@ResponseStatus(code = HttpStatus.OK)
+	public List<PetDTO> findAll(
+        @RequestParam(required = false) String species,
+        @RequestParam(required = false) String size,
+        @RequestParam(required = false) PetStatus status) {
+    
+    List<PetEntity> pets = petService.getPets(species, size, status);
+    return modelMapper.map(pets, new TypeToken<List<PetDTO>>() {}.getType());
+	}
 
     @GetMapping(value = "/{id}")
     @ResponseStatus(code = HttpStatus.OK)

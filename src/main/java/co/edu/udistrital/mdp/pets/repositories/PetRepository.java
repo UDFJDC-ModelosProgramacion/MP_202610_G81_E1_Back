@@ -1,30 +1,36 @@
 package co.edu.udistrital.mdp.pets.repositories;
 
 import co.edu.udistrital.mdp.pets.entities.PetEntity;
+import co.edu.udistrital.mdp.pets.enums.PetStatus;
+
 import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
 import java.util.List;
 
 @Repository
 public interface PetRepository extends JpaRepository<PetEntity, Long> {
 
-    /**
-     * Nivel 1: Method Named Queries (Automáticos)
-     * Spring genera el SQL basándose en el nombre del método.
-     */
-
-    // Buscar por especie (Requerimiento: filtros básicos)
     List<PetEntity> findBySpecies(String species);
 
-    // Buscar por requisitos de espacio (Requerimiento: filtros avanzados - casa/apto)
     List<PetEntity> findBySpaceRequired(String spaceRequired);
 
-    // Buscar por nivel de actividad
     List<PetEntity> findByActivityLevel(String activityLevel);
 
-    // Buscar mascotas aptas para niños y otros animales
     List<PetEntity> findByGoodWithKidsTrueAndGoodWithPetsTrue();
 
-    // Buscar por estado (Ej: para mostrar solo los "Disponibles")
     List<PetEntity> findByStatus(String status);
+
+	// query de filtrados 
+    @Query("SELECT p FROM PetEntity p WHERE " +
+           "(:species IS NULL OR p.species = :species) AND " +
+           "(:size IS NULL OR p.size = :size) AND " +
+           "(:status IS NULL OR p.status = :status)")
+    List<PetEntity> findByFilters(
+            @Param("species") String species, 
+            @Param("size") String size,
+            @Param("status") PetStatus status);
 }
+
