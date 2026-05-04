@@ -4,9 +4,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
@@ -439,74 +442,28 @@ class PetServiceTest {
         assertThrows(IllegalOperationException.class, () -> petService.deletePet(pet.getId()));
     }
 
-    @Test
-    void testCreatePetWithNullBreed() {
+    @ParameterizedTest
+    @MethodSource("nullFields")
+    void testCreatePetWithNullMandatoryFields(String fieldName, String nullValue) {
         PetEntity pet = factory.manufacturePojo(PetEntity.class);
-        pet.setBreed(null);
+        switch (fieldName) {
+            case "breed" -> pet.setBreed(nullValue);
+            case "sex" -> pet.setSex(nullValue);
+            case "size" -> pet.setSize(nullValue);
+            case "origin" -> pet.setOrigin(nullValue);
+            case "spaceRequired" -> pet.setSpaceRequired(nullValue);
+        }
         assertThrows(IllegalOperationException.class, () -> petService.createPet(pet));
     }
 
-    @Test
-    void testCreatePetWithEmptyBreed() {
-        PetEntity pet = factory.manufacturePojo(PetEntity.class);
-        pet.setBreed("   ");
-        assertThrows(IllegalOperationException.class, () -> petService.createPet(pet));
-    }
-
-    @Test
-    void testCreatePetWithNullSex() {
-        PetEntity pet = factory.manufacturePojo(PetEntity.class);
-        pet.setSex(null);
-        assertThrows(IllegalOperationException.class, () -> petService.createPet(pet));
-    }
-
-    @Test
-    void testCreatePetWithEmptySex() {
-        PetEntity pet = factory.manufacturePojo(PetEntity.class);
-        pet.setSex("   ");
-        assertThrows(IllegalOperationException.class, () -> petService.createPet(pet));
-    }
-
-    @Test
-    void testCreatePetWithNullSize() {
-        PetEntity pet = factory.manufacturePojo(PetEntity.class);
-        pet.setSize(null);
-        assertThrows(IllegalOperationException.class, () -> petService.createPet(pet));
-    }
-
-    @Test
-    void testCreatePetWithEmptySize() {
-        PetEntity pet = factory.manufacturePojo(PetEntity.class);
-        pet.setSize("   ");
-        assertThrows(IllegalOperationException.class, () -> petService.createPet(pet));
-    }
-
-    @Test
-    void testCreatePetWithNullOrigin() {
-        PetEntity pet = factory.manufacturePojo(PetEntity.class);
-        pet.setOrigin(null);
-        assertThrows(IllegalOperationException.class, () -> petService.createPet(pet));
-    }
-
-    @Test
-    void testCreatePetWithEmptyOrigin() {
-        PetEntity pet = factory.manufacturePojo(PetEntity.class);
-        pet.setOrigin("   ");
-        assertThrows(IllegalOperationException.class, () -> petService.createPet(pet));
-    }
-
-    @Test
-    void testCreatePetWithNullSpaceRequired() {
-        PetEntity pet = factory.manufacturePojo(PetEntity.class);
-        pet.setSpaceRequired(null);
-        assertThrows(IllegalOperationException.class, () -> petService.createPet(pet));
-    }
-
-    @Test
-    void testCreatePetWithEmptySpaceRequired() {
-        PetEntity pet = factory.manufacturePojo(PetEntity.class);
-        pet.setSpaceRequired("   ");
-        assertThrows(IllegalOperationException.class, () -> petService.createPet(pet));
+    static Stream<org.junit.jupiter.params.provider.Arguments> nullFields() {
+        return Stream.of(
+            org.junit.jupiter.params.provider.Arguments.arguments("breed", null),
+            org.junit.jupiter.params.provider.Arguments.arguments("sex", null),
+            org.junit.jupiter.params.provider.Arguments.arguments("size", null),
+            org.junit.jupiter.params.provider.Arguments.arguments("origin", null),
+            org.junit.jupiter.params.provider.Arguments.arguments("spaceRequired", null)
+        );
     }
 
     @Test
