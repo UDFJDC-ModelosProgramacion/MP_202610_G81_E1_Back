@@ -21,4 +21,6 @@ public interface AdoptionRequestRepository extends JpaRepository<AdoptionRequest
         @Param("adopterId") Long adopterId, 
         @Param("petId") Long petId
     );
+
+    List<AdoptionRequestEntity> findByPetId(Long petId);
 }
