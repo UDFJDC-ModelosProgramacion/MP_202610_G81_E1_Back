@@ -26,7 +26,7 @@ public class ShelterService {
 	private ShelterRepository shelterRepository;
 	
 	@Autowired
-    private UserRepository userRepository; // Necesario para las suscripciones
+    private UserRepository userRepository; 
 
 	// --- MÉTODOS DEL PATRÓN OBSERVER / SUBSCRIPTION ---
 
@@ -66,18 +66,15 @@ public class ShelterService {
         ShelterEntity shelter = shelterRepository.findById(shelterId)
 			.orElseThrow(() -> new EntityNotFoundException(ErrorMessage.SHELTER_NOT_FOUND));
 
-        // 1. "Inflar" los observadores en memoria desde la tabla de suscripciones
         shelter.getObservers().clear(); // Limpiar lista @Transient
         
         shelter.getSubscriptions().stream()
                 .filter(SubscriptionEntity::getActive)
                 .forEach(sub -> shelter.attach(sub.getUser()));
 
-        // 2. Ejecutar la notificación (Patrón Observer)
         log.info("Notifying {} observers in shelter {}", shelter.getObservers().size(), shelterId);
         shelter.notifyObservers(message, strategy);
 
-        // 3. Persistir (esto guardará las nuevas NotificationEntity en cada User por cascada)
         shelterRepository.save(shelter);
     }
 	/**
@@ -110,7 +107,6 @@ public class ShelterService {
 
 		validateData(shelterEntity);
 	
-		// se verifica que nombre e email no esten en la bd
 		if (shelterRepository.existsByName(shelterEntity.getName())) {
             throw new IllegalOperationException("Shelter name already exists");
         }
@@ -127,7 +123,7 @@ public class ShelterService {
 	 *
 	 * @return una lista de shelteres.
 	 */
-	@Transactional(readOnly = true) // marca la transaccion como solo lectura (buena practica)	
+	@Transactional(readOnly = true) 
 	public List<ShelterEntity> getShelters() {
 		log.info("Starting process to consult all shelters");
 		return shelterRepository.findAll();
@@ -175,11 +171,9 @@ public class ShelterService {
 			throws EntityNotFoundException, IllegalOperationException {
 		log.info("Starting update process for shelter with id = {}", shelterId);
 
-		// mira si existe
 		ShelterEntity existingShelter = shelterRepository.findById(shelterId)
         .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.SHELTER_NOT_FOUND));
 
-		// reusar logica de creacion
 		validateData(shelter);
 
 		if (!shelter.getName().equals(existingShelter.getName()) && 
@@ -187,7 +181,6 @@ public class ShelterService {
 			throw new IllegalOperationException("New shelter name already exists in another record");
 		}
 
-		// validar unicidad (SOLO si los datos cambiaron)
 		if (!shelter.getEmail().equals(existingShelter.getEmail()) && 
 			shelterRepository.existsByEmail(shelter.getEmail())) {
 			throw new IllegalOperationException("New email already exists in another record");
@@ -207,17 +200,14 @@ public class ShelterService {
     public void deleteShelter(Long shelterId) throws EntityNotFoundException, IllegalOperationException {
         log.info("Starting deletion process for shelter ID: {}", shelterId);
         
-		// si no existe el shelter no puede ser eliminado
         ShelterEntity shelter = shelterRepository.findById(shelterId)
                 .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.SHELTER_NOT_FOUND));
 
-        // 2. Business Rule: check de pets (composicion)
         if (shelter.getPets() != null && !shelter.getPets().isEmpty()) {
             log.warn("Attempted to delete shelter {} but it has pets", shelterId);
             throw new IllegalOperationException("Cannot delete shelter: It has pets assigned.");
         }
 
-        // 3. Business Rule: check de shelterevents
         if (shelter.getEvents() != null) {
 		boolean hasActiveEvents = shelter.getEvents().stream()
 				.anyMatch(event -> event.getStatus() != ProcessStatus.COMPLETED);
@@ -229,4 +219,16 @@ public class ShelterService {
         shelterRepository.deleteById(shelterId);
         log.info("Shelter with ID: {} deleted successfully", shelterId);
     }
+
+	@Transactional(readOnly = true)
+	public boolean checkNameExists(String name) {
+		log.info("Checking if shelter name exists: {}", name);
+		return shelterRepository.existsByName(name);
+	}
+
+	@Transactional(readOnly = true)
+	public boolean checkEmailExists(String email) {
+		log.info("Checking if shelter email exists: {}", email);
+		return shelterRepository.existsByEmail(email);
+	}
 }

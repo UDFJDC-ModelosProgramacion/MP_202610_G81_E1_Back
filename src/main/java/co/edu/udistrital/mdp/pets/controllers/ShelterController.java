@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -155,4 +156,17 @@ public class ShelterController {
         List<VeterinarianEntity> veterinarians = shelterService.getShelter(id).getVeterinarians();
         return modelMapper.map(veterinarians, new TypeToken<List<VeterinarianDTO>>() {}.getType());
     }
+	
+
+	@GetMapping("/check-name")
+	@ResponseStatus(code = HttpStatus.OK)
+	public Map<String, Boolean> checkName(@RequestParam String name) {
+		return Collections.singletonMap("exists", shelterService.checkNameExists(name));
+	}
+
+	@GetMapping("/check-email")
+	@ResponseStatus(code = HttpStatus.OK)
+	public Map<String, Boolean> checkEmail(@RequestParam String email) {
+		return Collections.singletonMap("exists", shelterService.checkEmailExists(email));
+	}
 }
