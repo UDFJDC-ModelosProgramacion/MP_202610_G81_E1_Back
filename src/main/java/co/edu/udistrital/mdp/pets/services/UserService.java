@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +24,9 @@ public abstract class UserService {
 
     @Autowired
     protected UserRepository userRepository;
+
+    @Autowired
+    protected PasswordEncoder passwordEncoder;
 
 	// LOS HIJOS IMPLEMENTAN SU LOGICA EN ESTE METODO ABSTRACTO
 	protected abstract void validateDeletion(Long userId) throws EntityNotFoundException, IllegalOperationException;
@@ -103,6 +107,9 @@ public abstract class UserService {
         if (userRepository.findByEmail(userEntity.getEmail()).isPresent()) {
             throw new IllegalOperationException("Email already exists");
         }
+        
+        // Encode password before saving
+        userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
 
         return userRepository.save(userEntity);
     }
