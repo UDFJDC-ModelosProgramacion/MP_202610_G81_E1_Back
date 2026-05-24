@@ -53,6 +53,13 @@ public class PetService {
     @Autowired
     private TrialCohabitationRepository trialCohabitationRepository;
 
+    private static final TypeToken<List<PetDTO>> PET_DTO_LIST_TYPE = new TypeToken<List<PetDTO>>() {};
+    private static final TypeToken<List<AdoptionDTO>> ADOPTION_DTO_LIST_TYPE = new TypeToken<List<AdoptionDTO>>() {};
+    private static final TypeToken<List<AdoptionRequestDTO>> ADOPTION_REQUEST_DTO_LIST_TYPE = new TypeToken<List<AdoptionRequestDTO>>() {};
+    private static final TypeToken<List<AdoptionFollowUpDTO>> ADOPTION_FOLLOW_UP_DTO_LIST_TYPE = new TypeToken<List<AdoptionFollowUpDTO>>() {};
+    private static final TypeToken<List<ReviewDTO>> REVIEW_DTO_LIST_TYPE = new TypeToken<List<ReviewDTO>>() {};
+    private static final TypeToken<List<TrialCohabitationDTO>> TRIAL_COHABITATION_DTO_LIST_TYPE = new TypeToken<List<TrialCohabitationDTO>>() {};
+
     @Autowired
     private PetService self;
 
@@ -84,7 +91,7 @@ public class PetService {
         } else {
             pets = petRepository.findByFilters(species, size, status);
         }
-        return modelMapper.map(pets, new TypeToken<List<PetDTO>>() {}.getType());
+        return modelMapper.map(pets, PET_DTO_LIST_TYPE.getType());
     }
 
     @Transactional
@@ -108,7 +115,7 @@ public class PetService {
                 .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.PET_NOT_FOUND));
         return modelMapper.map(
                 adoptionRepository.findByPetId(petId),
-                new TypeToken<List<AdoptionDTO>>() {}.getType()
+                ADOPTION_DTO_LIST_TYPE.getType()
         );
     }
 
@@ -118,7 +125,7 @@ public class PetService {
                 .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.PET_NOT_FOUND));
         return modelMapper.map(
                 adoptionRequestRepository.findByPetId(petId),
-                new TypeToken<List<AdoptionRequestDTO>>() {}.getType()
+                ADOPTION_REQUEST_DTO_LIST_TYPE.getType()
         );
     }
 
@@ -128,7 +135,7 @@ public class PetService {
                 .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.PET_NOT_FOUND));
         return modelMapper.map(
                 adoptionFollowUpRepository.findByPetId(petId),
-                new TypeToken<List<AdoptionFollowUpDTO>>() {}.getType()
+                ADOPTION_FOLLOW_UP_DTO_LIST_TYPE.getType()
         );
     }
 
@@ -138,7 +145,7 @@ public class PetService {
                 .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.PET_NOT_FOUND));
         return modelMapper.map(
                 reviewRepository.findByPetId(petId),
-                new TypeToken<List<ReviewDTO>>() {}.getType()
+                REVIEW_DTO_LIST_TYPE.getType()
         );
     }
 
@@ -148,7 +155,7 @@ public class PetService {
                 .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.PET_NOT_FOUND));
         return modelMapper.map(
                 trialCohabitationRepository.findByPetId(petId),
-                new TypeToken<List<TrialCohabitationDTO>>() {}.getType()
+                TRIAL_COHABITATION_DTO_LIST_TYPE.getType()
         );
     }
 
