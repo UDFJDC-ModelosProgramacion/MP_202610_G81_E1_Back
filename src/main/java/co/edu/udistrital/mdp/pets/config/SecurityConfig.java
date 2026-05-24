@@ -41,10 +41,11 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthFilter jwtAuthFilter) throws Exception {
         http
+                .cors(cors -> {})
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/auth/**").permitAll() // Allow public access to all auth endpoints
-                        .requestMatchers("/pets/**").permitAll() // Allow public access to pet listings
+                        .requestMatchers(HttpMethod.GET, "/pets").permitAll() // Allow public access to veterinarian listings
                         .requestMatchers(HttpMethod.POST, "/adopters").permitAll() // Allow public registration of adopters
                         .requestMatchers(HttpMethod.POST, "/shelters").permitAll() // Allow public registration of shelters
                         .requestMatchers(HttpMethod.GET, "/veterinarians").permitAll() // Allow public access to veterinarian listings
