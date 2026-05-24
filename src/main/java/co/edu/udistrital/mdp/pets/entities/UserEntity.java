@@ -1,11 +1,17 @@
 package co.edu.udistrital.mdp.pets.entities;
 
+import co.edu.udistrital.mdp.pets.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import uk.co.jemos.podam.common.PodamExclude;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
 @Data
@@ -23,7 +29,7 @@ import java.util.ArrayList;
 
 // Estrategia para tablas unidas
 @Inheritance(strategy = InheritanceType.JOINED) 
-public abstract class UserEntity extends BaseEntity implements Observer {
+public abstract class UserEntity extends BaseEntity implements Observer, UserDetails {
 
     private String name;
     private String email;
@@ -32,6 +38,8 @@ public abstract class UserEntity extends BaseEntity implements Observer {
 	// Password es necesario para que el login() de los requerimientos funcione
     private String password;
 
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
 
 	// Relation 1:N with Notification
 	@PodamExclude
@@ -57,6 +65,47 @@ public abstract class UserEntity extends BaseEntity implements Observer {
                 notification.getNotificationStrategy().send(notification);
             }
         }
+    }
+
+    // UserDetails implementations
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role.name()));
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
+    // Helper method to convert UserEntity to UserDetails
+    public UserDetails toUserDetails() {
+        return this;
     }
 }
 
