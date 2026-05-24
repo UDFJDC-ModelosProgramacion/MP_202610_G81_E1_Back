@@ -19,6 +19,7 @@ import co.edu.udistrital.mdp.pets.entities.VeterinarianEntity;
 import co.edu.udistrital.mdp.pets.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.pets.exceptions.IllegalOperationException;
 import co.edu.udistrital.mdp.pets.exceptions.ErrorMessage;
+import co.edu.udistrital.mdp.pets.enums.UserRole;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -43,7 +44,9 @@ public class VeterinarianService extends UserService {
     @Override
     @Transactional
     public UserEntity createUser(UserEntity userEntity) throws IllegalOperationException {
+        log.info("Starting creation process for veterinarian: {}", userEntity.getEmail());
         VeterinarianEntity vet = (VeterinarianEntity) userEntity;
+        vet.setRole(UserRole.VETERINARIAN);
         validateVeterinarianData(vet);
         return super.createUser(vet);
     }
@@ -81,7 +84,7 @@ public class VeterinarianService extends UserService {
     @Transactional
     public VeterinarianDTO createFromDTO(VeterinarianDTO dto) throws IllegalOperationException {
         VeterinarianEntity entity = modelMapper.map(dto, VeterinarianEntity.class);
-        UserEntity created = super.createUser(entity);
+        UserEntity created = createUser(entity);
         return modelMapper.map(created, VeterinarianDTO.class);
     }
 
@@ -89,7 +92,7 @@ public class VeterinarianService extends UserService {
     public VeterinarianDTO updateFromDTO(Long id, VeterinarianDTO dto) 
             throws EntityNotFoundException, IllegalOperationException {
         VeterinarianEntity entity = modelMapper.map(dto, VeterinarianEntity.class);
-        UserEntity updated = super.updateUser(id, entity);
+        UserEntity updated = updateUser(id, entity);
         return modelMapper.map(updated, VeterinarianDTO.class);
     }
 
