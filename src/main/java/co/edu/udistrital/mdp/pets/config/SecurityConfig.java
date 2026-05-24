@@ -45,10 +45,12 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/auth/**").permitAll() // Allow public access to all auth endpoints
-                        .requestMatchers(HttpMethod.GET, "/pets").permitAll() // Allow public access to veterinarian listings
+                        .requestMatchers(HttpMethod.GET, "/pets").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/pets").permitAll() // Allow public access to veterinarian listings
                         .requestMatchers(HttpMethod.POST, "/adopters").permitAll() // Allow public registration of adopters
                         .requestMatchers(HttpMethod.POST, "/shelters").permitAll() // Allow public registration of shelters
                         .requestMatchers(HttpMethod.GET, "/veterinarians").permitAll() // Allow public access to veterinarian listings
+                        .requestMatchers(HttpMethod.POST, "/veterinarians").permitAll() // Allow public registration of veterinarians
                         .requestMatchers(HttpMethod.GET, "/shelters/check-name").permitAll() // Allow public check for shelter name existence
                         .requestMatchers(HttpMethod.GET, "/shelters/check-email").permitAll() // Allow public check for shelter email existence
                         .anyRequest().authenticated() // All other requests require authentication
