@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import co.edu.udistrital.mdp.pets.enums.UserRole;
 import lombok.Data;
 
 /**
@@ -18,6 +19,8 @@ public abstract class UserDTO extends BaseDTO{
     
 	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
+
+	private UserRole role;
 
 	private List<NotificationDTO> notifications;
 }

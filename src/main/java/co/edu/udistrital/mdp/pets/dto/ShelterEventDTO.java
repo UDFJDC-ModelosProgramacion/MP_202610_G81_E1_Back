@@ -12,5 +12,5 @@ public class ShelterEventDTO extends BaseDTO {
     private String location;
     private String status;
     private LocalDate date;
-	private String shelter;
+	private ShelterDTO shelter;
 }
